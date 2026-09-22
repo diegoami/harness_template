@@ -135,15 +135,24 @@ a time:
 | F-5 | an NPC that trades — a ghost in the cellar |
 | F-6 | a danger you can fight or flee (a rat; a lamp that can be exhausted) |
 | F-7 | save and restore (localStorage; a `restore` verb) |
-| F-8 | a map command, and gentle hints after N turns without progress |
+| F-8 | a map command |
 | F-9 | multiple endings: the chalice, the hoard, or out with nothing |
 | F-10 | a compact log of firsts (rooms first seen, riddles answered) |
+| F-11 | request a hint on demand — while stuck, the hints must lead me to the win |
 
 Each landed request is one iteration, one session and one review. The request
 sets the shape; the details — room names, riddles, prose, puzzle mechanics — are
 the agent's to invent under the artistic license in
 [`07-feature-requests.md`](07-feature-requests.md). The subset frozen for a
 comparison run becomes the competition's task list.
+
+A request can carry a **property rather than a script**. F-11's hints must be
+correct, so they are computed from the world graph — the next step toward a
+winning state — not authored as prose that drifts. Its done-when is therefore a
+test, not a reading: from any reachable state, the hinted action is legal and
+reduces the distance to the win. A request like that is worth more to the
+harness than any amount of content, because the check cannot be satisfied by a
+plausible-looking string.
 
 ## What the toy deliberately does not have
 
