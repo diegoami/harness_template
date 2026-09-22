@@ -26,11 +26,32 @@ its gates and keep the disciplines listed in
 
 ## Status
 
-**Phase 1 — comparison.** Nothing here is decided yet. The four existing
-harnesses are compared in [`docs/01`](docs/01-harness-comparison.md); the
-decisions that produce release 1 are tabled in
-[`docs/03`](docs/03-standardization-decisions.md); the competition that removes
-the owner's merge gate is designed in [`docs/05`](docs/05-harness-competition.md).
+**Release 1 implemented, awaiting its implementation review** on branch
+`release/r1`; the tag `r1` will freeze it. The comparison was phase 1, in
+[`docs/01`](docs/01-harness-comparison.md); the decisions it applies are in
+[`docs/03`](docs/03-standardization-decisions.md); the design record, including
+the three review rounds that shaped it, is
+[`design/001-harness-release-1.md`](design/001-harness-release-1.md).
+
+## The harness, release 1
+
+At the root, ready to copy into a project — or to scaffold a run from:
+
+| file | what it owns |
+|---|---|
+| [`PRINCIPLES.md`](PRINCIPLES.md) | the habits, the ownership map, the non-trivial test, the six gates disciplines, the verdict protocol |
+| [`AGENTS.md`](AGENTS.md) | the OpenCode mode: DeepSeek implements, Luna reviews cross-family |
+| [`CLAUDE.md`](CLAUDE.md) | the Claude Code mode, and the project slot |
+| [`PLAN.md`](PLAN.md) | the optional iteration overlay |
+| [`ROADMAP.md`](ROADMAP.md) | feature requests, with artistic license |
+| [`design/README.md`](design/README.md), [`reviews/README.md`](reviews/README.md) | the local-first records |
+| [`verification/README.md`](verification/README.md) | the optional verification patterns |
+
+Create a run from a release tag:
+
+```sh
+node tools/scaffold.mjs --tag r1 --name toy-r1 --dir ../toy-r1
+```
 
 ## What is being consolidated
 
@@ -70,10 +91,9 @@ experiments: `learnukrainian` (a Codex → Claude migration) and `Geoclick2027`
 
 ## Phases
 
-1. **Compare** — this phase; four harnesses, evidence and conflicts.
-2. **Standardize** — decide D-1…D-9 and freeze **harness release 1**: the
-   copyable harness files, tagged. The toy is not part of this release — it is
-   the testbed that validates it.
+1. **Compare** — done; four harnesses, evidence and conflicts.
+2. **Standardize** — release 1 implemented here; under the bootstrap it is
+   reviewed before the tag `r1` freezes it.
 3. **Apply** — scaffold `toy-r1` from harness release 1
    ([`docs/06`](docs/06-testing-the-harness.md)) and build the toy there,
    iteration by iteration.

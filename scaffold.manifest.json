@@ -1,0 +1,13 @@
+{
+  "harness": "release 1",
+  "files": [
+    "PRINCIPLES.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "PLAN.md",
+    "ROADMAP.md",
+    "design/README.md",
+    "reviews/README.md",
+    "verification/README.md"
+  ]
+}
