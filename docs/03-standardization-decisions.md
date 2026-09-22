@@ -45,7 +45,10 @@ optional overlay.
 **Recommendation: (b), as an optional section, clearly marked.** It is useful
 when the build order is known before coding (done-when per iteration, effort and
 reviewer per iteration, the owner's part) and harmless otherwise. It must add
-only *when work is sliced*, never a second review process.
+only *when work is sliced*, never a second review process. Ship it with
+`ROADMAP.md`, the feature-request backlog that supplies the iterations and the
+"done when" ([`07-feature-requests.md`](07-feature-requests.md)) — the overlay
+without an input is a plan with nothing to do.
 
 ## D-4 — The gates seam: what the harness requires, what the project declares
 
@@ -173,6 +176,7 @@ CLAUDE.md            — Claude adapter: fresh-context review, no design stage
                        + project rules template (gates table, read/ignore,
                        never-echo, one source of truth, decided-not-to-reopen)
 PLAN.md              — optional: the iteration overlay
+ROADMAP.md           — the feature-request backlog; supplies the iterations
 design/              — design proposals (local-first records)
 reviews/             — signed verdicts (local-first records)
 EXPERIMENTS.md       — the variant/experiment index

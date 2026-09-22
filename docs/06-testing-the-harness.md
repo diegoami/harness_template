@@ -98,7 +98,7 @@ runs to the experiments:
 
 | run | what it tests | arms |
 |---|---|---|
-| **field test** | does r1 generalize beyond the card games? | one: the toy, built in iterations 0–4 |
+| **field test** | does r1 generalize beyond the card games? | one: the toy, built in iterations 0–4 and then grown from its `ROADMAP.md` ([`07`](07-feature-requests.md)) |
 | **E1 layout** | which adapter layout is better | one run per layout |
 | **E2 models** | does the implementer/reviewer pair change outcomes | one run per pair |
 | **E5 competition** | which mode performs better with the owner gate removed | two, one per mode, same task list and gates |

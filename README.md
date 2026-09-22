@@ -64,6 +64,9 @@ experiments: `learnukrainian` (a Codex → Claude migration) and `Geoclick2027`
 - [`docs/06-testing-the-harness.md`](docs/06-testing-the-harness.md) — how the
   harness is tested: run repos scaffolded from release tags, the notebook here,
   and why several instances must not share one repository.
+- [`docs/07-feature-requests.md`](docs/07-feature-requests.md) — how a project
+  grows: the `ROADMAP.md` backlog, the owner's one-line request, the agent's
+  shaping, and how it feeds iterations and the competition.
 
 ## Phases
 

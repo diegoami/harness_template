@@ -119,6 +119,29 @@ visible, shrunk text, a clipped log, an input below the fold, autoscroll
 removed, a 20px button, a panel that lets the page show through — each with its
 `EXPECT` entry naming the assertion it must trip.
 
+## Growing the toy — the seed backlog
+
+The toy is not "finished" at iteration 4: it grows through feature requests in
+its own `ROADMAP.md` ([`07-feature-requests.md`](07-feature-requests.md)), one
+request per iteration, in the owner's order. Seed requests, to be shaped one at
+a time:
+
+| id | request |
+|---|---|
+| F-1 | three more rooms past the vault, with a loop back to the courtyard |
+| F-2 | a fuller parser: adjectives, "put X in Y", pronouns, "again" |
+| F-3 | a riddle gate: three riddles on the vault door, a wrong answer costs a turn |
+| F-4 | more items, and a combination puzzle (rope, bucket, well) |
+| F-5 | an NPC that trades — a ghost in the cellar |
+| F-6 | a danger you can fight or flee (a rat; a lamp that can be exhausted) |
+| F-7 | save and restore (localStorage; a `restore` verb) |
+| F-8 | a map command, and gentle hints after N turns without progress |
+| F-9 | multiple endings: the chalice, the hoard, or out with nothing |
+| F-10 | a compact log of firsts (rooms first seen, riddles answered) |
+
+Each landed request is one iteration, one session and one review. The subset
+frozen for a comparison run becomes the competition's task list.
+
 ## What the toy deliberately does not have
 
 A card table, a fan, a geometry budget, sprite sheets, a seeded shuffle, a
