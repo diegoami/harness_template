@@ -1,11 +1,16 @@
 # 002 — Harness release 2
 
-**Stage:** design · **Status:** proposed · **Date:** 2026-09-23.
+**Stage:** design · **Status:** revision 2, awaiting re-review · **Date:** 2026-09-23.
 
 **How this record works** (`design/README.md`): this file is the design
 proposal; the reviewer appends a signed `## Review — design stage` section
 below. Nothing is implemented before an explicit **AGREE**. When a remote
 exists, the same text is posted verbatim as the design issue.
+
+**Revisions.** v1 (`8c770ea`) was reviewed and **BLOCKED** on findings 1–2 —
+the completion note's boundary, and the `Status:` transitions — plus one
+non-blocking citation correction. v2 is this revision; the earlier verdict
+stays below as history and the latest governs.
 
 **Input.** The `toy-r1` field test — [`experiments/toy-r1/record.md`](../experiments/toy-r1/record.md)
 — found release 1 sound and named four template and ownership fixes. The owner
@@ -30,14 +35,17 @@ produced four items worth fixing in the templates themselves:
    "the pull-request CI run has not been verified here"
    (`toy-r1/design/001-iteration-0-scaffold.md:361-363`), and the done-when is
    carried only by the PR body and the merge (Friction 3).
-4. The design record's `Status:` line drifts — the toy's record read "under
-   review" after two AGREEs (`toy-r1/design/001-iteration-0-scaffold.md:3`)
-   because no rule owns it (Friction 4).
+4. The design record's `Status:` line drifts because no rule owns it: in the
+   toy's record it read `under review` at `a8723dc` and `ef86f2f` *after* the
+   first design AGREE, and the current value still names `ef86f2f` although the
+   latest reviewed revision is `d954ff0`
+   (`toy-r1/design/001-iteration-0-scaffold.md:3-6`; Friction 4 in
+   `experiments/toy-r1/record.md`).
 
 ## Findings grounded in the files
 
 - `PLAN.md:14-23` states the five fields every iteration must record, and
-  `PLAN.md:29-32` ships a three-column table (`iteration | request | effort |
+  `PLAN.md:29-32` ships a four-column table (`iteration | request | effort |
   reviewer`) — the contradiction the field test hit.
 - The scaffold's generated README lists the first-session steps
   (`tools/scaffold.mjs:97-113`) and then "Optional remote"
@@ -93,22 +101,41 @@ directory, read the generated README, remove the directory.
   output. The note records an outcome and is **non-material**: it changes no
   proposal, no assertion and no process text, so the latest verdict still
   governs and no re-review follows.
+- **The boundary.** The note may only transcribe the already-agreed done-when
+  items and their evidence or outcome. Changing a done-when, an assertion, an
+  owner decision or any process rule is **material** and takes the review its
+  mode requires; a note that does any of those is not a completion note. This
+  is what stops a proposal change hiding under the heading.
 - `design/README.md`: in OpenCode mode the note is a `## Completion` section in
   the design record, owned and signed by the implementer.
 - `reviews/README.md`: in Claude mode, which has no design record, the note is
-  appended to the implementation review file under `## Completion`, owned and
-  signed by the implementer.
+  appended to the **implementation review file whose verdict is the AGREE** (the
+  last round), under `## Completion`, owned and signed by the implementer. The
+  reviewer settled open question 2 this way — not the pull-request body;
+  repository records stay canonical.
 - **One writer:** the implementer. The reviewer never writes the note.
 
 **Files:** `PRINCIPLES.md`, `design/README.md`, `reviews/README.md`; the
 placement is recorded in the ownership map's protocol row.
 
-### 4. `Status:` gets an owner
+### 4. `Status:` gets an owner and transitions
 
-`design/README.md`: the `Status:` field belongs to the **implementer**, updated
-when a verdict round is recorded. Values: `proposed` → `in review` →
-`agreed` or `blocked` → `landed`. (One writer, so the field cannot be left
-describing a state nobody owns.)
+`design/README.md`: the `Status:` field belongs to the **implementer** — one
+writer — and every transition is recorded in the same commit as the event it
+describes:
+
+| event | the field becomes |
+|---|---|
+| the record is written | `proposed` |
+| a verdict is requested (first submission, or a re-review after fixes) | `in review` |
+| a verdict is recorded | `agreed` or `blocked`, and the value names the revision the verdict covers |
+| a material edit after `agreed`, with the re-review requested | `in review` |
+| the change has merged and the completion note is written | `landed` |
+
+A record can reach `landed` only when the latest verdict is `agreed`; a
+`blocked` record cannot become `landed` without an intervening `agreed`. The
+field applies to design records, so it is OpenCode-only; Claude mode has no
+design records.
 
 **File:** `design/README.md`.
 
@@ -153,6 +180,38 @@ scaffold, so its verification is:
    the `Geoclick2027` candidates. Recommended: the four; the Geoclick list is
    explicitly deferred here. _(Owner decision, already indicated in the
    direction to fold the four; recorded rather than assumed.)_
-2. **The completion note's home in Claude mode** — the implementation review
-   file (proposed) or the pull-request body. _(Mechanic; the reviewer may
-   settle it.)_
+
+**Settled by the v1 review:** 2. the completion note's home in Claude mode is
+the implementation review file whose verdict is the AGREE (the last round), not
+the pull-request body (§3).
+
+---
+
+## Review — design stage
+
+**Revision reviewed:** 8c770ea.
+**Verdict:** BLOCK — findings 1–2 must be resolved before implementation can earn AGREE.
+
+### Findings
+
+1. **The completion-note exception needs an enforceable boundary** — blocking. `PRINCIPLES.md:73-78` currently makes material edits to a design record re-reviewable, while the proposal (`design/002-harness-release-2.md:90-101`, `147-148`) adds a non-material completion-note category. The proposal says the note changes no proposal, assertion, or process text, but does not state the operational boundary that distinguishes a note from a disguised amendment. It must say that the note may only transcribe the already-agreed done-when items and their evidence/outcome; changing a done-when, assertion, owner decision, or process rule is material and triggers re-review. Otherwise an implementer could label a proposal change `Completion` and bypass the gate.
+
+2. **`Status:` transitions do not yet close the drift path** — blocking. The proposal assigns the field to the implementer and lists values (`design/002-harness-release-2.md:106-111`), but only says it is updated when a verdict round is recorded. That supplies no trigger for `in review` or `landed`, and no transition back to `in review` after a BLOCK is fixed; one writer does not itself prevent omission. Specify the mandatory transition events and order (creation, review submission, each verdict, re-review after a fix, merge/landing, and completion-note recording), including that a blocked record cannot become `landed` without a later AGREE.
+
+3. **Some evidence citations are stale or imprecise** — non-blocking. The proposal calls the current `PLAN.md:29-32` table “three-column” (`design/002-harness-release-2.md:39-40`), but it has four columns: `iteration | request | effort | reviewer`. Also, the cited current `toy-r1/design/001-iteration-0-scaffold.md:3` now says `Status: agreed`, not `under review`; the friction is accurately reported at `experiments/toy-r1/record.md:86-88`, and the historical `a8723dc`/`ef86f2f` versions show the cited drift. Correcting the citation will make the diagnosis reproducible without changing its substance.
+
+### Verified
+
+- The four proposed items correspond to the field-test friction: the plan shape and missing build-order exception (`experiments/toy-r1/record.md:75-77`), the unsurfaced remote dependency (`:78-80`), the unclosed completion loop (`:81-85`, corroborated by `toy-r1/design/001-iteration-0-scaffold.md:361-363`), and status ownership (`:86-88`).
+- The proposed plan shape carries all five overlay fields plus effort and reviewer, and explicitly records the build-order exception (`design/002-harness-release-2.md:55-68`); the toy's corrected table demonstrates the intended eight-column result (`toy-r1/PLAN.md:29-39`).
+- The scaffold change is limited to generated README text. Its owner action is conditional on CI and on a CI-named done-when (`design/002-harness-release-2.md:72-87`), while the scaffold itself retains its explicit local/no-network contract (`tools/scaffold.mjs:7-9`) and does not create a remote.
+- The ownership-map touch is minimal: protocol semantics remain in `PRINCIPLES.md`, placements remain in the design/review format owners, the implementer is the sole completion-note writer, and the reviewer still writes its own verdict. The Claude placement does not introduce a design stage (`AGENTS.md:16-40`; `CLAUDE.md:19-20`).
+- Open question 1 is correctly an owner decision. Open question 2 is settled here: the canonical home in Claude mode is the final implementation review file for the change (the review round whose verdict is AGREE), not the pull-request body; repository records remain canonical and the review-record format owns that file (`PRINCIPLES.md:68-72`, `reviews/README.md:3-9`).
+- The out-of-scope list accounts for the Geoclick candidates, the Claude answers question, E1–E6, and unrelated mode/stage/classification changes (`design/002-harness-release-2.md:139-148`); no silent extra release objective is apparent.
+
+### Not verified
+
+- No implementation exists at this revision, so the revised generated README, scaffold smoke behavior, `node --check`, status updates, and completion-note recording cannot yet be verified. Those belong to implementation-stage verification after the blocking design findings are resolved.
+
+— GPT-5.6 Luna (opencode/gpt-5.6-luna#high), reviewer
+BLOCK
