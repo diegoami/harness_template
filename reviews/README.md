@@ -20,5 +20,12 @@
 - **A comment, not an approval:** the verdict is written here and posted as the
   issue or pull-request comment when a remote exists; it is never an approval
   action. The file stays canonical.
+- **Completion.** When the change lands, the implementer appends a
+  `## Completion` section — the done-when items and the evidence that closed
+  them — owned and signed by the implementer. In Claude mode, which has no
+  design record, the note goes in the final implementation review file: the
+  last round whose final line states that no blocking finding remains. The
+  note's boundary and non-material status are in
+  [`PRINCIPLES.md`](../PRINCIPLES.md).
 - **The meaning of the verdict** — what it covers, materiality, fallback,
   waiver — is owned by [`PRINCIPLES.md`](../PRINCIPLES.md).

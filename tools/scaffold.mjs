@@ -110,12 +110,17 @@ Read [\`AGENTS.md\`](AGENTS.md) if you work with OpenCode, or
    project does not grow by requests.
 3. Delete [\`PLAN.md\`](PLAN.md) if the project does not slice work into
    iterations.
+4. **Owner action — the remote, when the checks run in CI.** Create it before
+   an iteration whose done-when names CI:
 
-## Optional remote
+   \`\`\`sh
+   gh repo create <owner>/${args.name} --source . --push
+   \`\`\`
 
-\`\`\`sh
-gh repo create <owner>/${args.name} --source . --push
-\`\`\`
+   A done-when that names CI is not met until the workflow has run green, and
+   the workflow cannot run without a remote. If nothing in the project's checks
+   runs in CI, the remote stays optional and can wait — the scaffold never
+   creates one.
 `;
 
 writeFileSync(path.join(target, "README.md"), readme);

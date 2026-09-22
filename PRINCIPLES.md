@@ -12,7 +12,7 @@
 | the principles and habits on this page | `PRINCIPLES.md` |
 | the non-trivial test, the conservative floor, the pure-typo exception | `PRINCIPLES.md` |
 | the six gates disciplines | `PRINCIPLES.md` |
-| the verdict protocol: revision scope, materiality, reviewer sessions, fallback, waiver, owner decisions, defect path, bootstrap, comment-not-approval | `PRINCIPLES.md` |
+| the verdict protocol: revision scope, materiality, reviewer sessions, fallback, waiver, owner decisions, defect path, completion note, bootstrap, comment-not-approval | `PRINCIPLES.md` |
 | the OpenCode process: roles, assignment table, reviewer acquisition, the two stages, BLOCK scope, withdraw/re-scope | `AGENTS.md` |
 | the Claude Code process: fresh-context review, same-family default, no design stage, the external-process option | `CLAUDE.md` |
 | the project rules: product, paths, never-echo, the gates table, conventions, one source of truth, decided-not-to-reopen, open work | `CLAUDE.md`, the project slot |
