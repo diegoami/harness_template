@@ -3,11 +3,12 @@
 **Status: agenda, not decisions.** Each item names the evidence, the options and
 a recommended default. The owner decides; the recommendations are the author's.
 
-**What release 1 is:** the **harness** — the process layer. It is not the app,
-not the tests, not the UI check, not the mutation harness, not CI. Those are the
-project's own (§1 of [`01-harness-comparison.md`](01-harness-comparison.md)),
-and the standard's only business with them is the six disciplines in §5 of the
-same document.
+**What release 1 is:** the **harness** — the process layer — in its first
+frozen version, the one a new project copies. It is not a release of the toy
+application, and it is not the app's tests, UI check, mutation harness or CI:
+those are the project's own (§1 of
+[`01-harness-comparison.md`](01-harness-comparison.md)), and the standard's only
+business with them is the six disciplines in §5 of the same document.
 
 ---
 

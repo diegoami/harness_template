@@ -65,8 +65,9 @@ experiments: `learnukrainian` (a Codex → Claude migration) and `Geoclick2027`
 ## Phases
 
 1. **Compare** — this phase; four harnesses, evidence and conflicts.
-2. **Standardize** — decide D-1…D-9, freeze release 1 as a tag; the template is
-   the copyable harness files.
+2. **Standardize** — decide D-1…D-9 and freeze **harness release 1**: the
+   copyable harness files, tagged. The toy is not part of this release — it is
+   the testbed that validates it.
 3. **Apply** — build the toy under the standard, one iteration at a time.
 4. **Experiment** — harness variants (E1), model pairs (E2), OpenCode + Claude
    Code + Codex interop (E3), the worktree work model (E4), the competition

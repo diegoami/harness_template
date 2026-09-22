@@ -10,7 +10,9 @@ card table?*
 The toy's tests, UI check and mutation harness are its **own project
 verification** — one worked example of the optional patterns in
 [`01-harness-comparison.md`](01-harness-comparison.md) §9, not part of the
-harness itself.
+harness itself. The toy is not versioned as harness release 1 either; its
+milestones are **iterations** (below), and it exists to be built, measured and
+broken on purpose.
 
 ---
 
