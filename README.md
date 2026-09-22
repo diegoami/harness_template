@@ -26,12 +26,14 @@ its gates and keep the disciplines listed in
 
 ## Status
 
-**Release 1 implemented, awaiting its implementation review** on branch
-`release/r1`; the tag `r1` will freeze it. The comparison was phase 1, in
+**Release 1 is merged and tagged
+[`r1`](https://github.com/diegoami/harness_template/tree/r1)** — design
+`061e576` to AGREE, implementation `2cd33db` to AGREE, all five verdicts in
+[`design/001-harness-release-1.md`](design/001-harness-release-1.md) and
+[`reviews/`](reviews/). The field test has started: the run repository
+`toy-r1` was scaffolded from the tag. The comparison was phase 1, in
 [`docs/01`](docs/01-harness-comparison.md); the decisions it applies are in
-[`docs/03`](docs/03-standardization-decisions.md); the design record, including
-the three review rounds that shaped it, is
-[`design/001-harness-release-1.md`](design/001-harness-release-1.md).
+[`docs/03`](docs/03-standardization-decisions.md).
 
 ## The harness, release 1
 
@@ -92,11 +94,10 @@ experiments: `learnukrainian` (a Codex → Claude migration) and `Geoclick2027`
 ## Phases
 
 1. **Compare** — done; four harnesses, evidence and conflicts.
-2. **Standardize** — release 1 implemented here; under the bootstrap it is
-   reviewed before the tag `r1` freezes it.
-3. **Apply** — scaffold `toy-r1` from harness release 1
-   ([`docs/06`](docs/06-testing-the-harness.md)) and build the toy there,
-   iteration by iteration.
+2. **Standardize** — done; release 1 tagged `r1` after the bootstrap review.
+3. **Apply** — in progress: `toy-r1` scaffolded from `r1`
+   ([`docs/06`](docs/06-testing-the-harness.md)); the toy is built there,
+   iteration by iteration ([`docs/04`](docs/04-toy-app.md)).
 4. **Experiment** — harness variants (E1), model pairs (E2), OpenCode + Claude
    Code + Codex interop (E3), the worktree work model (E4), the competition
    (E5), shell-out cross-family reviewers (E6); each recorded in the
