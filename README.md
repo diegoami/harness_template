@@ -32,10 +32,12 @@ its gates and keep the disciplines listed in
 [`r1`](https://github.com/diegoami/harness_template/tree/r1)** — design
 `061e576` to AGREE, implementation `2cd33db` to AGREE, all five verdicts in
 [`design/001-harness-release-1.md`](design/001-harness-release-1.md) and
-[`reviews/`](reviews/). The field test has started: the run repository
-`toy-r1` was scaffolded from the tag. The comparison was phase 1, in
-[`docs/01`](docs/01-harness-comparison.md); the decisions it applies are in
-[`docs/03`](docs/03-standardization-decisions.md).
+[`reviews/`](reviews/). The field test completed its first iteration:
+`toy-r1` (PR #2 merged, CI green) produced two BLOCK rounds and four real
+findings with no harness edits — record in
+[`experiments/toy-r1/record.md`](experiments/toy-r1/record.md). The comparison
+was phase 1, in [`docs/01`](docs/01-harness-comparison.md); the decisions it
+applies are in [`docs/03`](docs/03-standardization-decisions.md).
 
 ## The harness, release 1
 
@@ -101,6 +103,8 @@ is the strongest in the set; see
 - [`docs/08-geoclick2027-harness.md`](docs/08-geoclick2027-harness.md) — the
   fifth model: two harnesses in one repo, running evidence for E4 and E5, and
   the release-2 candidates it brings.
+- [`EXPERIMENTS.md`](EXPERIMENTS.md) — the notebook index; the first record is
+  the `toy-r1` field test.
 
 ## Phases
 
