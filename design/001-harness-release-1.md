@@ -1,18 +1,18 @@
 # 001 — Harness release 1
 
-**Stage:** design · **Status:** revision 2, awaiting re-review · **Date:** 2026-09-23.
+**Stage:** design · **Status:** revision 3, awaiting re-review · **Date:** 2026-09-23.
 
 **How this record works** (D-6 in `docs/03-standardization-decisions.md`): this
 file is the design proposal; the reviewer's verdict is appended below as a
-`## Review — …` section, signed, ending in an explicit `AGREE` or `BLOCK`. When
-a remote exists, this text is posted verbatim as the design issue. Nothing here
-is implemented before an AGREE.
+`## Review — …` section, signed. When a remote exists, this text is posted
+verbatim as the design issue. Nothing here is implemented before an AGREE.
 
-**Revisions.** v1 (`b06e6f3`) was reviewed and **BLOCKED** on findings 1–6
-(below). v2 is this revision; it answers each finding with specification rather
-than prose: a complete ownership map, the non-trivial test, the six gates
-disciplines, the shared verdict protocol, and the mode boundaries. The v1
-verdict stays in place as history; the latest verdict governs.
+**Revisions.** v1 (`b06e6f3`) was **BLOCKED** on findings 1–6. v2 (`bb5bf77`)
+answered them with specification and was **BLOCKED** on findings 1–5 (union rows
+still missing, the shared protocol leaking the OpenCode stage machine into
+Claude, the signature owned twice, materiality and BLOCK semantics incomplete,
+the floor narrower than the selected source). v3 is this revision. Earlier
+verdicts stay in place as history; the latest verdict governs.
 
 ---
 
@@ -112,10 +112,11 @@ files stay uniform; the slot is where a project's own rules live, which is what
 
 | idea | owner | non-owners |
 |---|---|---|
-| the habits: reproduce before acting; say what a passing check would have caught; one measurement is a coin toss; flag out-of-scope and fix fully when flagged; show diffs; read/ignore; output economy; session handoff; old and new side by side; assert what a person notices then play it | `PRINCIPLES.md` | link |
+| the habits: reproduce before acting; say what a passing check would have caught; one measurement is a coin toss; flag out-of-scope and fix fully when flagged; show diffs; read/ignore; big-file guidance; output economy; session handoff; old and new side by side; assert what a person notices then play it | `PRINCIPLES.md` | link |
 | the non-trivial test, the conservative floor, the pure-typo exception | `PRINCIPLES.md` | link |
 | the six gates disciplines | `PRINCIPLES.md` | link |
-| the verdict protocol: revision scope, materiality, fallback, waiver, owner decisions, defect path, bootstrap | `PRINCIPLES.md` | link |
+| the verdict protocol: revision scope, materiality, reviewer sessions, fallback, waiver, owner decisions, defect path, bootstrap, comment-not-approval | `PRINCIPLES.md` | link |
+| the owner-merge rule, and its experimental removal (the competition) | the rule: `AGENTS.md` for OpenCode, `CLAUDE.md` for Claude; the experiment: the lab's `docs/05`, not copied into runs | — |
 | the OpenCode adapter: roles, assignment table, invariant, reviewer acquisition, two stages, BLOCK scope, withdraw/re-scope | `AGENTS.md` | link |
 | the Claude adapter: fresh-context review, same-family default, no design stage, the external-process option | `CLAUDE.md` | link |
 | the project rules: product, paths, never-echo, gates table, conventions, one source of truth, decided-not-to-reopen, open work | `CLAUDE.md` project slot | link |
@@ -124,7 +125,7 @@ files stay uniform; the slot is where a project's own rules live, which is what
 | the design-record format | `design/README.md` | link |
 | the verdict-record format and signature convention | `reviews/README.md` | link |
 | the optional verification patterns | `verification/README.md` | link |
-| the experiment-record pattern (`FORGETTING.md` shape) | this repo's `docs/06`; a lab practice, not copied into runs | — |
+| the experiment-record pattern (`FORGETTING.md` shape) | this repo's `docs/06`; a lab practice, not copied into runs (a deliberate correction to the `docs/03` spine, which listed `EXPERIMENTS.md` among the release files: the index is a lab file, because a run does not experiment on the harness) | — |
 
 **The table is authoritative.** A non-owning file links to an idea and does not
 restate it. A contradiction found between the files is recorded as a defect and
@@ -144,10 +145,13 @@ A change is **non-trivial** if it can change:
 
 Anything that meets none of (a)–(d) is **trivial**. As a **conservative floor** —
 the checklist a builder uses instead of tracing imports — a diff touching
-`public/**`, `tools/**`, `design/**`, `reviews/**`, `.github/**`, the harness
-files or the package manifests is non-trivial whether or not the author believes
-the test is met, **unless it is a pure typo or comment that changes no
-behaviour, no assertion and no process text**.
+`public/**`, `tools/**`, `design/**`, `reviews/**`, `.claude/**`, `.github/**`,
+`mobile/**`, `netlify.toml`, the harness files or the package manifests is
+non-trivial whether or not the author believes the test is met, **unless it is a
+pure typo or comment that changes no behaviour, no assertion and no process
+text**. (The floor keeps Scopetta's full path list; `mobile/**` and
+`netlify.toml` are inert in a project that has neither, and are kept so the
+checklist is at least as safe as the source it comes from.)
 
 A trivial change takes neither stage: no design record, no review, no verdict.
 It may go straight to the main branch, still runs the gates its diff can affect,
@@ -166,33 +170,66 @@ and does not relax CI.
 
 ## The shared verdict protocol (planned content of `PRINCIPLES.md`)
 
-- Records are files. A **design record** is `design/NNN-<slug>.md`: problem,
-  findings with `file:line`, design, open questions. Its reviewer appends a
-  verdict section. An **implementation review** is
-  `reviews/NNN-<slug>-impl-NN.md`, naming the revision it covers.
-- A verdict covers **the named revision**. Any material change invalidates it.
-  Non-material: commit messages, whitespace, and typos that change no
-  behaviour, no assertion and no process text.
-- The verdict's final line is the signature
-  `— <display name> (<model id with variant>), reviewer`, followed by a line
-  containing only `AGREE` or `BLOCK`.
-- **Fallback**: a failed, cancelled or unavailable review is no review and no
-  approval. Retry, or select another reviewer; record its model id and who
-  selected it; the fallback becomes the designated reviewer for that stage.
-- **Waiver**: an implementation-stage exception only, recorded, and never called
+**Shared across both modes.**
+
+- Records are files. An **implementation review** is
+  `reviews/NNN-<slug>-impl-NN.md`, naming the revision it covers. A **design
+  record** (`design/NNN-<slug>.md`) exists only in OpenCode mode, which has a
+  design stage; Claude mode has none, so it has no design records.
+- A verdict or review covers **the named revision**.
+- **Materiality.** Non-material edits: commit messages, whitespace, and typos
+  that change no behaviour, no assertion and no process text. A material edit to
+  a design record, or a comment that changes the proposal or records an owner
+  decision the reviewer required, triggers re-review; a comment that merely
+  answers within the proposal does not. A verdict that refers to an obsolete
+  revision is re-reviewed against the current one.
+- **Reviewer sessions.** A stage's initial verdict comes from a new reviewer
+  session; a re-review after fixes may continue that session, because the
+  separation the gate protects is from the implementer's context, and the
+  reviewer re-reads the current revision.
+- **Fallback.** A failed, cancelled or unavailable review is no review and no
+  approval. Retry, or select another reviewer: record its model id and who
+  selected it; the fallback becomes the designated reviewer for its stage. In
+  OpenCode mode the fallback must be from a different model family; in Claude
+  mode it is a new session or the external process of E6, recorded.
+- **Waiver.** An implementation-stage exception only, recorded, and never called
   AGREE. Bypassing the design stage is an owner amendment, recorded in the
   design record.
-- **Owner decisions** are recorded with a recommended default, the reason, and
-  an owner-decision mark. The reviewer may require that a decision be made and
+- **Owner decisions.** Recorded with a recommended default, the reason, and an
+  owner-decision mark. The reviewer may require that a decision be made and
   recorded; it may not reject it merely for differing from its own preference.
-- **Defect path**: a defect found after a change landed is recorded and fixed by
-  a change that lands the assertion that would have caught it. The fix takes the
-  design stage unless all four hold: limited to the recorded defect; no
-  behaviour beyond it; no change to what a check measures; no process change.
-- **Bootstrap**: a change to a harness file that changes what a builder must do
-  or how the process works takes both stages; a pure typo takes neither.
+  If the owner rejects the proposal rather than deciding a value, the change is
+  withdrawn or re-scoped, recorded; it receives no approval and is not merged
+  around.
+- **Defect path.** A defect found after a change landed is recorded and fixed by
+  a change that lands the assertion that would have caught it. In OpenCode mode
+  the fix takes the design stage unless all four hold: limited to the recorded
+  defect; no behaviour beyond it; no change to what a check measures; no process
+  change. Claude mode has no design stage; the fix is reviewed like any change.
+- **Bootstrap.** A change to a harness file that changes what a builder must do
+  or how the process works takes the review its mode requires — both stages in
+  OpenCode, the review in Claude; a pure typo takes neither.
+- **Comment, not approval.** The verdict is posted as a comment (or written to
+  the file locally); it is never an approval action. Under the single GitHub
+  account an approval is impossible, and the signature is the only marker of
+  authorship.
 - With a remote, the same text is posted as the issue/PR comment; the file stays
   canonical.
+
+The **record format** — naming, the exact signature line, the marker rules — is
+owned by `reviews/README.md` (below).
+
+## BLOCK scope (planned content of `AGENTS.md`, OpenCode mode only)
+
+- A BLOCK is not overridden by the implementer; it goes to the owner.
+- Every required change must be **necessary to the change as proposed** —
+  directly required for its stated aim, its correctness, or its verification —
+  not merely useful, preferred, or unrelated cleanup.
+- A requirement that is really a **separate concern** is filed as its own record
+  and linked; the reviewer may require the split.
+- If the required changes would turn the change into a different, larger one,
+  the implementer may withdraw and re-scope it with the owner; the withdrawal
+  and the re-scope are recorded, and any AGREE is invalidated.
 
 ## Mode boundaries (how the adapters divide the work)
 
@@ -206,12 +243,24 @@ and does not relax CI.
 | waiver | implementation stage only; design bypass = owner amendment | same |
 | merge | the owner (until the competition removes it) | the owner |
 
-## The records
+## The record format (planned content of `reviews/README.md`)
 
-The format — naming, the signature convention, what a verdict covers — is owned
-by `reviews/README.md`; the rules are owned by `PRINCIPLES.md` (above). The
-files: `design/NNN-<slug>.md`, `reviews/NNN-<slug>-impl-NN.md`. With a remote,
-the same text is posted as the issue/PR comment; the file stays canonical.
+- **Naming:** `reviews/NNN-<slug>-impl-NN.md`; `NN` starts at 01 and increments
+  per round. Design records are `design/NNN-<slug>.md`.
+- The file opens with **the revision it covers** (the commit sha) and the
+  reviewer's **model id**.
+- Findings are numbered, each marked `blocking` or `non-blocking`, with
+  `file:line` or a short quote as evidence.
+- **Signature and marker.** The final lines are:
+  `— <display name> (<model id with variant>), reviewer`, then, in OpenCode
+  mode, a line containing only `AGREE` or `BLOCK`. In Claude mode the review
+  instead states in one line whether any blocking finding remains; there is no
+  marker and no design stage.
+- With a remote, the same text is posted as the issue/PR comment; the file stays
+  canonical.
+
+The *meaning* of a verdict — what it covers, materiality, fallback — is owned by
+`PRINCIPLES.md` (above).
 
 ## The scaffold
 
@@ -282,6 +331,24 @@ authored in `reviews/`.
    pure-typo guard are stated above.
 6. **Gates disciplines** — the six are enumerated above.
 
+## Answering the v2 findings
+
+1. **Union rows** — the owner-merge rule as a variable now has a row (the
+   adapters state the rule, the lab's `docs/05` owns the experiment); "big
+   files" is named in the habits row; comment-not-approval is in the protocol;
+   the `EXPERIMENTS.md` correction is recorded as deliberate in the map.
+2. **Claude boundary** — the protocol is scoped: design records and the
+   AGREE/BLOCK marker are OpenCode-only; Claude has no design stage and no
+   marker, and its review says in one line whether any blocking finding remains.
+   The defect path now says Claude has no design stage.
+3. **Signature ownership** — the exact signature line and marker live in the
+   record-format section (`reviews/README.md`); the protocol points there.
+4. **Materiality and BLOCK** — body/comment materiality, obsolete revisions, the
+   initial-session/re-review-session rules, owner withdrawal/re-scope, and the
+   BLOCK scope rules are written out (protocol + the `AGENTS.md` section).
+5. **Floor** — restored to Scopetta's full list, including `.claude/**`,
+   `mobile/**` and `netlify.toml`, with the reason recorded.
+
 ---
 
 ## Review — design stage
@@ -314,6 +381,38 @@ authored in `reviews/`.
 ### Not verified
 
 - No scaffold implementation exists at the reviewed revision, so Windows execution, actual `git show` output, target-directory refusal, and the generated commit could not be run; these remain implementation-review checks.
+
+— GPT-5.6 Luna (opencode/gpt-5.6-luna#high), reviewer
+BLOCK
+
+---
+
+## Review — design stage (revision 2, bb5bf77)
+
+**Verdict:** BLOCK — findings 1–5 remain blocking; finding 6 is resolved.
+
+### Findings
+
+1. **The union map still omits or under-specifies union ideas** — blocking. The map has no row for the owner-merge rule as a variable (item 20), although the mode table mentions owner merge only at `design/001-harness-release-1.md:207`; it also does not name “big files” in item 14 (`design/001-harness-release-1.md:115-126`). The exact “comment, not approval” part of item 8 is not stated either: the proposal requires the signature and says remote text is posted as a comment (`design/001-harness-release-1.md:176-194`), but does not prohibit an approval action, which matters under the owner's single GitHub account (`Scopetta/AGENTS.md:43-50`). Add an owner and an operational rule for each. The lab placement of `EXPERIMENTS.md` is otherwise coherent with the notebook/run split (`docs/06-testing-the-harness.md:18-22`, `docs/06-testing-the-harness.md:44-54`, `docs/06-testing-the-harness.md:76-80`), but is an explicit correction to the recommended spine's `EXPERIMENTS.md` entry (`docs/03-standardization-decisions.md:166-190`) and must remain recorded as that deliberate lab-versus-run choice.
+
+2. **The shared protocol contradicts the Claude boundary** — blocking. The mode table correctly says Claude has no AGREE/BLOCK machine (`design/001-harness-release-1.md:197-207`), but the section explicitly titled “shared verdict protocol” says every design record receives a verdict ending in `AGREE` or `BLOCK` and every implementation review is part of that protocol (`design/001-harness-release-1.md:167-178`). It also says a defect fix takes the design stage unless four exceptions hold (`design/001-harness-release-1.md:188-191`), which would impose a design stage on Claude if the section is genuinely shared. Scope the AGREE/BLOCK and defect-stage rules to OpenCode, or state an explicit Claude equivalent that preserves “no design stage” and “no AGREE/BLOCK machine”; otherwise the revised file reintroduces exactly the mode leakage finding 2 required to remove. Tressette confirms the Claude process has no separate design-issue stage (`Tressette/CLAUDE.md:12-19`), while the comparison identifies the design stage and verdict machine as mode-specific (`docs/01-harness-comparison.md:137-147`).
+
+3. **Signature ownership is still duplicated** — blocking. The ownership map assigns the verdict protocol to `PRINCIPLES.md` and the verdict-record format and signature convention to `reviews/README.md` (`design/001-harness-release-1.md:118-125`), but the protocol itself states the exact signature syntax (`design/001-harness-release-1.md:176-178`), while the records section says the signature convention is owned by `reviews/README.md` (`design/001-harness-release-1.md:209-214`). This violates the map's own no-restatement rule (`design/001-harness-release-1.md:129-133`) and means finding 3 is not resolved. Keep the protocol's ownership of what a verdict means, and put the exact record/signature format in exactly one owner.
+
+4. **Materiality and owner/BLOCK semantics are still not fully operational locally** — blocking. The revised protocol covers revision scope, the basic non-material exceptions, fallback, waiver, owner-decision marking, and bootstrap (`design/001-harness-release-1.md:169-195`), and it does correctly say a local waiver is never called AGREE (`design/001-harness-release-1.md:179-184`). It still omits the materiality rules for proposal bodies and comments, the obsolete-revision and initial-new-session/re-review-session rules, and the required owner withdrawal/re-scope path when the owner rejects a proposed value; those are part of the cited source semantics (`Scopetta/AGENTS.md:100-137`). In addition, `AGENTS.md` is named as the owner of BLOCK scope (`design/001-harness-release-1.md:119`), but the design never states that a BLOCK requirement must be necessary to the proposal's aim, correctness, or verification, nor the separate-concern/withdraw-and-re-scope rule (`Scopetta/AGENTS.md:72-80`). Add those rules before AGREE so a local record can determine whether a verdict remains valid without GitHub.
+
+5. **The conservative floor is narrower than the selected source rule without explanation** — blocking. The four conditions and typo guard are now safe: a process change is condition (c), and the exception requires no behaviour, assertion, or process-text change (`design/001-harness-release-1.md:137-150`). But the floor omits `.claude/**`, `mobile/**`, and `netlify.toml`, which are part of Scopetta's selected conservative checklist (`Scopetta/PRINCIPLES.md:39-44`); a project or tool change in those paths can therefore evade the floor if its author misjudges the four conditions. Preserve the D-2 floor or state and justify a release-1 adaptation that is at least as safe.
+
+### Verified
+
+- Finding 2's explicit Claude defaults are correct: same-family by default, no cross-family requirement, no design stage, and an allowed-but-recorded external E6 option (`design/001-harness-release-1.md:197-207`), matching the source comparison and Tressette's Claude adapter (`docs/01-harness-comparison.md:110-147`, `Tressette/CLAUDE.md:12-19`).
+- Finding 6 is resolved: all six disciplines are enumerated faithfully, including the declared table contents, red-gate rule, fail-before-pass assertion rule, reproduction, person-notice/play check, and passing-check catch statement (`design/001-harness-release-1.md:156-165`, `docs/01-harness-comparison.md:234-259`).
+- The lab-versus-run correction for `EXPERIMENTS.md` is coherent with runs receiving only the manifest's files and the durable experiment notebook remaining in this repository (`design/001-harness-release-1.md:82-86`, `docs/06-testing-the-harness.md:44-54`, `docs/06-testing-the-harness.md:76-80`).
+- The open-question disposition is consistent with the v1 verdict: v1 marked questions 1–4 as owner decisions and settled question 5 as the reviewer's process decision (`design/001-harness-release-1.md:306-312`); v2 repeats that split and the same question-5 decision (`design/001-harness-release-1.md:246-263`).
+
+### Not verified
+
+- The planned `PRINCIPLES.md`, `AGENTS.md`, `CLAUDE.md`, `reviews/README.md`, and scaffold implementation do not yet exist at this revision, so the actual generated files, record-format links, Windows behavior, and `git show` execution remain implementation-review checks.
 
 — GPT-5.6 Luna (opencode/gpt-5.6-luna#high), reviewer
 BLOCK
