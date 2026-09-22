@@ -1,28 +1,27 @@
 # Standardization decisions for release 1
 
-**Status: agenda, not decisions.** Each item names the evidence, the options,
-and a recommended default. The owner decides; the recommendations are the
-author's.
+**Status: agenda, not decisions.** Each item names the evidence, the options and
+a recommended default. The owner decides; the recommendations are the author's.
 
-The material being decided is the union of ideas in
-[`01-harness-comparison.md`](01-harness-comparison.md) §18, and the conflicts in
-§19. IC2 is out of scope (see [`02-ic2-complex-model.md`](02-ic2-complex-model.md)).
+**What release 1 is:** the **harness** — the process layer. It is not the app,
+not the tests, not the UI check, not the mutation harness, not CI. Those are the
+project's own (§1 of [`01-harness-comparison.md`](01-harness-comparison.md)),
+and the standard's only business with them is the six disciplines in §5 of the
+same document.
 
 ---
 
 ## D-1 — Where the shared principles live
 
-**Options.** (a) separate `PRINCIPLES.md`, with an ownership map and links
-(Scopetta); (b) folded into `CLAUDE.md` (Discola, balloons-JS); (c) inside
-`PLAN.md` (Tressette).
+**Options.** (a) separate `PRINCIPLES.md` with an ownership map (Scopetta);
+(b) inside `CLAUDE.md` (Discola, balloons-JS); (c) inside `PLAN.md` (Tressette).
 
 **Recommendation: (a).** It is the only option with a contradiction rule, and
-the comparison's main finding is that the three card games drifted on *where*
-the rules live, not what they say. Tressette's placement is a consequence of
-having written the plan first; a template cannot rely on that. `CLAUDE.md` keeps
-the project rules and the Claude Code process; `AGENTS.md` keeps the OpenCode
-process and the gates pointer; `PRINCIPLES.md` owns the habits and the ownership
-map.
+the comparison's main structural finding is that the projects drifted on *where*
+the rules live, not what they say. `PRINCIPLES.md` owns the habits, the
+ownership map, the classification; `AGENTS.md` owns the OpenCode adapter;
+`CLAUDE.md` owns the Claude adapter and the project rules; each links, none
+restates.
 
 ## D-2 — The trivial / non-trivial classification
 
@@ -31,173 +30,157 @@ pure-typo exception; (b) Tressette's "every OpenCode implementation, no size
 floor".
 
 **Recommendation: (a).** It is auditable without a judgment call at the paths
-that matter, and it answers the question a session actually asks: do I open a
-design issue before starting. The standard should keep the floor's explicit "the
-floor is a checklist, not a claim about imports" wording, and keep the rule
-that CI on `main` is unchanged by the local schedule.
-
-**Open sub-question.** The floor lists project paths; the template needs a
-placeholder for them. Recommendation: the floor table lives in the project half
-of `PRINCIPLES.md`, seeded with `public/**`, `tools/**`, `.claude/**`,
-`.github/**`, the harness files, and the package manifests.
+that matter, and it answers the question a session actually asks — do I open a
+design issue before starting. Keep the floor for what matters and the explicit
+"the floor is a checklist, not a claim about imports". The counter-argument
+(Tressette) is simpler to state; the answer is that simplicity buys ceremony on
+typos.
 
 ## D-3 — The iteration overlay
 
 **Options.** (a) drop it; (b) keep Tressette's `PLAN.md §7.1–§7.6` as an
-optional overlay a plan-driven project adopts.
+optional overlay.
 
-**Recommendation: (b), as an optional section of the template's documentation,
-not of the core.** The overlay is genuinely useful when the build order is known
-in advance (done-when per iteration, effort per iteration, the owner's part), and
-harmless when it is not. It must not be a second process: it adds *when work is
-sliced*, not *how it is reviewed*.
+**Recommendation: (b), as an optional section, clearly marked.** It is useful
+when the build order is known before coding (done-when per iteration, effort and
+reviewer per iteration, the owner's part) and harmless otherwise. It must add
+only *when work is sliced*, never a second review process.
 
-## D-4 — Run counts and gate schedules
+## D-4 — The gates seam: what the harness requires, what the project declares
 
-**Options.** (a) one number for all projects; (b) per-project numbers in one
-gates table, with the shape standardized.
+**Problem.** The four projects' gates are project-specific, and the harness must
+not absorb them. But the harness must require *something*, or "verified" means
+whatever the last session felt like.
 
-**Recommendation: (b).** The comparison's numbers differ for good reasons:
-Discola's 3× guards engine determinism; balloons' 8× guards timing flakes in a
-browser suite; Scopetta's measured-input tree guards a 25-minute check. The
-standard should require each project to state, in one table: what runs always,
-what runs when its inputs changed, how many repetitions, and *what failure
-model justifies it*. Scopetta's measured-input tree is the template for
-"inputs changed"; the rebase exception belongs with it.
+**Recommendation.** The harness requires each project to keep a **gates table**
+in its project rules, stating: the commands, what each covers, when each runs,
+how many repeats, and the failure model that justifies the repeats. The harness
+states these disciplines over it:
 
-## D-5 — The mutation harness
+- a red gate does not merge;
+- a new assertion is made to fail before it is made to pass;
+- a finding or a claim is reproduced before it is acted on;
+- what a passing check would have caught is said out loud;
+- when a gate is expensive, the project states when it re-runs (Scopetta's
+  measured-input tree is the model pattern, not the rule);
+- CI, where a remote exists, runs the declared gates and a red CI blocks.
 
-**Options.** (a) mandatory whenever a UI check exists; (b) optional.
+`balloons-JS`'s 8×, Discola's 3× and Scopetta's tree all fit this shape, and a
+project with no UI or no remote fits it too — it declares less, not nothing.
 
-**Recommendation: (a), with the older-commit technique as the floor.** The 141
-breaks with 15 survivors is the strongest evidence in the comparison: the
-survivors are the assertions that cannot see their own subject, and nothing else
-finds them. The template should carry `break_ui.mjs` and `break.mjs` skeletons
-with the EXPECT convention and the survivor discipline. Projects small enough
-not to have a UI check keep the habit plus the `git show <commit>:<path>` older
--revision run.
+## D-5 — The verification library: patterns, deliberately not mandatory
 
-## D-6 — Review records with no GitHub (new)
+**Recommendation.** Ship the nine patterns of §9 in the comparison as a
+**library** under `docs/verification/`, each written as "here is the pattern,
+here is what it caught, adopt it if it fits". Explicitly not required by the
+harness. The one pattern the standard should keep pointing at when a project
+chooses to write assertions is Scopetta's mutation harness, because a passing
+assertion that cannot fail is the failure mode nothing else detects.
 
-**Problem.** Every verdict convention assumes GitHub issues and PRs; this
-project is local-first (the owner's answer). The mechanism must survive having
-no remote, and light up unchanged when one exists.
+## D-6 — Review records with no GitHub
 
-**Options.** (a) design proposals and verdicts as files under `reviews/` and
-`design/`, posted verbatim to GitHub when a remote exists; (b) a single
-append-only `HARNESS-LOG.md`; (c) require a local bare remote / private GitHub
-repo.
+**Problem.** Every verdict convention assumes issues and PRs; this project is
+local-first. The mechanism must work with no remote and light up unchanged when
+one exists.
 
-**Recommendation: (a).** Concretely:
-- a design proposal is `design/NNN-<slug>.md`, with the same sections the issue
-  body would have (problem, findings with `file:line`, design, open questions);
-- the reviewer's verdict is appended to that file under a heading, signed with
-  the exact convention, ending in an explicit `AGREE`/`BLOCK` line;
-- the implementation review is `reviews/NNN-<slug>-impl-NN.md`, naming the
-  revision (commit sha) it covers;
+**Recommendation.** Records as files:
+- a design proposal is `design/NNN-<slug>.md` with the same sections the issue
+  body would have;
+- the reviewer's verdict is appended under a heading, signed with the exact
+  convention, ending in an explicit `AGREE`/`BLOCK` line;
+- an implementation review is `reviews/NNN-<slug>-impl-NN.md`, naming the
+  revision it covers;
 - when a remote and `gh` exist, the same text is posted verbatim as the
-  issue/PR comment — the file stays canonical, because it survives the remote.
-This keeps every Scopetta rule (materiality, re-review, fallback) expressible
-without GitHub, and it makes the review history greppable and diffable.
+  issue/PR comment; the file stays canonical.
+
+This keeps every rule (materiality, fallback, re-review) expressible without
+GitHub, and makes the history greppable and diffable.
 
 ## D-7 — Model assignment table and the invariant
 
-**Recommendation: adopt Scopetta's table verbatim**, with the invariant
+**Recommendation: adopt Scopetta's**, with the invariant stated above the table
 ("different model family than the implementer, high reasoning effort, fresh
-context, explicit model id") stated above it and the update rule ("whoever
-changes an assignment updates the table in the same change") below it. The
-assignment itself (implementer/reviewer display names and ids) is project-local
-and lives in the same table. Fix Discola's workflow drift by deleting the model
-from the workflow file and pointing at the table.
+context, explicit model id") and the update rule below it ("whoever changes an
+assignment updates the table in the same change"). The assignment itself is
+project-local. Discola's workflow file is the drift evidence: delete the pinned
+model there and point at the table.
 
-## D-8 — CI
+## D-8 — Template shape, and the toy's home
 
-**Options.** (a) required for every project the template is applied to;
-(b) optional, with balloons-JS as the exception.
+**Options.** (a) harness at the repo root, toy app in `public/`, variants as
+branches; (b) harness in `template/`, toy as a sibling repo; (c) one repo per
+variant.
 
-**Recommendation: (a), with the two-job split** (dependency-free engine job,
-then the UI job with the install), and the `push: [main]` filter so a PR does
-not run twice. balloons-JS is an outlier because its suite is heavy and
-port-bound; the template should still require CI and let a project that truly
-cannot run one record the exception in its gates table, with the reason, rather
-than leave the question open.
+**Recommendation: (a).** It matches the four projects' layout (`public/`,
+`tools/`), so the toy is directly comparable and the copy step at release 1 is
+mechanical. Variants are a branch plus an `experiments/<slug>.md` record in the
+`FORGETTING.md` shape, indexed in `EXPERIMENTS.md`. Release 1 is a tag with the
+harness files frozen; the toy is its first instance.
 
-## D-9 — Template shape, and the toy app's home
+## D-9 — The competition rules
 
-**Options.**
-(a) harness at the repo root, the toy app in `public/` here, variants as
-branches, template extracted at release 1;
-(b) the harness in `template/` and the toy app as a separate sibling repo;
-(c) one repo per variant.
-
-**Recommendation: (a).** The existing projects all put the app in `public/`
-and the tools in `tools/`, so the toy is directly comparable and the copy step
-at release 1 is mechanical. Variants are best recorded as: a branch, a
-`experiments/<slug>.md` record written in the `FORGETTING.md` shape (status,
-question, method, reproduce commands, results, recommendation, review history),
-and a short entry in a `EXPERIMENTS.md` index. Release 1 is a tag on this
-history with the template files frozen and the toy as the first instance.
-
-**Toy app:** designed in [`04-toy-app.md`](04-toy-app.md).
+**Recommendation: run it, on the toy, after release 1.** The full design is in
+[`05-harness-competition.md`](05-harness-competition.md); the decision here is
+the principle: **the owner-merge requirement is an experimental variable, not an
+axiom.** The competition removes it (autonomous merge on a signed AGREE plus
+green gates) and measures escaped defects first, cost second. Its outcome is
+written back into the standard whichever way it goes.
 
 ## D-10 — Multi-tool interop (later, release 2)
 
-The question: how do OpenCode, Claude Code and Codex work together on one
-process? Prior art: `learnukrainian/CLAUDE_MIGRATION.md` (Codex → Claude, with
-former `AGENTS.md` files pointing at the survivor) and `boardemo` (a gateway
-that treats Claude Code, Codex CLI, Gemini and Cursor as interchangeable). The
-experiment, when it runs, should state for each tool: how a subagent is
-dispatched with an explicit model, how it is continued after a review, how
-skills/rules are loaded, and where its working directory comes from. The
-standard's process text should stay tool-neutral; each tool gets a thin adapter
-section in `AGENTS.md`/its own file.
+How do OpenCode, Claude Code and Codex share one process? Prior art:
+`learnukrainian/CLAUDE_MIGRATION.md` (Codex → Claude, with former `AGENTS.md`
+files pointing at the survivor) and `boardemo` (a gateway over Claude Code,
+Codex CLI, Gemini, Cursor). For each tool the experiment must record: how a
+subagent is dispatched with an explicit model; how it is continued after a
+review; how rules and skills load; where the working directory comes from.
 
 ## D-11 — The worktree work model (later, release 2)
 
-Evidence: IC2 (worktree per agent, "say where you are working", gate 0 — and the
-2026-09-18 wrong-tree reviews) and Geoclick2027 (worktrees for agents failed
-until each worktree got its own `npm install`; the loop deliberately runs
-without worktrees). The experiment question: is worktree-per-agent worth it for
-a toy-sized project and a solo owner, or is it ceremony that pays only when
-agents run concurrently? The standard should not require worktrees until this is
-answered; if it recommends them, it must carry the location evidence block.
+Evidence: IC2 (worktree per agent, "say where you are working", gate 0, and the
+wrong-tree reviews that motivated them) and Geoclick2027 (worktrees failed for
+parallel agents until each ran its own `npm install`; the loop deliberately runs
+without them). The question: does worktree-per-agent pay for a toy-sized project
+with one owner? Do not require worktrees until it is answered; if recommended,
+carry the location evidence block.
 
 ---
 
 ## The recommended release-1 spine
 
+**The harness (this is release 1):**
+
 ```
-README.md            — what this is, how to use it (template)
-PRINCIPLES.md        — habits, ownership map, non-trivial test, conservative floor
-AGENTS.md            — OpenCode process: roles + invariant + two stages + BLOCK
-                       + fallback/waiver + AGREE materiality + gates + bootstrap
-CLAUDE.md            — Claude Code process: fresh-context review, no design stage
-                       + project rules: read/ignore, never-echo, one source of truth,
-                       commands, decided-not-to-reopen
-PLAN.md              — optional: iteration overlay, for plan-driven projects
-.claude/skills/ui-check/SKILL.md
-tools/check_ui.mjs   tools/break_ui.mjs   tools/break.mjs   tools/serve.mjs
-tools/*.test.mjs
-.github/workflows/check.yml
-design/              — design proposals (local-first)
-reviews/             — signed verdicts (local-first)
-EXPERIMENTS.md       — index of variant experiments
+README.md            — what this is, the two modes, how to adopt it
+PRINCIPLES.md        — habits, ownership map, classification, conservative floor
+AGENTS.md            — OpenCode adapter: roles + invariant + two stages + BLOCK
+                       + fallback/waiver + AGREE materiality + bootstrap
+CLAUDE.md            — Claude adapter: fresh-context review, no design stage
+                       + project rules template (gates table, read/ignore,
+                       never-echo, one source of truth, decided-not-to-reopen)
+PLAN.md              — optional: the iteration overlay
+design/              — design proposals (local-first records)
+reviews/             — signed verdicts (local-first records)
+EXPERIMENTS.md       — the variant/experiment index
 ```
 
-What the toy must exercise in it: a product with no card geometry (so the
-standard is not secretly card-shaped), a UI check with its own states, a
-deterministic engine, a parser whose tests are property-shaped, and the
-local-first review records.
+**Not the harness, shipped separately as a library:** `docs/verification/*` —
+the nine patterns, clearly labelled optional, plus the toy's own `tools/` as a
+worked example once it exists.
+
+**Deliberately absent from release 1:** any mandated UI check, test framework,
+mutation harness or CI file. Those are the project's, and the toy will show one
+way to do them.
 
 ## The experiment program (release 2 and after)
 
 | # | question | method |
 |---|---|---|
-| E1 | Which layout is better: three files, two files, or pointers? | Run the same small change on the toy under each; count review findings that matter, ceremony, and drift |
-| E2 | Do model pairs change the outcome? | Same change, same standard, different implementer/reviewer pairs and effort; measure defects caught, false blocks, cost |
-| E3 | How do OpenCode, Claude Code and Codex share one process? | Apply D-10; record each tool's dispatch/continue/load primitives |
-| E4 | Is worktree-per-agent worth it at this scale? | Apply D-11; compare sequential worktrees vs plain branches on the toy |
+| E1 | Which adapter layout is better: three files, two, or pointers? | The same small change on the toy under each; count review findings that matter, ceremony, drift |
+| E2 | Do model pairs change the outcome? | Same change, same standard, different implementer/reviewer pairs and effort; measure caught defects, false blocks, cost |
+| E3 | How do OpenCode, Claude Code and Codex share one process? | Apply D-10 |
+| E4 | Is worktree-per-agent worth it at this scale? | Apply D-11 |
+| E5 | Which harness performs better with the owner-merge gate removed? | Apply D-9 and [`05`](05-harness-competition.md) |
 
 Every experiment gets its record file before it starts, in the
-`FORGETTING.md` shape, so a branch that is never merged still leaves its
-result.
+`FORGETTING.md` shape, so a branch that is never merged still leaves its result.

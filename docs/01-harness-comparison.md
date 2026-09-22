@@ -2,9 +2,10 @@
 
 **Scope.** The four harnesses that have grown in `discola-web`, `Tressette`,
 `Scopetta` and `balloons-JS`. This document is the evidence base for
-standardization (release 1). Imperial Conquest 2's more complex model is
-deliberately out of scope here and recorded separately in
-[`02-ic2-complex-model.md`](02-ic2-complex-model.md).
+standardization (release 1). Imperial Conquest 2's more complex model is out of
+scope here and recorded in [`02-ic2-complex-model.md`](02-ic2-complex-model.md).
+The competition that removes the owner's merge gate is designed in
+[`05-harness-competition.md`](05-harness-competition.md).
 
 **Method.** Every harness file was read in full: `AGENTS.md`, `CLAUDE.md`,
 `PRINCIPLES.md`, the harness sections of `PLAN.md`, the `ui-check` skills, the
@@ -14,7 +15,45 @@ that project is named.
 
 ---
 
-## 0. The four in one table
+## 0. The point of the harness
+
+The harness exists to run one project under **two working modes**, and to keep
+both honest:
+
+- **OpenCode mode — DeepSeek implements, Luna reviews.** The reviewer is from a
+  **different model family**, invoked as a **subagent in a fresh context with an
+  explicit model id**. The process exists to make that review real: the design
+  is agreed before code, the verdict is signed where the work is, a BLOCK is not
+  overridden, and implementation is reviewed against the agreed design before
+  the owner merges.
+- **Claude mode — Claude does its thing.** Claude implements, and the review is
+  a **fresh-context Claude session**; there is no cross-family reviewer and no
+  separate design-issue stage. Tressette states it in fourteen lines
+  (`CLAUDE.md:12-14`); Scopetta adds that the owner may review as an independent
+  option, but "an owner is **not automatically a fresh context** — and is not
+  one if they directed or wrote the change" (`CLAUDE.md:37-45`).
+
+Everything else in the harness — the principles, the ownership of the rules,
+the change classification, the records, the owner-decision convention — exists
+to support those two modes or to keep the project honest while they run.
+
+Three consequences shape this whole comparison:
+
+1. **The unit of standardization is the process, not the tooling.** `AGENTS.md`
+   and `CLAUDE.md` are two adapters over the same principles; a third adapter
+   (Codex) must be addable without touching the principles.
+2. **Verification belongs to the project.** Engine tests, UI checks, mutation
+   harnesses and CI are how a *project* proves itself; they are not part of the
+   harness and must not be standardized as if they were. The harness's business
+   is the discipline around them: a project declares its gates, a red gate does
+   not merge, a new assertion is made to fail before it is made to pass, and a
+   finding or a claim is reproduced before it is acted on. §5 covers the seam.
+3. **The four agree on more than they realize, because the modes were copied
+   from one project to the next rather than derived.** The drift is in the
+   wrapper — where the principles live and who has to be asked — not in the
+   working arrangement.
+
+## 0.1 The four at a glance
 
 | | Discola-web | Tressette | Scopetta | balloons-JS |
 |---|---|---|---|---|
@@ -22,447 +61,289 @@ that project is named.
 | role in the series | the origin | 2nd | 3rd | parallel, different shape |
 | harness files | `AGENTS.md` (46), `CLAUDE.md` (143) | `AGENTS.md` (47), `CLAUDE.md` (20), `PLAN.md` §7 (2028 total) | `AGENTS.md` (198), `CLAUDE.md` (575), `PRINCIPLES.md` (141), `PLAN.md` (2004) | `AGENTS.md` (63), `CLAUDE.md` (178) |
 | principles live in | `CLAUDE.md` | `PLAN.md` §7.7 | `PRINCIPLES.md` | `CLAUDE.md` |
-| UI check | `check_ui.mjs` (492) | `check_ui.mjs` (1659) | `check_ui.mjs` (3616) | none (browser suite instead) |
-| mutation harness | — | — | `break_ui.mjs` (1130) + `break.mjs` (487) | — |
-| engine tests | `engine.test.mjs` (163) | `engine.test.mjs` (510), `opponent.test.mjs` (758) | `engine.test.mjs` (1054), `opponent.test.mjs` (652), `release.test.mjs` (173) | `scores.test.mjs` (265), `browser.test.mjs` (5389) |
-| UI-check skill | yes (84) | yes (269) | yes (442) | no |
-| CI | `ci.yml` + `opencode.yml` | `check.yml` | `check.yml` | none |
-| `npm run check` | UI check | UI check | UI check | syntax + module wiring |
-| `npm test` | unit tests | unit tests | unit tests | check + scores + browser |
+| project verification (illustration only) | UI check 492, tests 163, CI | UI check 1659, tests 1268, CI | UI check 3616, mutation 1617, tests 1879, CI | browser suite 5389, scores 265, no CI |
 
 The three card games share a lineage; balloons-JS shares the philosophy and the
-two-file split, not the code.
+two-file split, not the code. The verification column is **not** a harness
+feature — see §5.
 
 ---
 
-## 1. Where each idea lives (ownership)
+## 1. Anatomy: what belongs to the harness, what belongs to the project
 
-- **Discola** splits the material once: `AGENTS.md` says it holds the OpenCode
-  review process, `CLAUDE.md` holds "the tool-agnostic principles, the
-  verification gates and the project rules, with no reviewer-spawning
-  mechanism" (`discola-web/AGENTS.md:40-44`). No ownership map, no rule for
-  contradictions.
-- **Tressette** keeps the thinnest harness files (47 + 20 lines). They are
-  pointers: "This is the OpenCode harness… it does not restate them… read
-  `PLAN.md` §7.7" (`Tressette/AGENTS.md:5-10`). The shared rules live inside
-  the product's plan because the plan was written before the code, and the
-  harness stabilized after it.
-- **Scopetta** makes ownership explicit. `PRINCIPLES.md` carries an
-  authoritative ownership table (principles / process / gates / project rules),
-  and "a non-owning file **links** to an idea and does not restate it, so an
-  idea lives in one place and cannot drift" (`Scopetta/PRINCIPLES.md:12-26`),
-  with a fallback order for sentences that span two owners.
-- **balloons-JS** keeps the same two-file split but uses `CLAUDE.md` as the
-  repository encyclopedia: a one-source-of-truth table (`public/` vs the
-  Android mirror vs generated icons), a never-read/never-echo list,
-  big-file guidance, a commands table, and a "Decided, and not to be re-opened"
-  section (`balloons-JS/CLAUDE.md:19-49,113-129`).
+| Layer | Contents | Standardizable? |
+|---|---|---|
+| **Harness** | principles and habits; the two mode adapters; stages and their order; the change classification; reviewer roles, assignment and invariants; verdict records and signature; BLOCK/AGREE semantics; owner-decision convention; fallback and waiver; defect path; session handoff; fork provenance | yes — this is release 1 |
+| **Project** | the app; its engine; its tests; its UI check; its mutation harness; its CI workflow; its commands and run counts; its paths to read or ignore; its player-facing conventions | no — each project owns these |
+| **Seam** | the declared gates: what runs, when, how many times, what a red result blocks | the harness states the discipline, the project declares the content |
 
-**Finding.** The drift between the three card games is not in what the rules
-say — it is in *where the shared principles live*, and only Scopetta has a
-mechanism (the ownership map) that prevents the next drift. A standard must
-place the principles in one file and make every other file link to it.
+The seam is where the four projects have spent most of their words, and it is
+easy to mistake for the harness. It is not: Scopetta's `break_ui.mjs`, Discola's
+492-line UI check and balloons' 5,389-line browser suite are three projects'
+answers to the same question ("how do I know this works?"), and none of them
+belongs in a standard imposed on the next project. What belongs in the standard
+is that **every project must have an answer, declared in one place**.
 
-## 2. Roles, models, invocation
+## 2. The two modes, in the four
 
-All four name the same two roles and the same cross-family rule:
+### 2.1 OpenCode mode
 
-- Implementer: DeepSeek, `opencode/deepseek-v4.1-flash` (Discola/Tressette/
-  Scopetta/balloons all name it; Discola and balloons mention the same
-  signature convention in prose).
-- Reviewer: Luna, `opencode/gpt-5.6-luna` at `#high`, "invoked as a subagent in
-  a fresh context and given an explicit model id" (identical wording in all
-  four; `Scopetta/AGENTS.md:20-33` adds the invariant: "the invariant is a
-  different model family; the ids above are the current assignment").
-- Claude Code's reviewer: a fresh-context Claude session, stated by Tressette
-  (`CLAUDE.md:12-14`) and Scopetta (`CLAUDE.md:37-45`, including "an owner is
-  **not automatically a fresh context** — and is not one if they directed or
-  wrote the change"). Discola and balloons do not specify a Claude reviewer.
-
-**Drift already visible.** `discola-web/.github/workflows/opencode.yml:33`
-still pins `model: opencode/deepseek-v4-flash`, a version behind every harness
-document. Scopetta's rule — "whoever changes an assignment updates the table in
-the same change" — is the fix, and the reason the assignment table belongs in
-one place.
-
-## 3. Stage structure and unit of work
-
-- **Discola / balloons-JS:** a change takes two stages, or none is defined.
-  Design is written as a GitHub issue and reviewed to AGREE; implementation is
-  a PR reviewed to AGREE; the owner merges. balloons adds the explicit
-  bootstrap: a change to `AGENTS.md`/`CLAUDE.md` is itself opened as a PR and
-  reviewed to AGREE (`balloons-JS/AGENTS.md:36-38`).
-- **Tressette:** the unit is an **iteration**. "One iteration per session"
-  (`PLAN.md §7.1`), each with a "Done when"; one PR per iteration with a
-  four-part description; DESIGN issues are "an explicit exception to 'no issue
-  per iteration'" (`PLAN.md:1735-1743`). It also fixes the build order and
-  effort per iteration in a table (`§7.2`) and names the owner's part (`§7.6`:
-  start iterations, answer defaults before iterations 4 and 5, play the game
-  after 3 and 5).
-- **Scopetta:** the unit is a **change**, and the defect path is explicit: a
-  fix may skip the design stage only when it is limited to the recorded defect,
-  changes no product behaviour beyond it, changes no check's design, and changes
-  no process (`AGENTS.md:65-70`).
-
-**Finding.** Iteration is a plan overlay, not part of the process core: it
-suits a project whose whole shape is decided before coding (Tressette's plan
-predates the engine). Scopetta's change unit is the portable one; the
-iteration overlay is worth keeping as an optional section a plan-driven
-project can adopt.
-
-## 4. What needs review: the classification
-
-- **Discola:** no trivial path documented. The process is stated for "a
-  change", and the harness bootstrap applies.
-- **Tressette:** the most explicit exclusion: "This applies to every OpenCode
-  implementation, with no size floor" (`AGENTS.md:36`). Simple, and expensive
-  on typos.
-- **Scopetta:** the only operational test. A change is non-trivial if it can
-  change (a) observable behaviour, (b) what a check measures, (c) the design or
-  process a builder must follow — including the harness files and the design
-  documents — or (d) player-facing copy. A conservative floor (`public/**`,
-  `tools/**`, `.claude/**`, `.github/**`, `mobile/**`, `netlify.toml`,
-  `package.json`, `package-lock.json`, the three harness files) is non-trivial
-  whether or not the author believes the test is met, unless it is a pure typo
-  or comment. A trivial change takes neither stage, may go straight to `main`,
-  still runs the gates its diff can affect — and still gets the full CI on
-  `main`, which the rule explicitly does not relax (`PRINCIPLES.md:28-66`).
-- **balloons-JS:** no classification; bootstrap only.
-
-**Finding.** Scopetta's classification is the one that can be applied without
-a judgment call, and its conservative floor is what makes it auditable. The
-counter-argument (Tressette) is that classification invites arguing about
-classification; the counter-counter is the floor, which removes the argument
-for the paths that matter.
-
-## 5. Verdicts: where they live and what they say
-
-- All four post the reviewer's verdict where the work is, signed, through the
-  owner's single GitHub account — "the signature line is the only marker of
-  authorship" (all four).
-- Discola / Tressette / balloons: signature in prose (`— Luna (GPT-5.6,
-  high)`).
-- Scopetta fixes the exact convention and the mechanics: the final line is
-  `— <display name> (<model id with variant>), reviewer`; the verdict is a
-  **comment**, never `gh pr review --approve`, because "GitHub forbids
-  approving your own pull request under one account"; the stage ends on an
-  explicit `AGREE` or `BLOCK` marker in a comment
-  (`Scopetta/AGENTS.md:35-50`).
-
-**Finding.** The exact convention is free to adopt and removes ambiguity about
-whether a comment is a verdict. A standard should carry it verbatim.
-
-## 6. AGREE: materiality and re-review
-
-Only Scopetta defines what an AGREE covers and what invalidates it
-(`AGENTS.md:119-137`): the verdict covers the current revision; any change
-after an AGREE invalidates it except commit messages, whitespace, and typos
-that change no behaviour, assertion or process text; a material edit to the
-issue body always re-opens review; comments that record a verdict, finding,
-answer or owner decision are distinguished; an initial verdict comes from a new
-reviewer session and a re-review after fixes may continue the same one, because
-the separation the gate protects is from the implementer's context; a fallback
-reviewer is the designated reviewer for its stage.
-
-The other three say "iterate until AGREE" and leave the boundary to judgment.
-
-**Finding.** This is the single most reusable piece of Scopetta's process:
-without it, "AGREE" means whatever the last reader thought it meant.
-
-## 7. Owner decisions
-
-- Discola and balloons state the principle: "Keep reviewer requirements
-  separate from **owner decisions**, and put owner decisions to the human with
-  a recommended default."
-- Tressette records the owner's part in the plan (§7.6).
-- Scopetta operationalizes it: a decision that is the owner's — a name, an
-  `appId`, a licence, a scope, a default — is recorded on the issue or PR with
-  a recommended default and the reason, marked as an owner decision; the
-  reviewer may require that it be decided and recorded but "may not reject it
-  merely for differing from the reviewer's preference"; if the owner rejects
-  the proposal, the issue is withdrawn or re-scoped, receives no AGREE, and is
-  not merged around (`AGENTS.md:90-107`).
-
-## 8. Failure handling: BLOCK, fallback, waiver, escalation
-
-- **BLOCK:** identical in all four — not overridden by the implementer, goes to
-  the owner, never merged around. Scopetta adds what a BLOCK may require:
-  every required change must be necessary to the change as proposed; a separate
-  concern is filed as its own issue and linked; if the required changes would
-  turn the change into a different, larger one, the implementer may withdraw
-  and re-scope with the owner, and any AGREE is invalidated
-  (`AGENTS.md:72-80`).
-- **Fallback and waiver:** only Scopetta. Failed, cancelled or unavailable
-  review is no review and no AGREE; retry or select another reviewer from a
-  different family, recorded on the issue or PR; a waiver is an
-  implementation-review exception only, and bypassing the design stage is an
-  explicit owner amendment, recorded (`AGENTS.md:109-117`).
-
-## 9. Verification: commands, schedules, run counts
-
-The commands converge; the schedules do not.
+All four name the same arrangement, with the same wording for the critical
+part:
 
 | | Discola | Tressette | Scopetta | balloons-JS |
 |---|---|---|---|---|
-| unit tests | `npm test` | `npm test` | `npm test` | `npm test` (check + scores + browser) |
-| UI check | `npm run check` | `npm run check` | `npm run check` | `npm run check` is the syntax/wiring check |
-| extra | `npm run verify` = check + test | — | `break_ui.mjs`, `break.mjs` when assertions change | `test:scores`, `test:browser`, `playtest` |
-| repeat policy | full suite **3×** before pushing primary logic; read the pass COUNT | none stated | engine tests on every push; full UI check only when the **measured-input tree** changed, with the rebase exception (`AGENTS.md:139-176`) | **8×** for anything touching game logic; 1 pass + diff when no `public/`/`netlify/` file moved |
-| cost driver | — | — | UI check ≈ 25 min, twelve passes (skill) | browser suite has timing in it; one flake in eight got through twice (`CLAUDE.md:170-174`) |
+| implementer | DeepSeek `opencode/deepseek-v4.1-flash` | same | same | same |
+| reviewer | Luna `opencode/gpt-5.6-luna` `#high` | same | same | same |
+| invocation | "subagent in a fresh context and given an explicit model id" | same | same + "the invariant is a different model family; the ids above are the current assignment, not the rule" | same |
+| design stage | design issue → AGREE | design issue → AGREE | design issue → AGREE, with the four-condition defect path | design issue → AGREE |
+| signature | prose (`— Luna (GPT-5.6, high)`) | prose | exact convention, final line `— <display name> (<model id with variant>), reviewer` | prose |
 
-Scopetta's measured-input tree is the most precise scheduling rule: the
-transitive runtime inputs of the UI check, the browser/playwright and workflow
-configuration, measured at a push's tip, with "a rebase or a hand-resolved
-conflict always re-runs the full UI check" as the one exception. Discola's 3×
-and balloons' 8× are the same idea with numbers instead of a tree.
+The mechanism is identical; Scopetta's wrapper is the precise one. The one
+piece of drift: `discola-web/.github/workflows/opencode.yml:33` still pins
+`model: opencode/deepseek-v4-flash`, a version behind every harness document —
+the argument for one assignment table and Scopetta's update rule ("whoever
+changes an assignment updates the table in the same change").
 
-**Finding.** A standard cannot pick one count; it should standardize the
-*shape* — (a) what always runs, (b) what runs when its inputs changed, (c) how
-many repetitions, justified by the project's failure model (determinism for
-engines, timing for browser suites, runtime cost for the UI check) — and require
-each project to state its numbers in one gates table.
-
-## 10. The mutation harness
-
-Scopetta is the only one with a mechanized answer to "does this assertion
-actually bite":
-
-- `break.mjs` (engine, 487 lines) and `break_ui.mjs` (UI, 1130 lines) apply one
-  deliberate defect at a time to a copy, point the check at it, and require
-  **the assertion written for that defect** to go red; a break caught only by
-  other assertions is a `MISMATCH` and red (`SKILL.md:51-70`).
-- `EXPECT` entries name one assertion by a substring of its output line; a
-  break whose defect needs two edits passes arrays for find/replace.
-- `QUICK=1` trims the viewport grid and "is for proving an assertion bites,
-  never for clearing one".
-- Evidence: "iteration 4's mutation run caught 126 of 141, and every one of the
-  fifteen it did not is the same family: an assertion that was never in a
-  position to see its own subject" (`CLAUDE.md:256-259`), with the survivor
-  shapes catalogued.
-- Assertion removal and threshold retuning have rules: replacement catching the
-  same defect, or a recorded reason plus a mutation run naming which remaining
-  assertion covers it; a retune needs a second measurement and a re-run against
-  the commit that introduced the bug it names (`AGENTS.md:178-191`).
-
-Discola and Tressette have the *habit* ("writing the assertion against the
-broken version first", `SKILL.md:81-84` in Discola) and the older-commit
-technique (`git show <commit>:public/index.html > .old.html`, then point the
-check at it). balloons has neither: its answer to "a passing test is not a
-working feature" is to assert what a person would notice and then go play it,
-with `playtest.mjs` measuring tuning rather than asserting
-(`CLAUDE.md:164-174`).
-
-**Finding.** The mutation harness is the strongest single invention in the
-series and the one piece with no substitute: the habit catches the builder who
-is looking, and the harness catches the assertion that cannot look. A standard
-should require it wherever a UI check exists, with the older-commit technique as
-the floor where it does not.
-
-## 11. The UI check and its skill
-
-- All three card games carry `tools/check_ui.mjs` and a `.claude/skills/ui-check/SKILL.md`.
-  The skill is the *rationale and failure-reading* document; the tool is the
-  mechanism. Discola's skill (84 lines) describes the check it forked; Tressette
-  (269) and Scopetta (442) grow it as the defect table grows.
-- Each skill carries the same core idea: a table of **assertion → the bug it was
-  written for**, because "every threshold is calibrated against a defect that
-  actually shipped"; and the same two warnings: "an assertion only sees the
-  states the check renders", and "an assertion has to be in a position to see
-  its own subject".
-- The skills live under `.claude/skills/`, but they are plain markdown read by
-  both tools: Claude Code auto-loads them, OpenCode reads them as docs per the
-  read/ignore list. This is the existing cross-tool mechanism and the reason the
-  template can keep one skill for both.
-- balloons-JS has no equivalent; its `test/browser.test.mjs` (5389 lines) is the
-  mechanism, with the knowledge living in `CLAUDE.md` and `docs/open-work.md`.
-
-**Finding.** The skill's value is not the instructions — it is the defect
-history. A standard should require the skill to be *born with the check* and to
-keep the defect table; retrofitting it later loses the story.
-
-## 12. CI
-
-- **Discola:** `ci.yml` — `npm ci`, playwright-core install, `npm test`,
-  `python3 tools/make_icons.py --check`, `npm run check`; plus `opencode.yml`,
-  the comment-triggered `/oc` GitHub action with a pinned model.
-- **Tressette / Scopetta:** two jobs — `engine` (`node --test
-  "tools/**/*.test.mjs"`, no install) and `ui` (`npm ci`, `npx playwright-core
-  install --with-deps chromium`, `npm run check`). Both filter `push` to `main`
-  so a PR does not run the suite twice.
-- **balloons-JS:** none. Its gates are local, and its suite is a heavy
-  browser test with a fixed port.
-
-**Finding.** The two-job split is the mature shape: the dependency-free engine
-job is fast feedback on every commit; the UI job carries the install. A standard
-should require CI, and keep the split.
-
-## 13. Environment: read/ignore, secrets, output economy
-
-All four carry the habit rules; they differ by repository shape:
-
-- Discola/Tressette/Scopetta share the read/ignore list (inspect `public/*`,
-  `tools/*`, root `*.md`, `.github/workflows/*`, `.claude/skills/*`; ignore
-  `node_modules/`, `.git/`, art, `dist-release/`, binaries; never read
-  `mobile/android/keystore.properties` or `*.jks`) and "Keep command output
-  short" with PowerShell/bash equivalents, plus a three-bullet session handoff.
-- balloons-JS has the one-source-of-truth table with the shadow copies
-  explained (the Android mirror is written by Gradle; `rg` honors `.gitignore`,
-  `grep -r`/`find` do not), a "Never read, never echo" secrets block, "Big
-  files" guidance (grep the test name, do not read the 5,389-line suite), and a
-  commands table with the ports each command binds.
-- balloons also has "Decided, and not to be re-opened": the measured outcome of
-  a tuning decision, so a later session does not mistake it for a bug.
-
-**Finding.** These are project-shaped, not philosophy-shaped. A standard
-should define the *categories* (what to inspect, what to ignore, what to never
-echo, what is decided) and leave the paths and commands to the project — and
-should carry balloons' "decided" section, which no other harness has.
-
-## 14. Defects and follow-ups
-
-- **Tressette:** defects found by playing are `defect` issues; each is closed
-  by a PR that fixes the page **and adds the assertion that would have caught
-  it**, written against the broken commit first (`PLAN.md:1739-1743`).
-- **Scopetta:** the same, plus the assertion-removal and retune rules (§10
-  above).
-- **Discola / balloons:** flag out-of-scope defects rather than fixing them
-  silently; balloons adds "if a fix turns out to be four errors where two were
-  flagged, fix all four — half a correction is not what anyone wanted".
-- **balloons** also records the *open* work in `docs/open-work.md`, including a
-  flake seen once and never reproduced, "written down so that a second sighting
-  is recognised as the second rather than the first".
-
-## 15. Cross-project provenance
-
-Tressette is the only one with an explicit record: §7.5 "What outlives a
-session" keeps a fork table (what was forked, from which Discola commit, by
-which iteration) and states "Discola is a moving reference, not a fixed one…
-Anything forked from it is a snapshot with a date." Scopetta cites its
-ancestors when explaining inherited defects, without a table.
-
-**Finding.** A standard should carry the fork table: for a series of projects
-built by forking, the provenance is the difference between "we know why this
-looks like that" and archaeology.
-
-## 16. Feature matrix
-
-●  present and complete 　◐  partial or implicit 　—  absent
+### 2.2 Claude mode
 
 | | Discola | Tressette | Scopetta | balloons-JS |
 |---|---|---|---|---|
-| design stage before implementation (OpenCode) | ● | ● | ● | ● |
+| stated? | no reviewer mechanism ("this file does not spawn a separate reviewer model") | yes | yes | no mechanism stated |
+| who reviews | — | fresh-context Claude session | fresh-context session required for non-trivial changes; owner may review, not automatically fresh | — |
+| design stage | — | none | none | — |
+
+This is the mode with the least written down, which is exactly why the user's
+description — "Claude does its thing" — is the honest one: Claude Code brings
+its own session model, its own skills and its own review habits, and the Claude
+harness file mostly needs to say **what not to import from the OpenCode mode**
+(the design-issue stage, the cross-family reviewer, the signed verdict machine)
+and **what still applies** (the principles, the owner-decision convention, the
+gates discipline, the records).
+
+### 2.3 What the modes share, and what must never be shared
+
+Shared: the principles; the owner and the owner-decision convention; the
+classification of changes; the defect path; the records; the gates discipline;
+the session handoff; the bootstrap rule that a change to a harness file is
+itself subject to the process.
+
+Mode-specific, and must not leak: how the reviewer is obtained and invoked; the
+design stage (OpenCode has it, Claude does not); the verdict format (a signed
+BLOCK/AGREE machine vs a review on the pull request); the model assignment
+table.
+
+A third adapter must be able to say "here is where I differ" in the same shape
+— this is the test the mode files must pass.
+
+## 3. Shared process facts (all four agree)
+
+- **Design before code**, for the OpenCode mode: problem, findings with
+  `file:line`, design, open questions; agreed before implementation.
+- **Implementation on a branch, one PR**, reviewed against the agreed design.
+- **The owner merges.** (The competition in
+  [`05`](05-harness-competition.md) makes this rule an experimental variable.)
+- **Bootstrap**: a change that introduces or edits a harness file is itself
+  reviewed to AGREE ("the process reviews its own amendment").
+- **The verdict is posted where the work is and signed**; Luna posts through
+  the owner's single GitHub account, so the signature is the only marker of
+  authorship.
+- **A BLOCK is not overridden by the implementer**; it goes to the owner.
+- **The reviewer never shares the implementer's context.**
+- **Durable facts live in the repository**, not in a conversation.
+
+## 4. Where the four differ (process)
+
+- **Where the principles live** (Discola/balloons: `CLAUDE.md`; Tressette:
+  `PLAN.md §7.7`; Scopetta: `PRINCIPLES.md` with an authoritative ownership map
+  and a rule for contradictions: "a non-owning file **links** to an idea and
+  does not restate it", `PRINCIPLES.md:12-26`).
+- **What needs review**: Scopetta has the only operational test — non-trivial
+  if it can change observable behaviour, what a check measures, the design or
+  process a builder follows, or player-facing copy, with a conservative floor
+  of paths and a pure-typo exception (`PRINCIPLES.md:28-66`). Tressette is the
+  direct opposite: "every OpenCode implementation, with no size floor"
+  (`AGENTS.md:36`). Discola and balloons state no classification.
+- **AGREE materiality**: only Scopetta defines what the verdict covers and what
+  invalidates it — current revision; commit message/whitespace/typo edits are
+  non-material; a material edit to the issue body always re-opens review; a
+  re-review may continue the reviewer's session while the initial verdict comes
+  from a new one (`AGENTS.md:119-137`).
+- **Owner decisions**: Discola and balloons state the principle; Scopetta
+  operationalizes it (recorded with a recommended default and a mark; the
+  reviewer may require that it be decided and recorded, but "may not reject it
+  merely for differing from the reviewer's preference"; a rejected proposal is
+  withdrawn or re-scoped, never merged around).
+- **Fallback and waiver**: only Scopetta. Failed review is no review and no
+  AGREE; retry or another family, recorded; a waiver is an implementation-stage
+  exception only, and bypassing design is an owner amendment.
+- **Unit of work**: Tressette is the only one with iterations (`PLAN.md
+  §7.1–§7.6`: one iteration per session, done-when, effort per iteration, the
+  owner's part, the fork provenance table). The others work change by change.
+- **Verdict mechanics**: Scopetta's exact signature and the comment-not-approval
+  rule ("GitHub forbids approving your own pull request under one account",
+  `AGENTS.md:49-50`).
+- **Provenance**: Tressette keeps a fork table with commits and states "Discola
+  is a moving reference, not a fixed one" (`PLAN.md:1764-1774`); Scopetta cites
+  ancestors in prose.
+- **What outlives a session**: Tressette names the three files
+  (decision → `PLAN.md §0`, builder rule → `§7.7`, stranger docs → `SPEC.md`);
+  Scopetta and Discola carry the three-bullet handoff.
+
+## 5. Project verification, and the seam
+
+This is the layer the harness does **not** own. What the four projects carry,
+as illustration:
+
+| | Discola | Tressette | Scopetta | balloons-JS |
+|---|---|---|---|---|
+| unit tests | `engine.test.mjs` | engine + opponent + release tests, golden fixture | engine + opponent + release tests, golden fixture | scores suite + browser suite |
+| UI check | `check_ui.mjs` + `ui-check` skill | bigger, with fan assertions | biggest, 12 passes, states and viewports | none (browser suite instead) |
+| mutation harness | — (older-revision technique) | — (habit) | `break.mjs` + `break_ui.mjs` | — |
+| CI | 2 workflows | 2 jobs | 2 jobs | none |
+| run discipline | full suite 3× for primary logic | none stated | measured-input tree | 8× for game logic, 1 pass otherwise |
+
+None of it is standardizable; all of it is good. The harness's business in this
+layer is a **short list of disciplines** every project must express in its own
+way:
+
+1. **Declare the gates in one place.** Commands, what each covers, when each
+   runs, how many repeats — with the failure model that justifies the repeats
+   (`discola`: engine determinism → 3×; `balloons`: browser timing → 8×;
+   `scopetta`: a 25-minute check → a measured-input tree).
+2. **A red gate does not merge.** Stated by Discola, Tressette and Scopetta;
+   balloons runs its gates locally before pushing.
+3. **A new assertion is made to fail before it is made to pass.** Stated in all
+   three skills; mechanized only by Scopetta's mutation harness, which checks
+   that the assertion *written for that defect* goes red, not merely that
+   something did. The pattern is optional; the discipline is not.
+4. **Reproduce before you act** — a reviewer's finding and your own claim alike
+   (`balloons`: "run old and new side by side", because a broken harness shows
+   up as both columns agreeing).
+5. **Assert what a person would notice, then go and play it.** balloons'
+   formulation of the difference between a passing test and a working feature;
+   Tressette's checklist and the skills' defect tables are the same idea.
+6. **State what the check would have caught had the code been wrong** — the
+   rule that stops implementer and reviewer sharing a blind spot.
+
+Everything else is the project's to invent. A project with no UI has no UI
+check; a project with no browser has no browser suite; the harness should say
+what the project must *state*, not what it must *build*.
+
+## 6. Matrix — the harness (process)
+
+● present and complete 　◐ partial or implicit 　— absent
+
+| | Discola | Tressette | Scopetta | balloons-JS |
+|---|---|---|---|---|
+| OpenCode mode stated (roles, cross-family, fresh context, model id) | ● | ● | ● | ● |
+| Claude mode stated (fresh-context session, no design stage) | — | ● | ● | — |
+| design stage before implementation | ● | ● | ● | ● |
 | implementation PR stage | ● | ● | ● | ● |
 | bootstrap self-amendment | ● | ● | ● | ● |
-| reviewer: different family, fresh context, explicit model | ● | ● | ● | ● |
-| Claude Code reviewer: fresh-context Claude session | ◐ | ● | ● | ◐ |
-| verdict signed on GitHub, with convention | ◐ | ◐ | ● | ◐ |
-| AGREE materiality / re-review rules | — | — | ● | — |
+| verdict signed where the work is | ◐ | ◐ | ● | ◐ |
+| exact signature convention | — | — | ● | — |
+| AGREE materiality / re-review | — | — | ● | — |
 | reviewer fallback / waiver | — | — | ● | — |
 | BLOCK not overridden | ● | ● | ● | ● |
+| BLOCK scope (only what is necessary) | — | — | ● | — |
 | owner-decision convention | ● | ◐ | ● | ● |
 | trivial / non-trivial classification | — | — (explicit no floor) | ● | — |
-| iteration as the unit of work (`PLAN.md §7`) | — | ● | — | — |
-| verification gates table | ● | ● | ● | ● |
-| repeat/run schedule stated | ● 3× | — | ● measured-input tree | ● 8× |
-| UI check + skill with defect table | ● | ● | ● | — |
-| mutation / break harness | — | — | ● | — |
-| CI on every PR | ● | ● | ● | — |
-| read/ignore list + output economy | ● | ● | ● | ◐ (different shape) |
-| never-echo secrets list | ◐ | ◐ | ◐ | ● |
-| session handoff shape | ● | ● | ● | ◐ |
-| defect path (issue + assertion) | ◐ | ● | ● | ◐ |
+| defect path | ◐ | ● | ● | ◐ |
+| iteration overlay | — | ● | — | — |
+| principles ownership map | — | ◐ | ● | — |
 | fork provenance table | — | ● | ◐ | — |
+| session handoff shape | ● | ● | ● | ◐ |
 | "decided, not to be re-opened" | — | — | — | ● |
 
-## 17. What each harness is best at
+## 7. Matrix — project verification (illustrative, not normative)
 
-- **Discola** — the complete lifecycle at the smallest ceremony: two files, a
-  verified build, release tooling, and the only GitHub-action integration
-  (`/oc`). It is the ancestor every other habit cites, and its `CLAUDE.md`
-  sentence "This file does not spawn a separate reviewer model" is still the
-  cleanest statement of the split by tool.
-- **Tressette** — the plan-shaped harness: iterations, a DoD per iteration, the
-  model/effort table, the owner's part, and the fork provenance table. It is
-  also the only prototype discipline in the series: `FORGETTING.md` is a
-  complete experiment record (status, question, method, reproduce commands,
-  results, recommendation, review history) for a branch that was deliberately
-  never merged — the pattern every later "try an approach" experiment can reuse.
-- **Scopetta** — the governance depth: ownership map, non-trivial test with a
-  conservative floor, measured-input tree, AGREE materiality, fallback/waiver,
-  BLOCK scope, exact signature convention, and the mutation harnesses with
-  their removal/retune rules. It is the latest and the most complete, and the
-  natural spine for release 1.
-- **balloons-JS** — knowing the repository: one source of truth (including the
-  shadow copies), never-echo secrets, big-file guidance, the commands/ports
-  table, "decided, and not to be re-opened", and the habits that catch a broken
-  harness: run old and new side by side, and "a passing test is not a working
-  feature — assert what a person would notice, then go and play it."
+| | Discola | Tressette | Scopetta | balloons-JS |
+|---|---|---|---|---|
+| declared gates table | ● | ● | ● | ● |
+| repeat rule with a stated failure model | ● 3× | — | ● tree | ● 8× |
+| UI check + skill born with it | ● | ● | ● | — |
+| mutation harness (assertion-named EXPECT) | — | — | ● | — |
+| CI on every PR | ● | ● | ● | — |
+| old-vs-new / reproduce discipline | ◐ | ◐ | ● | ● |
+| "decided" outcomes recorded | — | — | — | ● |
 
-## 18. The union of ideas worth keeping
+## 8. The union of harness ideas worth keeping
 
-Numbered for reference in [`03-standardization-decisions.md`](03-standardization-decisions.md).
+Process only; the verification patterns are §9.
 
-1. **One ownership map** for the harness files (Scopetta).
-2. **Cross-model review**, different family, high effort, fresh context,
-   explicit model id, with an assignment table and an update rule (all four;
-   Scopetta's wording).
-3. **Two stages**, design issue → AGREE, PR → AGREE, owner merges (all four).
-4. **Bootstrap**: the process reviews its own amendment (all four).
-5. **Trivial/non-trivial** test with a conservative floor (Scopetta).
-6. **The defect path** — the four conditions for skipping design (Scopetta).
-7. **Signed verdicts**, exact convention, comment not approval (Scopetta).
-8. **AGREE materiality and re-review** (Scopetta).
-9. **Owner decisions** recorded with a recommended default (Scopetta; principle
-   in Discola/balloons).
-10. **BLOCK scope** — only what is necessary to the change as proposed
-    (Scopetta).
-11. **Fallback and waiver** (Scopetta).
-12. **Verification gates** as a table, with schedules stated per project
-    (all four; Scopetta's measured-input tree as the model).
-13. **Mutation harness** with EXPECT naming and survivor discipline (Scopetta),
-    plus the older-commit technique (Discola) and "make it fail first" (all).
-14. **UI check** + **skill born with the defect table** (Discola/Tressette/Scopetta).
-15. **CI**: two jobs, engine then UI, red does not merge (Tressette/Scopetta/Discola).
-16. **Defects**: issue, fix, and the assertion that would have caught it
-    (Tressette/Scopetta).
-17. **Assertion removal and threshold retune** rules (Scopetta).
-18. **Read/ignore, output economy, session handoff** (all four).
-19. **One source of truth, never-echo, big files, decided-not-to-reopen**
-    (balloons-JS).
-20. **Run old and new side by side**; "a passing test is not a working
-    feature — assert what a person notices, then play it" (balloons-JS).
-21. **Fork provenance table** (Tressette).
-22. **Iteration overlay** with DoD, effort table, owner's part (Tressette).
-23. **Experiment record** pattern (`FORGETTING.md`) for branches that are
-    deliberately not merged (Tressette).
-24. **Open-work file** for loose ends and one-off flakes (balloons-JS).
+1. **The two mode adapters** over one set of principles, with the mode-specific
+   parts named and forbidden to leak (all four; the restatement of the point).
+2. **One ownership map** for the harness files, with links instead of
+   restatements (Scopetta).
+3. **Cross-model review**: different family, high effort, fresh context,
+   explicit model id, assignment table + update rule (Scopetta's wording).
+4. **Two stages** for the OpenCode mode, design → AGREE, implementation →
+   AGREE (all four); **no design stage** for Claude (Tressette/Scopetta).
+5. **Bootstrap**: the process reviews its own amendment (all four).
+6. **Trivial/non-trivial** test with a conservative floor (Scopetta).
+7. **The defect path** — the four conditions for skipping design (Scopetta).
+8. **Signed verdicts** with the exact convention; comment, not approval
+   (Scopetta).
+9. **AGREE materiality and re-review** (Scopetta).
+10. **Owner decisions** recorded with a recommended default (Scopetta; the
+    principle in Discola/balloons).
+11. **BLOCK scope** — necessary to the change as proposed (Scopetta).
+12. **Fallback and waiver** (Scopetta).
+13. **The defect path through work**: an issue, a fix, and the assertion that
+    would have caught it (Tressette/Scopetta).
+14. **Read/ignore and output economy** (all four), **one source of truth,
+    never-echo, big files, decided-not-to-reopen** (balloons).
+15. **Session handoff** — completed / files-decisions / next (all four).
+16. **Fork provenance table** (Tressette).
+17. **Iteration overlay**, optional, for plan-driven projects (Tressette).
+18. **Experiment record** pattern for branches deliberately not merged
+    (Tressette's `FORGETTING.md`).
+19. **Open-work file** for loose ends and one-off flakes (balloons).
+20. **The owner-merge rule as a variable, not an axiom** — the competition
+    ([`05`](05-harness-competition.md)).
 
-## 19. Conflicts and gaps standardization must resolve
+## 9. The union of verification patterns (a library, not a requirement)
 
-1. **Where the principles live**: a separate `PRINCIPLES.md` (Scopetta), or
-   folded into `CLAUDE.md` (Discola/balloons), or into `PLAN.md` (Tressette).
-   Only one can own them; the others link.
-2. **Trivial path**: adopt Scopetta's test and floor, or Tressette's "no size
-   floor"? They are direct opposites and the choice changes what every session
-   must do.
-3. **Iteration overlay**: keep Tressette's §7.1–§7.6 as an optional overlay, or
-   outside the standard?
-4. **Run counts**: per-project numbers (3× / 8× / tree) justified by the
-   failure model, or one number?
-5. **Mutation harness**: mandatory whenever a UI check exists, or optional?
-6. **Review records with no GitHub** (this repository is local-first): every
-   convention above assumes issues/PRs. A local form is needed — where a design
-   proposal lives, where a verdict is recorded, what replaces the PR.
-7. **Model assignment drift**: one table, the invariant, and the update rule;
-   Discola's workflow file is the evidence for it.
-8. **CI mandatory** — balloons is the only harness without it, and its suite is
-   the reason; does the standard require CI anyway?
-9. **Template shape**: where the harness ends and the project begins; what the
-   toy app's home is; how variants are recorded and compared.
-10. **Multi-tool work** (later): OpenCode and Claude Code both appear in the
-    four; Codex appears in none of them — prior art exists elsewhere in the
-    user's projects (`learnukrainian` migrated from Codex to Claude;
-    `boardemo`'s Unity AI gateway names Codex CLI among its agents).
-11. **Worktrees** (later): none of the four uses them; Imperial Conquest 2's
-    model (§ `02-ic2-complex-model.md`) and Geoclick2027's recorded worktree
-    experiments are the evidence to draw on.
+Patterns a project may adopt, documented once and chosen per project:
+
+1. Deterministic unit tests over a DOM-free engine.
+2. A golden fixture that freezes behaviour, re-recorded in the commit that
+   moves it.
+3. A UI check that renders *states*, not just screens, and asserts a defect
+   table (assertion → the bug it was written for).
+4. The mutation harness: one defect at a time, the named assertion must go red,
+   `QUICK` for proving an assertion bites and never for clearing a check,
+   survivors are the finding; plus assertion-removal and threshold-retune rules.
+5. Run counts justified by the failure model; the measured-input tree for an
+   expensive check; "no measured input changed → no re-run"; rebase re-runs.
+6. The older-revision technique: point the check at a commit that had the bug.
+7. Old and new side by side.
+8. Assert what a person notices — pixels, contrast, timing — then play it.
+9. CI as the merge gate, with the two-job split (dependency-free unit job, then
+   the environment-heavy check), and a red CI that blocks.
+
+## 10. Conflicts and gaps standardization must resolve
+
+1. **Where the principles live** — `PRINCIPLES.md` (Scopetta), `CLAUDE.md`
+   (Discola/balloons), `PLAN.md` (Tressette). One owner; the others link.
+2. **The trivial path** — Scopetta's test and floor, or Tressette's "no size
+   floor". Direct opposites.
+3. **The iteration overlay** — optional template section, or outside the
+   standard.
+4. **The gates seam** — what exactly the harness requires of a project that has
+   no CI, no UI, or no browser; and how the declared-gates table is shaped.
+5. **Verification library** — shipped as patterns, and where they live so they
+   are clearly not mandatory.
+6. **Review records with no GitHub** — this project is local-first; every
+   verdict convention assumes issues and PRs. A local form is needed.
+7. **Model assignment** — one table, the invariant, the update rule; Discola's
+   workflow file is the evidence.
+8. **Template shape and the toy's home** — where the harness ends and the
+   project begins.
+9. **The competition rules** — autonomous merge, the metric set, and what
+   "performs better" means ([`05`](05-harness-competition.md)).
+10. **Multi-tool interop** (later) — OpenCode and Claude Code both appear in the
+    four; Codex in none of them.
+11. **Worktrees** (later) — none of the four uses them; IC2 and Geoclick2027
+    are the evidence.

@@ -1,9 +1,16 @@
 # The toy application — a design sketch
 
 **Status: proposal.** The toy is the substrate for the standard
-([`03-standardization-decisions.md`](03-standardization-decisions.md) D-9) and
-for the experiments (E1–E4). It exists to answer one question before release 1
-is frozen: *does the standard generalize beyond a card table?*
+([`03-standardization-decisions.md`](03-standardization-decisions.md) D-8), for
+the experiments (E1–E5) and for the harness competition
+([`05-harness-competition.md`](05-harness-competition.md)). It exists to answer
+one question before release 1 is frozen: *does the standard generalize beyond a
+card table?*
+
+The toy's tests, UI check and mutation harness are its **own project
+verification** — one worked example of the optional patterns in
+[`01-harness-comparison.md`](01-harness-comparison.md) §9, not part of the
+harness itself.
 
 ---
 
