@@ -128,6 +128,10 @@ the harness and which are the card game.
 
 ## Build order (once the standard is decided)
 
+Every iteration runs in a run repo scaffolded from harness release 1
+([`06-testing-the-harness.md`](06-testing-the-harness.md)), never in this
+repository.
+
 | iteration | scope | done when |
 |---|---|---|
 | 0 | scaffold: harness files + empty app + CI | CI green on an app that prints "not implemented" |

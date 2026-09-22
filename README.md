@@ -61,6 +61,9 @@ experiments: `learnukrainian` (a Codex → Claude migration) and `Geoclick2027`
   designed so the standard cannot be card-shaped.
 - [`docs/05-harness-competition.md`](docs/05-harness-competition.md) — the
   competition: owner merge removed, escaped defects as the primary metric.
+- [`docs/06-testing-the-harness.md`](docs/06-testing-the-harness.md) — how the
+  harness is tested: run repos scaffolded from release tags, the notebook here,
+  and why several instances must not share one repository.
 
 ## Phases
 
@@ -68,7 +71,9 @@ experiments: `learnukrainian` (a Codex → Claude migration) and `Geoclick2027`
 2. **Standardize** — decide D-1…D-9 and freeze **harness release 1**: the
    copyable harness files, tagged. The toy is not part of this release — it is
    the testbed that validates it.
-3. **Apply** — build the toy under the standard, one iteration at a time.
+3. **Apply** — scaffold `toy-r1` from harness release 1
+   ([`docs/06`](docs/06-testing-the-harness.md)) and build the toy there,
+   iteration by iteration.
 4. **Experiment** — harness variants (E1), model pairs (E2), OpenCode + Claude
    Code + Codex interop (E3), the worktree work model (E4), the competition
    (E5), shell-out cross-family reviewers (E6); each recorded in the

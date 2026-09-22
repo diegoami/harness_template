@@ -106,17 +106,20 @@ assignment updates the table in the same change"). The assignment itself is
 project-local. Discola's workflow file is the drift evidence: delete the pinned
 model there and point at the table.
 
-## D-8 — Template shape, and the toy's home
+## D-8 — Template shape, and where a run lives
 
-**Options.** (a) harness at the repo root, toy app in `public/`, variants as
-branches; (b) harness in `template/`, toy as a sibling repo; (c) one repo per
-variant.
+The toy is **not built in this repository**. The harness repo develops the
+harness and keeps the notebook; each run — a field test, an experiment arm, a
+competition contestant — is a **separate repository scaffolded from a release
+tag**, with fresh history. The full strategy, including why several instances
+must not share one repo, is in
+[`06-testing-the-harness.md`](06-testing-the-harness.md).
 
-**Recommendation: (a).** It matches the four projects' layout (`public/`,
-`tools/`), so the toy is directly comparable and the copy step at release 1 is
-mechanical. Variants are a branch plus an `experiments/<slug>.md` record in the
-`FORGETTING.md` shape, indexed in `EXPERIMENTS.md`. Release 1 is a tag with the
-harness files frozen; the toy is its first instance.
+**Recommendation.** Harness files at the root (the repo self-hosts its own
+process); the scaffold tool and its manifest in `tools/`; runs as sibling
+directories under `C:\Users\diego\projects\`, published only if a remote is
+wanted; all records here. Release 1 includes the scaffold: a template that
+cannot create a project from itself has not been tested.
 
 ## D-9 — The competition rules
 
@@ -173,6 +176,8 @@ PLAN.md              — optional: the iteration overlay
 design/              — design proposals (local-first records)
 reviews/             — signed verdicts (local-first records)
 EXPERIMENTS.md       — the variant/experiment index
+tools/scaffold.mjs   — creates a run repo from a release tag
+scaffold.manifest.json — the files a run receives
 ```
 
 **Not the harness, shipped separately as a library:** `docs/verification/*` —
