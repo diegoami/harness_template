@@ -177,6 +177,7 @@ CLAUDE.md            — Claude adapter: fresh-context review, no design stage
                        never-echo, one source of truth, decided-not-to-reopen)
 PLAN.md              — optional: the iteration overlay
 ROADMAP.md           — the feature-request backlog; supplies the iterations
+                       and grants the agent artistic license inside a request
 design/              — design proposals (local-first records)
 reviews/             — signed verdicts (local-first records)
 EXPERIMENTS.md       — the variant/experiment index

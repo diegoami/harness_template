@@ -71,6 +71,33 @@ The table is ordered by the owner's priority. There are no estimates — the
 done-when is the sizing. Dependencies are explicit; a blocked request is
 skipped, never folded into another.
 
+## Artistic license
+
+The project exists to exercise the process; its content is not the deliverable.
+So the agent has **artistic license inside a request**:
+
+- invent the rooms and their names, the riddles, the prose, the item
+  descriptions, the small mechanics of a puzzle;
+- implement the thing that reads best, not the thing that follows the request
+  word for word;
+- record what was invented — in the block and the design record — so the choice
+  is visible and reversible;
+- do not ask the owner about wording, names, or flavour. Those are the agent's.
+
+What the license does not cover:
+
+- **the intent of the request** — "more rooms" stays more rooms;
+- **scope** — inventing three rooms never adds a fourth feature;
+- **the done-when and the gates** — they may be extended, with the reason
+  recorded, but never weakened;
+- **owner decisions** — anything that is really theirs (§ owner decisions in
+  the harness).
+
+The point is **the process, not precision**. A riddle nobody asked for, landed
+through a review that caught the right things, is a better result than a
+literal request landed through a rubber stamp. The request is a direction; the
+done-when is the contract.
+
 ## How it plugs into the rest
 
 - **Iterations after the scaffold are the landed requests**, in order; the

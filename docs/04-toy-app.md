@@ -139,8 +139,11 @@ a time:
 | F-9 | multiple endings: the chalice, the hoard, or out with nothing |
 | F-10 | a compact log of firsts (rooms first seen, riddles answered) |
 
-Each landed request is one iteration, one session and one review. The subset
-frozen for a comparison run becomes the competition's task list.
+Each landed request is one iteration, one session and one review. The request
+sets the shape; the details — room names, riddles, prose, puzzle mechanics — are
+the agent's to invent under the artistic license in
+[`07-feature-requests.md`](07-feature-requests.md). The subset frozen for a
+comparison run becomes the competition's task list.
 
 ## What the toy deliberately does not have
 
