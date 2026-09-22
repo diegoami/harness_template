@@ -1,16 +1,18 @@
 # 002 — Harness release 2
 
-**Stage:** design · **Status:** revision 2, awaiting re-review · **Date:** 2026-09-23.
+**Stage:** design · **Status:** revision 3, awaiting re-review · **Date:** 2026-09-23.
 
 **How this record works** (`design/README.md`): this file is the design
 proposal; the reviewer appends a signed `## Review — design stage` section
 below. Nothing is implemented before an explicit **AGREE**. When a remote
 exists, the same text is posted verbatim as the design issue.
 
-**Revisions.** v1 (`8c770ea`) was reviewed and **BLOCKED** on findings 1–2 —
-the completion note's boundary, and the `Status:` transitions — plus one
-non-blocking citation correction. v2 is this revision; the earlier verdict
-stays below as history and the latest governs.
+**Revisions.** v1 (`8c770ea`) was BLOCKED on findings 1–2 (the completion
+note's boundary; the `Status:` transitions) plus one non-blocking citation
+correction. v2 (`23d1594`) resolved those and was BLOCKED on one finding: the
+Claude completion-note file was identified by an AGREE marker Claude does not
+have. v3 is this revision; earlier verdicts stay below as history and the
+latest governs.
 
 **Input.** The `toy-r1` field test — [`experiments/toy-r1/record.md`](../experiments/toy-r1/record.md)
 — found release 1 sound and named four template and ownership fixes. The owner
@@ -109,8 +111,9 @@ directory, read the generated README, remove the directory.
 - `design/README.md`: in OpenCode mode the note is a `## Completion` section in
   the design record, owned and signed by the implementer.
 - `reviews/README.md`: in Claude mode, which has no design record, the note is
-  appended to the **implementation review file whose verdict is the AGREE** (the
-  last round), under `## Completion`, owned and signed by the implementer. The
+  appended under `## Completion` to the **final implementation review file** —
+  the last round whose final line states that no blocking finding remains
+  (Claude has no AGREE marker) — owned and signed by the implementer. The
   reviewer settled open question 2 this way — not the pull-request body;
   repository records stay canonical.
 - **One writer:** the implementer. The reviewer never writes the note.
@@ -182,8 +185,8 @@ scaffold, so its verification is:
    direction to fold the four; recorded rather than assumed.)_
 
 **Settled by the v1 review:** 2. the completion note's home in Claude mode is
-the implementation review file whose verdict is the AGREE (the last round), not
-the pull-request body (§3).
+the final implementation review file — the last round whose final line states
+that no blocking finding remains — not the pull-request body (§3).
 
 ---
 
@@ -212,6 +215,31 @@ the pull-request body (§3).
 ### Not verified
 
 - No implementation exists at this revision, so the revised generated README, scaffold smoke behavior, `node --check`, status updates, and completion-note recording cannot yet be verified. Those belong to implementation-stage verification after the blocking design findings are resolved.
+
+— GPT-5.6 Luna (opencode/gpt-5.6-luna#high), reviewer
+BLOCK
+
+---
+
+## Review — design stage (revision 2, 23d1594)
+
+**Verdict:** BLOCK — the Claude completion-note discriminator contradicts Claude's review-record format.
+
+### Findings
+
+1. **Claude mode has no AGREE verdict to identify the completion-note file** — blocking. v2 says the note belongs in the implementation review file “whose verdict is the AGREE” (`design/002-harness-release-2.md:111-115`, repeated at `184-186`). But Claude explicitly has “no AGREE/BLOCK marker” (`CLAUDE.md:19-20`), and `reviews/README.md:17-19` requires Claude's final line to state whether any blocking finding remains, with no marker. Keep the settled choice of the final implementation review file, but identify it by the last Claude review round whose final line states that no blocking finding remains (and reserve `AGREE` for OpenCode); as written, the rule is not implementable without contradicting the existing owner.
+
+### Verified
+
+- The completion-note boundary now has the required guard: it may only transcribe already-agreed done-when items and their evidence/outcome, while changing a done-when, assertion, owner decision, or process rule is material and takes the mode's review (`design/002-harness-release-2.md:104-108`).
+- The `Status:` transition table now names one writer, all required events, same-commit recording, and the `landed` constraint (`design/002-harness-release-2.md:121-138`). In particular, landing requires the latest verdict to be `agreed`, and a blocked record requires an intervening `agreed`.
+- The citation correction is resolved: the plan is described as a four-column table (`design/002-harness-release-2.md:47-49`), and the status drift is grounded in the `a8723dc`/`ef86f2f` history plus the current value naming `ef86f2f` against latest reviewed revision `d954ff0` (`:38-43`).
+- The underlying open-question-2 decision is correct and remains the canonical final implementation review file rather than the pull-request body; only its Claude-mode identifier needs the correction above. The one-writer rule still leaves the reviewer responsible for its own verdict (`design/002-harness-release-2.md:109-119`).
+- No other new contradiction is apparent in the revised scope, ownership touch, scaffold condition, or out-of-scope list (`design/002-harness-release-2.md:80-95`, `148-175`).
+
+### Not verified
+
+- No implementation exists at this revision, so the scaffold smoke run, `node --check`, generated README, status updates, and completion-note recording cannot be verified yet; these remain implementation-stage checks.
 
 — GPT-5.6 Luna (opencode/gpt-5.6-luna#high), reviewer
 BLOCK
