@@ -4,10 +4,9 @@
   increments per review round of the same implementation stage.
 - The file opens with **the revision it covers** (the commit sha), the
   reviewer's display name and model id, and the mode (OpenCode or Claude).
-- **Findings** are numbered, each marked `blocking` or `non-blocking`, each with
-  `file:line` or a short quote as evidence. A finding is blocking only if it
-  must be fixed before approval: directly required for the change's stated aim,
-  its correctness, or its verification.
+- **Findings** are numbered, each marked `blocking` — it must be fixed before
+  the change is approved — or `non-blocking`, each with `file:line` or a short
+  quote as evidence.
 - **The final lines** are:
 
   ```
@@ -22,6 +21,4 @@
   issue or pull-request comment when a remote exists; it is never an approval
   action. The file stays canonical.
 - **The meaning of the verdict** — what it covers, materiality, fallback,
-  waiver — is owned by [`PRINCIPLES.md`](../PRINCIPLES.md). The revision a
-  verdict covers is named in the file, and a material change after it asks for a
-  new verdict.
+  waiver — is owned by [`PRINCIPLES.md`](../PRINCIPLES.md).

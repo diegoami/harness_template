@@ -18,8 +18,8 @@ This file adds the OpenCode-specific process and nothing else.
 - The **reviewer** is invoked as a **subagent**, in a **fresh context**, with an
   **explicit model id**, at **high reasoning effort**, from a **different model
   family than the implementer**. It verifies against the real code rather than
-  trusting the description, and signs its verdict
-  `— <display name> (<model id with variant>), reviewer`.
+  trusting the description, and signs its verdict as
+  [`reviews/README.md`](reviews/README.md) defines.
 - **The invariant is the different model family; the table above is the current
   assignment, not the rule.** Whoever changes an assignment updates the table in
   the same change.
@@ -57,21 +57,19 @@ conditions in the protocol.
 
 ## Mode-specific pointers
 
-- **Fallback:** another reviewer from a different model family; record its model
-  id and who selected it. The rest of the fallback rules are in the protocol.
-- **Waiver:** implementation stage only — the protocol.
+- **Fallback:** another reviewer from a different model family. The rest of the
+  fallback rules are in the protocol.
 - **Records and signature:** [`reviews/README.md`](reviews/README.md). The
   verdict's *meaning* and materiality: `PRINCIPLES.md`.
 - **Project rules and the gates table:** the project slot in `CLAUDE.md`.
 
 ## Bootstrap
 
-A change to a harness file that changes what a builder must do or how the
-process works takes both stages, to a signed AGREE on each. A pure typo takes
-neither. **The process reviews its own amendment.**
+Harness-file changes take both stages in this mode, to a signed AGREE on each;
+the shared rule is in `PRINCIPLES.md`. **The process reviews its own
+amendment.**
 
 ## When a remote exists
 
-The design record's text is posted verbatim as the issue, verdicts as comments;
-the pull request links the design record. the file stays canonical, and the
-comment is never an approval action (`PRINCIPLES.md`).
+Posting follows the protocol in `PRINCIPLES.md`; the pull request links the
+design record.

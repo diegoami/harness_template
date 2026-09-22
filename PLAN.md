@@ -38,8 +38,7 @@ Fill this table as the plan becomes clear; it is a plan, not a contract.
   in hand.
 - **Play the result** after an iteration that changes what a person sees. The
   checks measure what they measure; only a player measures whether it is fun.
-- **File what you find** — as a defect record, closed by a change that lands the
-  assertion that would have caught it (`PRINCIPLES.md`).
+- **File what you find** — the defect path is in `PRINCIPLES.md`.
 
 ## Fork provenance
 

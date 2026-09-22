@@ -72,8 +72,8 @@ done-when is the contract.
 ## How it plugs into the rest
 
 - **Iterations after the scaffold are the landed requests**, in order.
-- **When GitHub exists**, each row becomes an issue, the block the issue body,
-  and the status a label; the file stays canonical.
+- **When GitHub exists**, each row becomes an issue, with the block as its body
+  and the status as a label; the posting rule is in `PRINCIPLES.md`.
 - **A comparison run copies a frozen subset** as its task list: same text, same
   base commit, same gates for every arm.
 - The design and review records refer to the request id.

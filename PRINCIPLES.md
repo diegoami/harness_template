@@ -81,11 +81,10 @@ and does not relax CI.
   separation the gate protects is from the implementer's context, and the
   reviewer re-reads the current revision.
 - **Fallback.** A failed, cancelled or unavailable review is no review and no
-  approval. Retry, or select another reviewer: record its model id and who
-  selected it; the fallback becomes the designated reviewer for its stage. In
-  OpenCode mode the fallback must be from a different model family; in Claude
-  mode it is a new session or the external process of the E6 experiment,
-  recorded.
+  approval. Retry, or select another reviewer; record its model id and who
+  selected it; the fallback becomes the designated reviewer for its stage. Each
+  mode states where its fallback reviewer may come from (`AGENTS.md`,
+  `CLAUDE.md`).
 - **Waiver.** An implementation-stage exception only, recorded, and never called
   AGREE. Bypassing the design stage is an owner amendment, recorded in the
   design record.

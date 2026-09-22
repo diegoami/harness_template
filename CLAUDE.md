@@ -16,11 +16,10 @@ This file records the Claude-specific process and the project slot.
   **external process** from another family (for example `codex exec`, or
   `opencode run -m <provider>/<model>`); when it is, record the tool and the
   model id in the review.
-- There is **no design stage** and **no AGREE/BLOCK marker**. The reviewer
-  writes `reviews/NNN-<slug>-impl-NN.md` (format in
-  [`reviews/README.md`](reviews/README.md)), states in one line whether any
-  blocking finding remains, and lists the findings marked `blocking` or
-  `non-blocking`.
+- There is **no design stage** and **no AGREE/BLOCK marker**. The review is
+  recorded per [`reviews/README.md`](reviews/README.md).
+- **Fallback:** a new session, or the external process, recorded. The rules are
+  in the protocol.
 - The builder fixes findings in the same change; a finding the builder disagrees
   with goes to the owner, not around the reviewer.
 - The **owner may review** as an independent option, but an owner is not
