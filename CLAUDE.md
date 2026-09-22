@@ -34,7 +34,7 @@ bootstrap applies as written there — one review, not two stages.
 
 ## Project slot
 
-<!-- The scaffold replaces {{PROJECT}}; a project fills the rest in its first
+<!-- The scaffold fills the product name; a project fills the rest in its first
      session. In the harness source repository this slot stays unfilled by
      design — the harness's own rules are README.md and docs/. -->
 
