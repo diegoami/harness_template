@@ -243,3 +243,28 @@ BLOCK
 
 — GPT-5.6 Luna (opencode/gpt-5.6-luna#high), reviewer
 BLOCK
+
+---
+
+## Review — design stage (revision 3, f7753e3)
+
+**Verdict:** AGREE — the v2 finding is resolved and no blocking finding remains.
+
+### Findings
+
+1. **No blocking findings remain** — non-blocking. The Claude completion-note rule now identifies the final implementation review file by the last round whose final line states that no blocking finding remains, explicitly reserving the AGREE marker for OpenCode (`design/002-harness-release-2.md:113-118`, `187-189`).
+
+### Verified
+
+- The v2 contradiction is resolved in both required locations: §3 uses Claude's final-line wording rather than an AGREE marker, and the settled open-question note repeats the same rule (`design/002-harness-release-2.md:113-118`, `187-189`). This is consistent with Claude's no-marker rule (`CLAUDE.md:19-20`; `reviews/README.md:17-19`).
+- The completion-note boundary remains enforceable: only already-agreed done-when items and their evidence/outcome may be transcribed; changing a done-when, assertion, owner decision, or process rule is material and takes the mode's review (`design/002-harness-release-2.md:100-110`).
+- The `Status:` transition table remains complete and implementable, with one writer, the required events, same-commit recording, and the requirement that `landed` follow an `agreed` latest verdict (`design/002-harness-release-2.md:124-141`).
+- The citation correction remains resolved: the plan is described as four columns (`design/002-harness-release-2.md:49-51`), and the status drift cites the `a8723dc`/`ef86f2f` history and the current `ef86f2f` value against latest reviewed revision `d954ff0` (`:40-45`).
+- No new contradiction is apparent in the ownership, scaffold, scope, verification, or Claude/OpenCode placement rules; the reviewer still writes its verdict and the implementer remains the sole completion-note writer (`design/002-harness-release-2.md:119-122`, `151-178`).
+
+### Not verified
+
+- No implementation exists at this revision, so the scaffold smoke run, `node --check`, generated README, status updates, and completion-note recording remain implementation-stage verification.
+
+— GPT-5.6 Luna (opencode/gpt-5.6-luna#high), reviewer
+AGREE

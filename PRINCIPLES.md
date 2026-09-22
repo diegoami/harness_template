@@ -99,6 +99,14 @@ and does not relax CI.
   the fix takes the design stage unless all four hold: limited to the recorded
   defect; no behaviour beyond it; no change to what a check measures; no process
   change. Claude mode has no design stage; the fix is reviewed like any change.
+- **Completion.** When a change lands, the implementer appends a short
+  **completion note** to the change's record: each done-when item and the
+  evidence that closed it — the CI run, the gate output. The note is
+  **non-material**: it may only transcribe the already-agreed done-when items
+  and their outcome. Changing a done-when, an assertion, an owner decision or
+  any process rule is material and takes the review its mode requires; a note
+  that does any of that is not a completion note. The latest verdict still
+  governs.
 - **Bootstrap.** A change to a harness file that changes what a builder must do
   or how the process works takes the review its mode requires — both stages in
   OpenCode, the review in Claude; a pure typo takes neither.
