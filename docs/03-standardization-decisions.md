@@ -135,6 +135,16 @@ Codex CLI, Gemini, Cursor). For each tool the experiment must record: how a
 subagent is dispatched with an explicit model; how it is continued after a
 review; how rules and skills load; where the working directory comes from.
 
+**The first concrete piece is E6, the shell-out reviewer**, because it gives
+Claude mode the cross-family review OpenCode mode has by construction and it is
+buildable today: `codex exec` (installed, with a `review` subcommand) and
+`opencode run -m <provider>/<model>` (headless `run` in both CLI lines). The
+experiment record must pin: the exact command and flags; how the design doc and
+the diff reach the process; the timeout and exit-code handling; where the
+verdict is written (`reviews/…`); and the signature line with the external
+model's display name and id. The symmetric direction — OpenCode mode shelling
+out to `claude -p` for a Claude review — runs in the same experiment.
+
 ## D-11 — The worktree work model (later, release 2)
 
 Evidence: IC2 (worktree per agent, "say where you are working", gate 0, and the
@@ -181,6 +191,7 @@ way to do them.
 | E3 | How do OpenCode, Claude Code and Codex share one process? | Apply D-10 |
 | E4 | Is worktree-per-agent worth it at this scale? | Apply D-11 |
 | E5 | Which harness performs better with the owner-merge gate removed? | Apply D-9 and [`05`](05-harness-competition.md) |
+| E6 | Can Claude get a cross-family review by shelling out? | `codex exec` / `opencode run -m` as reviewer processes, compared with a fresh Claude session on the same task; symmetric `claude -p` reviewer for OpenCode mode (D-10) |
 
 Every experiment gets its record file before it starts, in the
 `FORGETTING.md` shape, so a branch that is never merged still leaves its result.

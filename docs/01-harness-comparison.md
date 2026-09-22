@@ -117,9 +117,22 @@ This is the mode with the least written down, which is exactly why the user's
 description — "Claude does its thing" — is the honest one: Claude Code brings
 its own session model, its own skills and its own review habits, and the Claude
 harness file mostly needs to say **what not to import from the OpenCode mode**
-(the design-issue stage, the cross-family reviewer, the signed verdict machine)
-and **what still applies** (the principles, the owner-decision convention, the
-gates discipline, the records).
+(the design-issue stage, the signed verdict machine) and **what still applies**
+(the principles, the owner-decision convention, the gates discipline, the
+records).
+
+**The fresh session is the current mechanism, not the definition.** The mode's
+definition is: the review happens in a context the implementer cannot see, with
+a model whose family and id are recorded. Claude Code cannot spawn a subagent
+from another family, so its current mechanism is a new Claude session — but the
+mechanism is a slot. A proposed second mechanism is to **shell out to a
+different family**: `codex exec` (Codex CLI 0.155.1 is installed on this
+machine, with a `review` subcommand and stdin prompts) or
+`opencode run -m <provider>/<model>` (headless `run` exists in both the 1.x CLI
+on PATH and the 2.0 CLI bundled with the desktop app). The reviewer is then a
+separate process, started from the repository, reading the design and the diff
+and writing its signed verdict to a file — which also makes it work with no
+GitHub at all. This is experiment E6.
 
 ### 2.3 What the modes share, and what must never be shared
 
@@ -128,13 +141,28 @@ classification of changes; the defect path; the records; the gates discipline;
 the session handoff; the bootstrap rule that a change to a harness file is
 itself subject to the process.
 
-Mode-specific, and must not leak: how the reviewer is obtained and invoked; the
-design stage (OpenCode has it, Claude does not); the verdict format (a signed
-BLOCK/AGREE machine vs a review on the pull request); the model assignment
-table.
+Mode-specific, and must not leak: **how the reviewer is obtained and invoked**
+(§2.4); the design stage (OpenCode has it, Claude does not); the verdict format
+(a signed BLOCK/AGREE machine vs a review on the pull request); the model
+assignment table.
 
 A third adapter must be able to say "here is where I differ" in the same shape
 — this is the test the mode files must pass.
+
+### 2.4 Reviewer acquisition: three mechanisms, one invariant
+
+| mechanism | reachable from | fresh context | different family | status |
+|---|---|---|---|---|
+| subagent with an explicit model id | OpenCode | yes | yes | in use in all four |
+| fresh-context session of the same tool | Claude Code (and OpenCode) | yes | no | Tressette, Scopetta |
+| external CLI process (`codex exec`, `opencode run -m`) | any tool that can run a shell command | yes (new process) | yes (model chosen and recorded) | proposed, E6 |
+
+The invariant is the same in all three: a context the implementer never saw, a
+different family from the implementer, an explicit model id in the record, and
+the verdict signed. Which mechanism a mode uses is an implementation detail of
+that mode — which is what makes the shell-out reviewer the first experiment to
+run, because it gives Claude mode the property OpenCode mode has by
+construction.
 
 ## 3. Shared process facts (all four agree)
 
@@ -344,6 +372,7 @@ Patterns a project may adopt, documented once and chosen per project:
 9. **The competition rules** — autonomous merge, the metric set, and what
    "performs better" means ([`05`](05-harness-competition.md)).
 10. **Multi-tool interop** (later) — OpenCode and Claude Code both appear in the
-    four; Codex in none of them.
+    four; Codex in none of them. The first concrete experiment is E6, the
+    shell-out cross-family reviewer for Claude mode (§2.4).
 11. **Worktrees** (later) — none of the four uses them; IC2 and Geoclick2027
     are the evidence.

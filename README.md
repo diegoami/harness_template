@@ -70,4 +70,5 @@ experiments: `learnukrainian` (a Codex → Claude migration) and `Geoclick2027`
 3. **Apply** — build the toy under the standard, one iteration at a time.
 4. **Experiment** — harness variants (E1), model pairs (E2), OpenCode + Claude
    Code + Codex interop (E3), the worktree work model (E4), the competition
-   (E5); each recorded in the `FORGETTING.md` shape before it starts.
+   (E5), shell-out cross-family reviewers (E6); each recorded in the
+   `FORGETTING.md` shape before it starts.

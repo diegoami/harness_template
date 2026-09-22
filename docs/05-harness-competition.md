@@ -16,7 +16,8 @@ Primary:
 - **Which working mode catches more real defects per unit of cost**, with the
   owner's merge gate removed: OpenCode mode (DeepSeek implements, Luna reviews,
   different family) or Claude mode (Claude implements, a fresh-context Claude
-  session reviews, no design stage)?
+  session reviews, no design stage; the external acquisition of §7 is a later
+  run)?
 
 Secondary:
 
@@ -25,11 +26,17 @@ Secondary:
 - Does a **full-ceremony variant** (Scopetta-style: classification,
   materiality, fallback rules) outperform a **light one** (Discola/Tressette
   prose) once the owner gate is gone?
+- Does a **cross-family reviewer obtained by shelling out** (`codex exec`,
+  `opencode run -m`, or the symmetric `claude -p` from the OpenCode side) beat a
+  fresh same-family session, for the mode that cannot spawn one natively? (E6)
 
 ## 2. The rules
 
-1. **Contestants.** First run: the two modes under release 1. Later runs: the
-   ceremony variants. One contestant pair per run.
+1. **Contestants.** First run: the two modes under release 1, each with its
+   current reviewer acquisition (OpenCode: a subagent with an explicit model;
+   Claude: a fresh-context session). Later runs, one variable at a time: the
+   ceremony variants; or Claude mode with an external cross-family reviewer
+   (E6) held against the same mode with its fresh session.
 2. **The task list is fixed before the run and identical for both sides.** The
    tasks are the toy's iterations, split into small units ("parser",
    "movement and items", "the lamp and the grue", "the vault and the win", "the
@@ -95,8 +102,8 @@ Rules for it:
 - Alternate the order between tasks (A first on task 1, B first on task 2) so
   novelty and warm-up land on both.
 - Both sides run with fresh contexts, no shared state, and their own reviewer
-  (Luna vs a fresh Claude session) — the competition compares the modes, not
-  the reviewer models.
+  (Luna, a fresh Claude session, or the external process of §7) — the
+  competition compares the modes, not the reviewer models.
 - **n is small and says so.** The first run's job is to expose rules that are
   obviously wrong, not to crown a winner; a tie is a result.
 - If a merge breaks the toy, the next task includes the repair, and the defect
@@ -115,7 +122,30 @@ Rules for it:
 - Either way, the result is written into `PRINCIPLES.md`/`AGENTS.md` with the
   competition record as its evidence.
 
-## 7. When it can start
+## 7. The reviewer acquisition variable (E6)
+
+The modes differ in how they obtain a reviewer, and that difference is
+measurable in the same protocol:
+
+- **OpenCode mode** — a subagent with an explicit model id (today: Luna).
+- **Claude mode, current** — a fresh-context Claude session: fresh, but the same
+  family, and with no model choice.
+- **Claude mode, proposed** — the same mode, with its reviewer obtained as an
+  external process from a different family: `codex exec` (installed; has a
+  `review` subcommand and stdin prompts) or `opencode run -m
+  <provider>/<model>` (headless `run` in both CLI lines). The process reads the
+  design and the diff from the repository, writes its verdict to `reviews/…`,
+  and the orchestrator relays findings exactly as it would relay a subagent's.
+- **The symmetric direction** — OpenCode mode shelling out to `claude -p` for a
+  Claude review.
+
+The comparison holds everything else constant and swaps only the acquisition:
+same task, same gates, same owner-less merge. The expected finding is not
+"external wins" but *which class of defect each acquisition catches* — the
+OpenCode mode exists precisely because a same-family reviewer shares the
+implementer's blind spots.
+
+## 8. When it can start
 
 After release 1 is frozen and the toy's first iteration exists. The engine-only
 tasks can run before the toy's page and UI check exist (the gates are the toy's

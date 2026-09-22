@@ -2,7 +2,7 @@
 
 **Status: proposal.** The toy is the substrate for the standard
 ([`03-standardization-decisions.md`](03-standardization-decisions.md) D-8), for
-the experiments (E1–E5) and for the harness competition
+the experiments (E1–E6) and for the harness competition
 ([`05-harness-competition.md`](05-harness-competition.md)). It exists to answer
 one question before release 1 is frozen: *does the standard generalize beyond a
 card table?*
