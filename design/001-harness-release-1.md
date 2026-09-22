@@ -416,3 +416,31 @@ BLOCK
 
 — GPT-5.6 Luna (opencode/gpt-5.6-luna#high), reviewer
 BLOCK
+
+---
+
+## Review — design stage (revision 3, 061e576)
+
+**Verdict:** AGREE — the v2 findings are resolved and no blocking contradiction remains.
+
+### Findings
+
+1. **No blocking findings remain** — non-blocking. The v3 specification resolves the previously blocking omissions; the remaining mode-specific and lab-versus-run distinctions are explicit and consistent with the cited source material.
+
+### Verified
+
+- The ownership map now covers the previously missing union rows: big-file guidance, comment-not-approval, the owner-merge rule as a mode-specific rule whose removal is the lab competition variable, and the deliberate lab ownership of the experiment-record pattern and `EXPERIMENTS.md` (`design/001-harness-release-1.md:115-128`). These correspond to `docs/01-harness-comparison.md:313-332`.
+- The `EXPERIMENTS.md` correction is coherent: runs receive only manifest files, while the durable notebook and experiment records remain in the harness repository (`design/001-harness-release-1.md:82-86`, `docs/06-testing-the-harness.md:44-54`, `docs/06-testing-the-harness.md:76-80`). The proposal records that this deliberately corrects the older recommended spine (`design/001-harness-release-1.md:128`, `docs/03-standardization-decisions.md:166-190`).
+- The shared protocol now scopes design records, the design-stage marker, and the design-stage defect path to OpenCode; Claude has no design stage or marker, and its fix is reviewed like any other change (`design/001-harness-release-1.md:171-217`). The mode table and record format agree with that boundary (`design/001-harness-release-1.md:234-263`), matching `docs/01-harness-comparison.md:137-147` and `Tressette/CLAUDE.md:12-19`.
+- Exact signature and marker rules appear only in the planned `reviews/README.md` format section (`design/001-harness-release-1.md:246-263`); the protocol points to that format and owns only meaning/materiality (`design/001-harness-release-1.md:219-220`, `design/001-harness-release-1.md:262-263`). The comment-not-approval rule is stated in the protocol (`design/001-harness-release-1.md:212-217`).
+- Materiality now covers body and comment edits, obsolete revisions, and initial-versus-re-review sessions (`design/001-harness-release-1.md:179-189`). Owner rejection withdraws or re-scopes without approval (`design/001-harness-release-1.md:198-203`), and the OpenCode-only BLOCK section states necessity, separate-concern splitting, and recorded withdrawal/re-scope (`design/001-harness-release-1.md:222-232`), consistent with `Scopetta/AGENTS.md:72-80` and `Scopetta/AGENTS.md:100-137`.
+- The classification floor now includes `.claude/**`, `mobile/**`, and `netlify.toml`, alongside the other source paths, and retains the guard that a pure typo/comment must change no behaviour, assertion, or process text (`design/001-harness-release-1.md:136-154`; `Scopetta/PRINCIPLES.md:39-44`). A process change therefore cannot use the typo exception.
+- The six gates disciplines remain faithfully enumerated (`design/001-harness-release-1.md:160-169`). The proposal continues to keep project-specific tests, UI checks, mutation harnesses, and CI out of the harness itself (`design/001-harness-release-1.md:88-89`, `design/001-harness-release-1.md:280-285`).
+- The v3 text preserves the v1 disposition of open questions 1–4 as owner decisions and question 5 as the reviewer's settled process decision (`design/001-harness-release-1.md:295-312`; prior review `design/001-harness-release-1.md:373-379`).
+
+### Not verified
+
+- The planned run files and scaffold implementation do not yet exist at this revision, so generated-file contents, actual local/Windows execution, and `git show` behavior remain implementation-review checks.
+
+— GPT-5.6 Luna (opencode/gpt-5.6-luna#high), reviewer
+AGREE
