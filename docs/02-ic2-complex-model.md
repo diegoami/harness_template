@@ -148,4 +148,7 @@ cheap, tool-neutral ideas worth folding into the standard:
   own `npm install` (`ROADMAP.md`), and an orchestration doc that deliberately
   chose "no worktrees — for the loop" after the investigation. The worktree
   question is not settled by IC2 alone; the two evidence sets must be read
-  together when the work-model experiment runs.
+  together when the work-model experiment runs. It is analysed in full in
+  [`08-geoclick2027-harness.md`](08-geoclick2027-harness.md), which also records
+  that it runs an automerging loop — running evidence for the competition's
+  central rule.

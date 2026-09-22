@@ -1,9 +1,11 @@
 # harness_template
 
-Extracting, comparing and standardizing the **harness** that grew across four of
-the user's projects — the process for running one project under two working
-modes — then using a toy application as the testbed, and competing harness
-variants against each other.
+Extracting, comparing and standardizing the **harness** that grew across the
+user's projects — the process for running one project under two working modes —
+then using a toy application as the testbed, and competing harness variants
+against each other. Four harnesses went into release 1; a fifth, different
+model was found afterwards and is release-2 input
+([`docs/08`](docs/08-geoclick2027-harness.md)).
 
 ## The point
 
@@ -70,6 +72,12 @@ status ([`docs/02`](docs/02-ic2-complex-model.md)). Prior art noted for later
 experiments: `learnukrainian` (a Codex → Claude migration) and `Geoclick2027`
 (worktree findings).
 
+**The fifth, found after release 1:** `Geoclick2027` runs **two harnesses in
+one repository** — an interactive PR review loop and an automerging remediation
+loop. Its evidence on worktrees (E4) and on removing the owner-merge gate (E5)
+is the strongest in the set; see
+[`docs/08`](docs/08-geoclick2027-harness.md).
+
 ## Documents
 
 - [`docs/01-harness-comparison.md`](docs/01-harness-comparison.md) — the point
@@ -90,6 +98,9 @@ experiments: `learnukrainian` (a Codex → Claude migration) and `Geoclick2027`
 - [`docs/07-feature-requests.md`](docs/07-feature-requests.md) — how a project
   grows: the `ROADMAP.md` backlog, the owner's one-line request, the agent's
   shaping, and how it feeds iterations and the competition.
+- [`docs/08-geoclick2027-harness.md`](docs/08-geoclick2027-harness.md) — the
+  fifth model: two harnesses in one repo, running evidence for E4 and E5, and
+  the release-2 candidates it brings.
 
 ## Phases
 
@@ -99,6 +110,6 @@ experiments: `learnukrainian` (a Codex → Claude migration) and `Geoclick2027`
    ([`docs/06`](docs/06-testing-the-harness.md)); the toy is built there,
    iteration by iteration ([`docs/04`](docs/04-toy-app.md)).
 4. **Experiment** — harness variants (E1), model pairs (E2), OpenCode + Claude
-   Code + Codex interop (E3), the worktree work model (E4), the competition
-   (E5), shell-out cross-family reviewers (E6); each recorded in the
-   `FORGETTING.md` shape before it starts.
+   Code + Codex interop (E3), the worktree work model (E4, running prior art in
+   `Geoclick2027`), the competition (E5, likewise), shell-out cross-family
+   reviewers (E6); each recorded in the `FORGETTING.md` shape before it starts.

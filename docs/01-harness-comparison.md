@@ -3,8 +3,10 @@
 **Scope.** The four harnesses that have grown in `discola-web`, `Tressette`,
 `Scopetta` and `balloons-JS`. This document is the evidence base for
 standardization (release 1). Imperial Conquest 2's more complex model is out of
-scope here and recorded in [`02-ic2-complex-model.md`](02-ic2-complex-model.md).
-The competition that removes the owner's merge gate is designed in
+scope here and recorded in [`02-ic2-complex-model.md`](02-ic2-complex-model.md);
+a fifth, different model found after release 1 is in
+[`08-geoclick2027-harness.md`](08-geoclick2027-harness.md). The competition that
+removes the owner's merge gate is designed in
 [`05-harness-competition.md`](05-harness-competition.md).
 
 **Method.** Every harness file was read in full: `AGENTS.md`, `CLAUDE.md`,

@@ -157,9 +157,10 @@ out to `claude -p` for a Claude review — runs in the same experiment.
 Evidence: IC2 (worktree per agent, "say where you are working", gate 0, and the
 wrong-tree reviews that motivated them) and Geoclick2027 (worktrees failed for
 parallel agents until each ran its own `npm install`; the loop deliberately runs
-without them). The question: does worktree-per-agent pay for a toy-sized project
-with one owner? Do not require worktrees until it is answered; if recommended,
-carry the location evidence block.
+without them — full analysis in [`08`](08-geoclick2027-harness.md)). The
+question: does worktree-per-agent pay for a toy-sized project with one owner? Do
+not require worktrees until it is answered; if recommended, carry the location
+evidence block.
 
 ---
 
@@ -201,7 +202,7 @@ way to do them.
 | E2 | Do model pairs change the outcome? | Same change, same standard, different implementer/reviewer pairs and effort; measure caught defects, false blocks, cost |
 | E3 | How do OpenCode, Claude Code and Codex share one process? | Apply D-10 |
 | E4 | Is worktree-per-agent worth it at this scale? | Apply D-11 |
-| E5 | Which harness performs better with the owner-merge gate removed? | Apply D-9 and [`05`](05-harness-competition.md) |
+| E5 | Which harness performs better with the owner-merge gate removed? | Apply D-9 and [`05`](05-harness-competition.md); Geoclick2027's automerging loop is running prior art ([`08`](08-geoclick2027-harness.md)) |
 | E6 | Can Claude get a cross-family review by shelling out? | `codex exec` / `opencode run -m` as reviewer processes, compared with a fresh Claude session on the same task; symmetric `claude -p` reviewer for OpenCode mode (D-10) |
 
 Every experiment gets its record file before it starts, in the
