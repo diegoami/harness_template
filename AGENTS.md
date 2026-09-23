@@ -37,11 +37,13 @@ This file adds the OpenCode-specific process and nothing else.
 2. **Implementation.** Implement the agreed design on a branch and open a pull
    request when a remote exists. The reviewer writes
    `reviews/NNN-<slug>-impl-NN.md` naming the revision it covers. Fix and
-   iterate until an explicit **AGREE**. The owner merges.
+   iterate until an explicit **AGREE**. The owner merges (`PRINCIPLES.md`),
+   unless the project slot records `merge: auto`.
 
 This applies to every non-trivial change (`PRINCIPLES.md`). A trivial change
 takes neither stage. A defect fix may skip the design stage only under the four
-conditions in the protocol.
+conditions in the protocol. A project whose slot records `design: none` has no
+design stage: the implementation review alone decides.
 
 ## BLOCK
 

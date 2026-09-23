@@ -39,9 +39,9 @@ parametrizable scaffold (release 3, in progress). Release 1's record is in
 [`design/001-harness-release-1.md`](design/001-harness-release-1.md); the field
 test's in [`experiments/toy-r1/record.md`](experiments/toy-r1/record.md).
 
-## The harness, release 1
+## The harness
 
-At the root, ready to copy into a project — or to scaffold a run from:
+At the root, ready to copy into a project — or to be scaffolded:
 
 | file | what it owns |
 |---|---|
@@ -52,6 +52,25 @@ At the root, ready to copy into a project — or to scaffold a run from:
 | [`ROADMAP.md`](ROADMAP.md) | feature requests, with artistic license |
 | [`design/README.md`](design/README.md), [`reviews/README.md`](reviews/README.md) | the local-first records |
 | [`verification/README.md`](verification/README.md) | the optional verification patterns |
+
+## Create a project
+
+```sh
+node tools/scaffold.mjs                                  # asks every question
+node tools/scaffold.mjs --yes --name my-app --dir ../my-app
+node tools/scaffold.mjs --preset auto --name my-app --dir ../my-app --github private
+```
+
+| preset | process | merge |
+|---|---|---|
+| `light` | no design stage, no plan, no roadmap; the implementation review decides | owner |
+| `standard` | the two stages, `PLAN.md` and `ROADMAP.md` | owner |
+| `auto` | the two stages, `PLAN.md` and `ROADMAP.md` | the implementer merges on a clean review plus green gates |
+
+The questions, flags and defaults are in `node tools/scaffold.mjs --help`;
+`presets/*.json` holds each preset's file list and policy. The generator fills
+the project slot, writes the README and the CI workflow, makes the first commit,
+and creates the GitHub remote when asked.
 
 Create a run from a release tag:
 

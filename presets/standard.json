@@ -1,0 +1,19 @@
+{
+  "name": "standard",
+  "files": [
+    "PRINCIPLES.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "PLAN.md",
+    "ROADMAP.md",
+    "design/README.md",
+    "reviews/README.md",
+    "verification/README.md"
+  ],
+  "policy": {
+    "design": "required",
+    "merge": "owner",
+    "plan": true,
+    "roadmap": true
+  }
+}

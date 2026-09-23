@@ -1,5 +1,5 @@
 {
-  "harness": "release 1",
+  "name": "auto",
   "files": [
     "PRINCIPLES.md",
     "AGENTS.md",
@@ -9,5 +9,11 @@
     "design/README.md",
     "reviews/README.md",
     "verification/README.md"
-  ]
+  ],
+  "policy": {
+    "design": "required",
+    "merge": "auto",
+    "plan": true,
+    "roadmap": true
+  }
 }

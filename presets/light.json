@@ -1,0 +1,16 @@
+{
+  "name": "light",
+  "files": [
+    "PRINCIPLES.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "reviews/README.md",
+    "verification/README.md"
+  ],
+  "policy": {
+    "design": "none",
+    "merge": "owner",
+    "plan": false,
+    "roadmap": false
+  }
+}
