@@ -1,0 +1,94 @@
+# Adopting the harness into an existing project
+
+Open a session **in the project** and paste:
+
+> Adopt harness release `r3` into this project. Read
+> `C:\Users\diego\projects\harness_template\ADOPT.md` and execute it as
+> written.
+
+If the session cannot read that path, paste this file's content instead.
+
+---
+
+## What you are doing
+
+You are adopting the harness — the process, not a framework — into an existing
+project. The harness is at `C:\Users\diego\projects\harness_template`
+(release `r3`; the files at the repository root are the canonical text). You
+will write the harness files **adapted to this project**, filling the project
+slot from what the repository actually contains. **Read the harness files and
+adapt them; do not invent rules and do not copy them blind.**
+
+## 1. Read the harness first
+
+At the harness repository root: `PRINCIPLES.md`, `AGENTS.md`, `CLAUDE.md`,
+`design/README.md`, `reviews/README.md`, and — if you will take them —
+`PLAN.md`, `ROADMAP.md`, `verification/README.md`. They own the rules; this
+prompt does not restate them.
+
+## 2. Reconnoitre this project
+
+- **The product**, in one paragraph, for the slot.
+- **The gates**: the real commands. Read `package.json` scripts, a `Makefile`,
+  the CI workflow, the README. The unit command, the heavier check, lint,
+  build; and which CI runs on every pull request.
+- **Paths to inspect** and **paths to normally ignore**: source roots, docs,
+  generated output, vendored code; open a file in an awkward directory
+  individually rather than walking it.
+- **Never read or echo**: secrets, signing material, one machine's paths —
+  `*.jks`, `keystore.properties`, `.env*`, credentials. List them explicitly.
+- **Conventions**: the language of player-facing text, comments and commits;
+  build-step and dependency promises; anything **decided and not to be
+  reopened**, with its reason.
+- **How change happens here today**: is there an `AGENTS.md`, a `CLAUDE.md`, a
+  `PLAN.md`, a `ROADMAP.md`, a review process? Those are the collisions.
+
+## 3. Choose the shape
+
+- **Files to take**: `PRINCIPLES.md` and the adapters always. `PLAN.md` and
+  `ROADMAP.md` only if this project slices work into iterations or grows by
+  feature requests. `verification/README.md` if useful. `design/` and
+  `reviews/` only if you keep the design stage.
+- **Policy**, recorded in the slot: `merge: owner` or `merge: auto`; `design:
+  required` or `design: none` (OpenCode mode).
+- **Modes**: keep both `AGENTS.md` and `CLAUDE.md` if both tools work here. A
+  project that uses one tool may drop the other adapter — that is a
+  harness-file change and takes its mode's review, not a silent delete.
+
+## 4. Reconcile collisions — nothing is lost
+
+- **An existing `AGENTS.md` / `CLAUDE.md`**: its project knowledge belongs in
+  the **project slot** of the adapter you keep. Move that knowledge there, then
+  replace the file's process text with the harness adapter. Report every move.
+- **An existing `PLAN.md` / `ROADMAP.md` with this project's own plans**: do
+  not overwrite. Either keep the project's file and skip the overlay, or move
+  the plan into the harness template's shape — and say what moved.
+- **An existing `README.md`**: leave it. The harness needs none.
+
+## 5. The adoption is itself a non-trivial change
+
+Follow the harness you are adopting:
+
+1. Write `design/001-adopt-harness.md` — the problem, findings grounded with
+   `file:line`, the exact file list and the filled slot you propose, open
+   questions. Post it where this project's work happens (the design issue when
+   a remote exists).
+2. Have it reviewed to an explicit **AGREE** — a different model family where
+   the tool can (OpenCode: a subagent with an explicit model id; Claude Code: a
+   fresh-context session). Iterate; **do not write the files before AGREE**.
+3. Implement. The implementation is reviewed the same way
+   (`reviews/001-adopt-harness-impl-01.md`), to an explicit AGREE, and the
+   owner merges.
+4. Record the provenance: adopted from harness `r3` (the commit at the tag),
+   dated, in `PLAN.md` or the slot.
+
+## 6. Done when
+
+- Every chosen harness file exists; the slot's product, paths, never-echo list,
+  `merge:`, `design:` and gates table are filled **from this repository**;
+- the gates table names commands that actually run here;
+- the adapters carry only their mode-specific text and do not restate the
+  principles; nothing contradicts `PRINCIPLES.md`;
+- every collision is reported, with where the displaced knowledge went;
+- the design record, the review records and the provenance exist;
+- nothing else in the repository changed.

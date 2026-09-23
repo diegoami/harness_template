@@ -23,6 +23,10 @@ descope):
 
 ## Notes
 
+- Adoption into an existing project is **prompt-driven**:
+  [`ADOPT.md`](ADOPT.md) at the root. An `--into` adopt mode in the scaffold
+  was considered and dropped — the project's own session knows the project, and
+  a copy tool cannot reconcile the collisions an existing repository has.
 - The root `PLAN.md` and `ROADMAP.md` are the *templates* a run receives, not
   this repository's own plans.
 - Earlier releases: `r1` (the consolidation), `r2` (four field-test fixes),

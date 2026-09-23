@@ -65,6 +65,15 @@ creates the GitHub remote when asked.
 A project created this way is a **run**: its own repository, with the harness
 frozen at the tag it was created from. Several runs never share a repository.
 
+## Adopt into an existing project
+
+Open a session **in that project** and paste the prompt in
+[`ADOPT.md`](ADOPT.md). The project's own session writes the harness files
+adapted to it, fills the project slot from what the repository actually
+contains, and reconciles any existing `AGENTS.md`, `CLAUDE.md`, `PLAN.md` or
+`ROADMAP.md` instead of overwriting them. Adoption is a non-trivial change, so
+it takes the bootstrap there.
+
 ## History
 
 Release 1 consolidated four harnesses — `discola-web`, `Tressette`, `Scopetta`,
