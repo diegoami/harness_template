@@ -45,33 +45,39 @@ whose builder does not know how to build it. Geoclick's plan-per-release
 (Why / tasks with DoD / Order / a progress ledger / a product-decisions table)
 is the middle shape; IC2's catalogue is the heavy end.
 
-**Milestone reviews in Claude mode.** On 2026-09-23 five Claude-mode projects
-(Scopetta, Tressette, balloons-JS, Geoclick2027, discola-web) adopted an
-independent review at milestones, which blocks nothing. Their per-change
-review differs: only Scopetta keeps one, and it ends in a marker and lets
-Claude merge. The proposal keeps this harness's per-change review as it is in
-`CLAUDE.md`, and adds the milestone half, drawing on each project:
+**Milestone reviews in Claude mode.** **Owner decision (2026-09-23), the same
+for all of the owner's projects: a milestone is a release**: an annotated tag
+on `main`, on the exact commit the release is built from. Here that is `rN`,
+and the next milestone is `r5`. A milestone is not a PR, a proposal, a count
+of PRs or a process change. This was also Claude's recommendation; the
+reason: a tag is a fixed point, so the review covers exactly
+`<previous tag>..<candidate>` and the tag lands on the commit that was
+reviewed, whatever the size or number of the PRs in between. To add to
+`CLAUDE.md`:
 
-- **at a milestone**, Claude opens an issue requesting a review by any model
-  that is not Claude (the owner's rule), holding the prompt and the commit
-  range (Scopetta, Tressette, balloons-JS; Geoclick and discola-web use the
-  milestone's existing thread instead). The design picks where a range
-  starts: at the last reviewed end (Scopetta, balloons-JS), or at the previous
-  issue's head, run or not, so ranges never overlap (Tressette). Only one
-  review issue is open at a time (Scopetta, balloons-JS);
-- **the prompt is a fixed template** the author only fills in, so the author
-  does not steer what the reviewer looks for (balloons-JS);
-- **the reviewer posts** from a file written as UTF-8 without a byte-order
-  mark, passed with `--body-file` (Geoclick). The design picks between one
-  comment (Tressette, balloons-JS) and one issue per finding (Scopetta,
-  Geoclick, discola-web);
-- **when it arrives**, Claude reproduces each finding and replies on the
-  thread per finding (Tressette, Geoclick, discola-web), and copies it into
-  `reviews/` (this repository's own practice).
+- **between milestones** nothing changes: each change keeps its fresh-context
+  Claude review and this repository's merge setting;
+- **at a milestone**, Claude opens a milestone issue with the proposed tag,
+  the candidate commit on `main` (full SHA), the previous tag, the PRs merged
+  since, and the gate results, and gives the owner one fixed review prompt
+  for a model that is not Claude, run in a fresh session;
+- **the reviewer** reviews `git diff <previous tag>..<candidate>`, opens one
+  issue per reproduced finding, and posts one verdict, `AGREE` or `BLOCK`, on
+  the milestone issue. Every body is written to a file as UTF-8 without a
+  byte-order mark and passed with `--body-file`;
+- **the tag waits for the review.** On `BLOCK`, the findings are fixed in
+  ordinary PRs, the candidate moves to the new `main` commit, and Claude gives
+  a re-review prompt unasked, under the round ceiling. On `AGREE`, the tag
+  goes on exactly the reviewed commit, and later work belongs to the next
+  milestone. The owner may tag without a review, and the issue records that;
+- **when a verdict arrives**, Claude reproduces each finding, replies on the
+  milestone issue per finding, and copies the verdict into `reviews/`.
 
-Open for the design: what a milestone is — here, perhaps a release tag — and
-whether scaffolded runs get it. Run by hand twice so far, ad hoc: #10 on `r4`,
-and on PR #11 for `r4..756696b`, which ends at no tag.
+Open for the design: who creates the tag after `AGREE` (default: the
+implementer), and whether scaffolded runs get this and with which tag scheme.
+The baseline here is `r4`, reviewed after the fact on
+[#10](https://github.com/diegoami/harness_template/issues/10). The review on
+PR #11 (`r4..756696b`, ending at no tag) was not a milestone under this rule.
 
 **Protocol gaps found by the milestone reviews**
 ([#10](https://github.com/diegoami/harness_template/issues/10) and PR #11),
@@ -109,9 +115,9 @@ routed to this design:
   how the reviewer is obtained; this file's preamble lists the harness files
   itself, and omits the bootstrap rule's trigger and its typo exception.
 - **Name milestone reviews.** `reviews/README.md` names only implementation
-  rounds; the milestone reviews use `006-r4-milestone-NN.md` and
-  `007-milestone-since-r4-01.md` as a stopgap, where `NN` counts separate
-  reviews, not rounds. Also settle whether a milestone copy and the change
+  rounds; the r4 milestone reviews use `006-r4-milestone-NN.md`, and the
+  review on PR #11 `007-milestone-since-r4-01.md`, as a stopgap, where `NN`
+  counts separate reviews, not rounds. Also settle whether a milestone copy and the change
   that records it share a number: `006` has one slug, `007` has two.
 
 ## Notes
