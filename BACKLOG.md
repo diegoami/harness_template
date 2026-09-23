@@ -14,10 +14,12 @@ but releases 1–4 opened no design issue before implementation: the design
 records were posted as issues after the fact — #6–#8 once releases 1–3 had
 merged, #5 just before release 4 merged — with their verdicts as comments, and
 the implementation reviews were posted to PRs #1–#4 (after merge for #1–#3,
-just before it for #4). The posted bodies are mis-encoded: issues #5–#8 turn
-`—` and `·` into `ÔÇö` and `┬À`, PR #4 lost its dashes outright, and issue #5
-and PR #4 start with a byte-order mark. The comments are intact; the bodies
-differ from the canonical files.
+just before it for #4). The posted bodies were mis-encoded: issues #5–#8
+turned `—` and `·` into `ÔÇö` and `┬À`, PR #4 lost its dashes outright, and
+issue #5 and PR #4 started with a byte-order mark; the comments were intact.
+All five bodies were re-posted clean on 2026-09-23 — the issues decoded back
+to the design records at their first reviewed revisions, PR #4's dashes
+restored by hand, and its stale "Closes nothing" line removed.
 
 1. **Assume a remote.** Reword the protocol: a remote is assumed; the design
    record is opened as the issue before implementation; each verdict is posted
