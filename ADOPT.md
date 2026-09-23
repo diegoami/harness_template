@@ -74,8 +74,8 @@ prompt does not restate them.
 Follow the harness you are adopting, in the mode of the tool you are running
 in:
 
-- **OpenCode** ([`AGENTS.md`](AGENTS.md)) — both stages, or only the second
-  when you chose `design: none`:
+- **OpenCode** ([`AGENTS.md`](AGENTS.md)) — both stages, or only the
+  implementation stage (item 3) when you chose `design: none`:
   1. Write `design/001-adopt-harness.md` — the problem, findings grounded with
      `file:line`, the exact file list and the filled slot you propose, open
      questions. Post it where this project's work happens (the design issue
@@ -89,8 +89,8 @@ in:
   1. Put the open questions to the owner as owner decisions
      (`PRINCIPLES.md`) before writing the files, and record the answers in
      the project slot.
-  2. Implement on a branch; the pull request body (the review file when there
-     is no remote) lists the file list, the filled slot and every collision.
+  2. Implement on a branch; the pull request body (the commit message when
+     there is no remote) lists the file list, the filled slot and every collision.
      The review is `CLAUDE.md`'s fresh-context review, recorded in
      `reviews/001-adopt-harness-impl-01.md`. The owner merges.
 
