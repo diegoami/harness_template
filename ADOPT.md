@@ -74,25 +74,27 @@ prompt does not restate them.
 Follow the harness you are adopting, in the mode of the tool you are running
 in:
 
-- **OpenCode** ([`AGENTS.md`](AGENTS.md)) — both stages:
+- **OpenCode** ([`AGENTS.md`](AGENTS.md)) — both stages, or only the second
+  when you chose `design: none`:
   1. Write `design/001-adopt-harness.md` — the problem, findings grounded with
      `file:line`, the exact file list and the filled slot you propose, open
      questions. Post it where this project's work happens (the design issue
      when a remote exists).
-  2. Have it reviewed by a subagent from a different model family, with an
-     explicit model id, to an explicit **AGREE**. Iterate; **do not write the
-     files before AGREE**.
+  2. Have it reviewed as `AGENTS.md` requires, to an explicit **AGREE**.
+     **Do not write the files before AGREE**.
   3. Implement. The implementation is reviewed the same way
      (`reviews/001-adopt-harness-impl-01.md`), to an explicit AGREE, and the
      owner merges.
 - **Claude Code** ([`CLAUDE.md`](CLAUDE.md)) — no design stage and no marker:
   1. Put the open questions to the owner as owner decisions
-     (`PRINCIPLES.md`) before writing the files.
-  2. Implement on a branch; the pull request body (a brief when there is no
-     remote) lists the file list, the filled slot and every collision. A
-     fresh-context session reviews it (`reviews/001-adopt-harness-impl-01.md`),
-     ending on the line that states whether any blocking finding remains; fix
-     and re-review until none does. The owner merges.
+     (`PRINCIPLES.md`) before writing the files, and record the answers in
+     the project slot.
+  2. Implement on a branch; the pull request body (the review file when there
+     is no remote) lists the file list, the filled slot and every collision.
+     The review is `CLAUDE.md`'s fresh-context review, recorded in
+     `reviews/001-adopt-harness-impl-01.md`. The owner merges.
+
+Rounds are capped by the ceiling in `PRINCIPLES.md` in both modes.
 
 Then, in either mode, record the provenance: adopted from harness `r4` (the
 commit at the tag), dated, in `PLAN.md` or the slot.
@@ -105,6 +107,6 @@ commit at the tag), dated, in `PLAN.md` or the slot.
 - the adapters carry only their mode-specific text and do not restate the
   principles; nothing contradicts `PRINCIPLES.md`;
 - every collision is reported, with where the displaced knowledge went;
-- the review records and the provenance exist, and the design record too in
-  OpenCode mode;
+- the review records and the provenance exist, and the design record too
+  where there is a design stage;
 - nothing else in the repository changed.

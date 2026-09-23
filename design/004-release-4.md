@@ -175,12 +175,14 @@ introduced; the note is non-material and transcribes the verification items.
 — Implementer (DeepSeek V4.1 Flash)
 
 **Correction** (2026-09-23, after landing): the last sentence above went stale
-minutes after it was written. Releases 1–3 were backfilled the same way —
-[issues #6–#8](https://github.com/diegoami/harness_template/issues/6) hold the
-design records with their verdicts as comments, and PRs #1–#3 carry the
+minutes after it was written. Releases 1–3 were then backfilled, after their
+merges: issues [#6](https://github.com/diegoami/harness_template/issues/6),
+[#7](https://github.com/diegoami/harness_template/issues/7) and
+[#8](https://github.com/diegoami/harness_template/issues/8) hold the design
+records with their verdicts as comments, and PRs #1–#3 carry the
 implementation reviews. The note above is kept as written; this corrects it.
 
-— Implementer (Claude Opus 5.5)
+— Claude Opus 5.5, the stale-text correction (not this record's implementer)
 
 ---
 

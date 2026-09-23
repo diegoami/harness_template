@@ -11,12 +11,13 @@ itself — this file is it.
 **Posting to GitHub is not optional — and it was done after the fact.** This
 repository has a remote and the protocol says the same text is posted there,
 but releases 1–4 opened no design issue before implementation: the design
-records were backfilled as issues #5–#8 once the releases had merged, with
-their verdicts as comments, and the implementation reviews were posted to PRs
-#1–#4 in the same pass — after merge for #1–#3, just before it for #4. The
-backfilled bodies (issues #5–#8, PR #4) are mis-encoded (`—`
-posted as `ÔÇö`, with a leading byte-order mark), so the posted copy differs
-from the canonical file.
+records were posted as issues after the fact — #6–#8 once releases 1–3 had
+merged, #5 just before release 4 merged — with their verdicts as comments, and
+the implementation reviews were posted to PRs #1–#4 (after merge for #1–#3,
+just before it for #4). The posted bodies are mis-encoded: issues #5–#8 turn
+`—` and `·` into `ÔÇö` and `┬À`, PR #4 lost its dashes outright, and issue #5
+and PR #4 start with a byte-order mark. The comments are intact; the bodies
+differ from the canonical files.
 
 1. **Assume a remote.** Reword the protocol: a remote is assumed; the design
    record is opened as the issue before implementation; each verdict is posted
