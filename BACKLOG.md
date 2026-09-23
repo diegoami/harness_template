@@ -45,21 +45,89 @@ whose builder does not know how to build it. Geoclick's plan-per-release
 (Why / tasks with DoD / Order / a progress ledger / a product-decisions table)
 is the middle shape; IC2's catalogue is the heavy end.
 
-**Protocol gaps from the r4 milestone review**
-([#10](https://github.com/diegoami/harness_template/issues/10)), routed to this
-design there:
+**Milestone reviews in Claude mode.** **Owner decision (2026-09-23), the same
+for all of the owner's projects: a milestone is a release**: an annotated tag
+on `main`, on the exact commit the release is built from. Here that is `rN`,
+and the next milestone is `r5`. A milestone is not a PR, a proposal, a count
+of PRs or a process change. This was also Claude's recommendation; the
+reason: a tag is a fixed point, so the review covers exactly
+`<previous tag>..<candidate>` and the tag lands on the commit that was
+reviewed, whatever the size or number of the PRs in between. To add to
+`CLAUDE.md`:
+
+- **between milestones** nothing changes: each change keeps its fresh-context
+  Claude review and this repository's merge setting;
+- **at a milestone**, Claude opens a milestone issue with the proposed tag,
+  the candidate commit on `main` (full SHA), the previous tag, the PRs merged
+  since, and the gate results, and gives the owner one fixed review prompt
+  for a model that is not Claude, run in a fresh session;
+- **the reviewer** reviews `git diff <previous tag>..<candidate>`, opens one
+  issue per reproduced finding, and posts one verdict, `AGREE` or `BLOCK`, on
+  the milestone issue. Every body is written to a file as UTF-8 without a
+  byte-order mark and passed with `--body-file`;
+- **the tag waits for the review.** On `BLOCK`, the findings are fixed in
+  ordinary PRs, the candidate moves to the new `main` commit, and Claude gives
+  a re-review prompt unasked, under the round ceiling. On `AGREE`, the tag
+  goes on exactly the reviewed commit, and later work belongs to the next
+  milestone;
+- **when a verdict arrives**, Claude reproduces each finding, replies on the
+  milestone issue per finding, and copies the verdict into `reviews/`.
+
+Decided by the owner: the definition; that the tag waits for the review;
+that the reviewer is any model that is not Claude; and that each
+repository keeps its own per-change review and merge setting. The rest of
+the bullets, including what `BLOCK` and `AGREE` do to the tag and the round
+ceiling on re-reviews, is the proposal, taken from the process the owner
+pointed to. Open for the design:
+
+- who creates the tag after `AGREE` (default: the implementer);
+- whether the owner may tag without a review, the issue recording it (the
+  owner has not decided it here);
+- **claims** (from Imperial Conquest 2's milestone process, as the owner
+  shared it): numbered claims written when the release is scoped, before
+  the work, each naming the check that proves it, with a "not in this
+  milestone" list. The reviewer gives each claim a verdict: MET, NOT MET,
+  PARTLY MET or COULD NOT TEST, and any NOT MET blocks the tag. Here the
+  claims would be the backlog items chosen for the release;
+- **triage four ways** (the same source): a defect; the claim was wrong
+  (corrected visibly, never weakened to pass); an accepted gap, noted in
+  the tag message; or not a defect, with the reason;
+- reconciling the milestone verdict with Claude mode: `CLAUDE.md` and
+  `reviews/README.md` have no `AGREE`/`BLOCK` marker, and the Rounds rule in
+  `PRINCIPLES.md` counts rounds per stage. Scope those to per-change reviews,
+  and say how milestone rounds are counted;
+- whether scaffolded runs get this, and with which tag scheme.
+
+Not proposed here, from the same source: a never-merged review PR between
+`review/` and `review-base/` branches (the milestone issue and the diff
+command do the same), GitHub milestone objects (the backlog holds the
+scope), and a second reviewer.
+
+The baseline here is `r4`, reviewed after the fact on
+[#10](https://github.com/diegoami/harness_template/issues/10). The review on
+PR #11 (`r4..756696b`, ending at no tag) was not a milestone under this rule.
+
+**Protocol gaps found by the r4 milestone review
+([#10](https://github.com/diegoami/harness_template/issues/10)) and the review
+on PR #11**, routed to this design:
 
 - **`design: none` gives a design bypass two homes.** The Waiver bullet in
   `PRINCIPLES.md` records it in the design record, which `design: none`
   resolves to the implementation review file, while the `design: none` bullet
   records it in the project slot; and no file places the completion note of an
-  OpenCode `design: none` run. (DeepSeek finding 1.)
+  OpenCode `design: none` run. (#10, DeepSeek finding 1.)
 - **The `light` preset links a file it does not ship.** Its `AGENTS.md` stage 1
   points at `design/README.md`, and the ownership map in `PRINCIPLES.md` names
-  it as an owner, but `presets/light.json` leaves it out. (DeepSeek finding 2.)
+  it as an owner, but `presets/light.json` leaves it out. (#10, DeepSeek
+  finding 2.)
 - **State whether rules apply to earlier records.** `PRINCIPLES.md` is silent,
   which is why the two milestone reviews disagreed on Gate 0 for pre-r4
   records; the owner decision in the Notes settles it for this repository only.
+- **Rounds after a clean round.** The Rounds rule sends a third round that does
+  not end clean to the owner, but does not say whether a material extension
+  after a clean round restarts the count or adds to it. PR #9 went on to
+  rounds 04 and 05 after a clean round 03 without saying which. (The
+  independent review on PR #11.)
 
 ## Smaller items
 
@@ -75,8 +143,11 @@ design there:
   how the reviewer is obtained; this file's preamble lists the harness files
   itself, and omits the bootstrap rule's trigger and its typo exception.
 - **Name milestone reviews.** `reviews/README.md` names only implementation
-  rounds; the r4 milestone reviews use `006-r4-milestone-NN.md` as a stopgap,
-  where `NN` counts separate reviews, not rounds.
+  rounds; the r4 milestone reviews use `006-r4-milestone-NN.md`, and the
+  review on PR #11 `007-milestone-since-r4-01.md`, as a stopgap, where `NN`
+  counts separate reviews, not rounds. Also settle whether a copied review
+  and the change that records it share a number: `006` has one slug, `007`
+  has two.
 
 ## Notes
 
@@ -110,3 +181,6 @@ design there:
   `006-r4-milestone-01.md` by DeepSeek V4.1 Flash, r4's implementer — not
   independent, kept as input — and `006-r4-milestone-02.md` by GPT-5.6 Luna,
   the milestone verdict.
+- The independent review of the work since r4 (`r4..756696b`, on PR #11) is
+  copied verbatim into `reviews/007-milestone-since-r4-01.md`: DeepSeek V4.1
+  Flash, `AGREE`.
