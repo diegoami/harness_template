@@ -20,8 +20,9 @@ refuses**, and the reason is recorded.
 
 Add one row to the table, in your own words — or say it in a session ("add to
 the roadmap: …") and the agent appends the row and stops. **A request is not a
-request to implement**: the shaping and the design stage still happen, and the
-original wording is quoted verbatim in the block and never silently reworded.
+request to implement**: the shaping still happens — and the design stage, where
+the project has one — and the original wording is quoted verbatim in the block
+and never silently reworded.
 
 ## The block, written when a request is accepted
 
@@ -39,9 +40,9 @@ original wording is quoted verbatim in the block and never silently reworded.
 ## The agent's job
 
 - **Shape** a request when it is picked up: player value, scope, done-when,
-  out-of-scope, dependencies, open questions. The shaping *is* the design
-  stage — in OpenCode mode it becomes the design record, in Claude mode the
-  brief.
+  out-of-scope, dependencies, open questions, recorded as the block above.
+  Where the project has a design stage ([`AGENTS.md`](AGENTS.md)), the block
+  is where its design record starts.
 - **Size it to one iteration.** Split before starting if it does not fit; never
   let a task grow while in flight.
 - Take the **first unblocked** request when told "do the next roadmap item",
