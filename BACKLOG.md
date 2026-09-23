@@ -76,7 +76,7 @@ design there:
   itself, and omits the bootstrap rule's trigger and its typo exception.
 - **Name milestone reviews.** `reviews/README.md` names only implementation
   rounds; the r4 milestone reviews use `006-r4-milestone-NN.md` as a stopgap,
-  where `NN` counts independent reviews, not rounds.
+  where `NN` counts separate reviews, not rounds.
 
 ## Notes
 
@@ -98,9 +98,9 @@ design there:
   completion note appended, although both rules arrived with r2, and both are
   written by Claude although `design/README.md` gives the status and the note
   to the record's implementer. The recommended default, taken; the reason:
-  its status line pointed at review round 01 when round 02 existed, which was
-  wrong under release 1's own rules, and correcting it leaves every landed
-  release findable by status. The original line is kept, and the additions are
+  its status line pointed at review round 01 although round 02 existed when
+  r1 was tagged — stale, not a broken rule, since release 1 had no status
+  rule — and correcting it leaves every landed release findable by status. The original line is kept, and the additions are
   signed as not the implementer's. From #10, finding 1.
 - Releases: `r1` (the consolidation), `r2` (field-test fixes), `r3` (the
   parametrizable scaffold), `r4` (the four lessons). Records in `design/` and
