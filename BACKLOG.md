@@ -73,17 +73,35 @@ reviewed, whatever the size or number of the PRs in between. To add to
 - **when a verdict arrives**, Claude reproduces each finding, replies on the
   milestone issue per finding, and copies the verdict into `reviews/`.
 
-The decision is the definition and that the tag waits for the review; the
-bullets are the proposal built on it. Open for the design:
+Decided by the owner: the definition; that the tag waits for the review;
+that the reviewer is any model that is not Claude; and that each
+repository keeps its own per-change review and merge setting. The rest of
+the bullets, including what `BLOCK` and `AGREE` do to the tag and the round
+ceiling on re-reviews, is the proposal, taken from the process the owner
+pointed to. Open for the design:
 
 - who creates the tag after `AGREE` (default: the implementer);
 - whether the owner may tag without a review, the issue recording it (the
-  youtube3 wording has this; the owner has not decided it here);
+  owner has not decided it here);
+- **claims** (from Imperial Conquest 2's milestone process, as the owner
+  shared it): numbered claims written when the release is scoped, before
+  the work, each naming the check that proves it, with a "not in this
+  milestone" list. The reviewer gives each claim a verdict: MET, NOT MET,
+  PARTLY MET or COULD NOT TEST, and any NOT MET blocks the tag. Here the
+  claims would be the backlog items chosen for the release;
+- **triage four ways** (the same source): a defect; the claim was wrong
+  (corrected visibly, never weakened to pass); an accepted gap, noted in
+  the tag message; or not a defect, with the reason;
 - reconciling the milestone verdict with Claude mode: `CLAUDE.md` and
   `reviews/README.md` have no `AGREE`/`BLOCK` marker, and the Rounds rule in
   `PRINCIPLES.md` counts rounds per stage. Scope those to per-change reviews,
   and say how milestone rounds are counted;
 - whether scaffolded runs get this, and with which tag scheme.
+
+Not proposed here, from the same source: a never-merged review PR between
+`review/` and `review-base/` branches (the milestone issue and the diff
+command do the same), GitHub milestone objects (the backlog holds the
+scope), and a second reviewer.
 
 The baseline here is `r4`, reviewed after the fact on
 [#10](https://github.com/diegoami/harness_template/issues/10). The review on
