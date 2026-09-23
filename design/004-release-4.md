@@ -1,6 +1,6 @@
 # 004 — Harness release 4
 
-**Stage:** design · **Status:** in review · **Date:** 2026-09-23.
+**Stage:** design · **Status:** agreed · **Date:** 2026-09-23.
 
 **How this record works** (`design/README.md`): the reviewer appends a signed
 verdict below; nothing is implemented before an AGREE.
@@ -207,3 +207,28 @@ BLOCK
 
 — GPT-5.6 Luna (opencode/gpt-5.6-luna#high), reviewer
 BLOCK
+
+---
+
+## Review — design stage (revision 3, 682585b)
+
+**Verdict:** AGREE — the v2 findings are resolved and no blocking contradiction remains.
+
+### Findings
+
+None.
+
+### Verified
+
+- Gate 0 now names a reproducible local base and command: `git merge-base main <revision>` followed by `git diff --name-only <merge-base>..<revision>` (`design/004-release-4.md:65-73`). I reproduced it for `682585b`; it resolved the merge base to `8e5dba14e39ccc66a8e10ce9a28a90c219369af7` and produced the non-empty file list `design/004-release-4.md`. The held revision/file-list equality and empty or mismatched-target stop condition apply to local reviews, while the PR head/file-list branch applies only when a PR exists, covering OpenCode and Claude and both design and implementation records (`design/004-release-4.md:75-85`; `CLAUDE.md:19-20`; `design/README.md:27-29`).
+- The record status is now `in review` (`design/004-release-4.md:3`), exactly matching the canonical re-review transition (`design/README.md:11-19`).
+- The round ceiling still counts per stage, including appended design verdicts and `-NN` implementation files; rounds 1 and 2 may rework, and a non-clean third round escalates with the correct OpenCode/Claude clean outcomes and implementation-only waiver (`design/004-release-4.md:89-100`; `PRINCIPLES.md:88-90`).
+- The slot proposal still retains paths to inspect, adds the canonical source and reasons for ignored paths, and preserves the no-delete/no-gitignore rule across the proposed adapter, scaffold, and adoption instructions (`design/004-release-4.md:117-129`; `PRINCIPLES.md:147-149`).
+- The v1 findings and verified items remain resolved: discipline 3 stays within six disciplines and correctly strengthens negative-result verification without conflicting with the mutation pattern or completion-note boundary (`design/004-release-4.md:102-113`; `verification/README.md:27-33`; `PRINCIPLES.md:102-109`); ownership remains correctly assigned (`design/004-release-4.md:131-134`); and the verification and out-of-scope lists remain appropriate (`design/004-release-4.md:136-150`).
+
+### Not verified
+
+- The proposed edits are not yet implemented, so generated scaffold output and the final `node --check` result remain implementation-stage verification items.
+
+— GPT-5.6 Luna (opencode/gpt-5.6-luna#high), reviewer
+AGREE
