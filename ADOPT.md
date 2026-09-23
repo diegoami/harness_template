@@ -90,8 +90,8 @@ in:
      (`PRINCIPLES.md`) before writing the files, and record the answers in
      the project slot.
   2. Implement on a branch; the pull request body (the commit message when
-     there is no remote) lists the file list, the filled slot and every collision.
-     The review is `CLAUDE.md`'s fresh-context review, recorded in
+     there is no remote) lists the file list, the filled slot and every
+     collision. The review is `CLAUDE.md`'s fresh-context review, recorded in
      `reviews/001-adopt-harness-impl-01.md`. The owner merges.
 
 Rounds are capped by the ceiling in `PRINCIPLES.md` in both modes.
