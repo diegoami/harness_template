@@ -10,7 +10,7 @@ This file records the Claude-specific process and the project slot.
 
 - Claude **implements** the change on a branch and opens a pull request; each
   review round is posted on it as `PRINCIPLES.md` says (*Posting*, *Pull
-  requests*).
+  requests*), which also covers a project with no remote yet.
 - The review is a **fresh-context session** — a new session that has not seen
   the implementation. **The reviewer is the same model family by default; no
   cross-family reviewer is required.** The mechanism may instead be an

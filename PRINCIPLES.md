@@ -126,7 +126,8 @@ and does not relax CI.
   governs.
 - **Merge policy.** The owner merges, unless the project slot records
   `merge: auto`; then a change merges when its review is clean — `AGREE` in
-  OpenCode mode, no blocking finding in Claude mode — and every gate is green.
+  OpenCode mode, no blocking finding in Claude mode — its reviews are posted
+  (*Posting*), and every gate is green.
   A project that takes `auto` states its merge conditions in its slot, and the
   pull request records the merge.
 - **`design: none`.** Where a project's slot records `design: none`, every
@@ -142,22 +143,25 @@ and does not relax CI.
   account an approval is impossible, and the signature is the only marker of
   authorship.
 - **Posting.** A remote is assumed, and a record is posted when it is
-  written, not after the fact; the file stays canonical. In OpenCode mode the
-  design record opens as an issue before any implementation, and each verdict
-  is posted on it as it is appended. In both modes each implementation review
-  file is committed to the pull request's branch, pushed, and posted on the
-  pull request before the next commit, the next round and the merge — one
-  comment per review file, equal to it. Post with `tools/post-record.mjs`
-  where the project has it (it refuses a review the pull request does not
-  hold, and reads every body back); otherwise with `gh … --body-file` from a
-  UTF-8 file without a byte-order mark, never from text a shell has passed
-  on. Without a remote, the files stand alone.
-- **Pull requests.** A pull request names what it implements — the issue,
-  the design record or the claim — and, once a round ends clean, the revision
-  that round covered. Its body has four parts: what was built; the done-when,
-  ticked; the check output, verbatim; and what was left out. An issue it
-  completes is closed by `Closes #N` on a line of its own, outside any code
-  span, and the pull request is checked to list it
+  written, not after the fact; the file stays canonical. Where the project
+  has a design stage (OpenCode mode, `design: required`), the design record
+  opens as an issue before any implementation, and each verdict is posted on
+  it as it is appended. In both modes each implementation review file is
+  committed to the pull request's branch, pushed, and posted on the pull
+  request before the next commit, the next round and the merge — one comment
+  per review file, equal to the file as the pull request's head holds it.
+  The completion note, appended after the merge, is not posted. Post with
+  `tools/post-record.mjs` where the project has it (it refuses a review the
+  pull request does not hold, and reads every body back); otherwise with
+  `gh … --body-file` from a UTF-8 file without a byte-order mark, never from
+  text a shell has passed on. Without a remote, the files stand alone.
+- **Pull requests.** A pull request names what it implements (an issue, a
+  design record, a claim, a request) and the revision its last clean round
+  covered, or, when the owner waives the review, the waiver. Its body has
+  four parts: what was built; the done-when, ticked; the check output,
+  verbatim; and what was left out. A trivial change needs no pull request.
+  An issue a pull request completes is closed by `Closes #N` on a line of its
+  own, outside any code span, and the pull request is checked to list it
   (`gh pr view <n> --json closingIssuesReferences`); a reference that only
   links says so. **No merge while a review is running**: a pull request
   merges only after its last review is posted.

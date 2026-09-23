@@ -35,10 +35,9 @@ This file adds the OpenCode-specific process and nothing else.
    reply, the reviewer re-reviews — until an explicit **AGREE**. Do not
    implement before that.
 2. **Implementation.** Implement the agreed design on a branch and open a pull
-   request. The reviewer writes
-   `reviews/NNN-<slug>-impl-NN.md` naming the revision it covers. Fix and
-   iterate until an explicit **AGREE**. The owner merges (`PRINCIPLES.md`),
-   unless the project slot records `merge: auto`.
+   request. The reviewer writes `reviews/NNN-<slug>-impl-NN.md` naming the
+   revision it covers. Fix and iterate until an explicit **AGREE**. The owner
+   merges (`PRINCIPLES.md`), unless the project slot records `merge: auto`.
 
 This applies to every non-trivial change (`PRINCIPLES.md`). A trivial change
 takes neither stage. A defect fix may skip the design stage only under the four
@@ -73,6 +72,5 @@ amendment.**
 
 ## Posting
 
-A remote is assumed. Posting and the pull-request mechanics follow the
-protocol in `PRINCIPLES.md` (*Posting*, *Pull requests*); in this mode the
-pull request names the design record it implements.
+Posting and the pull-request mechanics follow the protocol in
+`PRINCIPLES.md` (*Posting*, *Pull requests*).
