@@ -8,6 +8,7 @@ nothing still leaves its result.
 | experiment | runs | record | status |
 |---|---|---|---|
 | field test: release 1 on a non-card project | `toy-r1` | [`experiments/toy-r1/record.md`](experiments/toy-r1/record.md) | **parked** — iteration 0 complete; four items folded into `r2` |
+| scaffold end to end: release 3, `auto` preset | `scaffold-e2e` | [`experiments/scaffold-e2e/record.md`](experiments/scaffold-e2e/record.md) | **complete** — design BLOCK → AGREE, implementation AGREE, CI green, auto-merged; four release-4 candidates |
 | E1 layout variants | — | — | not started |
 | E2 model pairs | — | — | not started |
 | E3 multi-tool interop | — | — | not started |

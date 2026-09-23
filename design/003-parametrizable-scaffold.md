@@ -222,9 +222,11 @@ introduced; the note is non-material and transcribes the verification items.
 - Design `AGREE` on `4823705`; implementation `AGREE` on `c045a60`
   ([`reviews/003-parametrizable-scaffold-impl-03.md`](../reviews/003-parametrizable-scaffold-impl-03.md)).
 - Landed: PR #3 merged at `9f818ca`; tag `r3` on the bookkeeping commit.
-- The end-to-end run (private repository, `auto` preset, both reviews,
-  auto-merge) is recorded in
-  [`experiments/scaffold-e2e/record.md`](../experiments/scaffold-e2e/record.md).
+- The end-to-end run completed: `scaffold-e2e`, private, `auto` preset — design
+  BLOCK (the malformed gate command) then AGREE, implementation AGREE, CI
+  green, auto-merged as PR #2; recorded in
+  [`experiments/scaffold-e2e/record.md`](../experiments/scaffold-e2e/record.md),
+  with four release-4 candidates.
 - **Incident, recorded:** a review attempt at the GitHub path created a stray
   public repository `diegoami/public-project`, and an earlier visibility smoke
   created `diegoami/fix-public`; both await deletion, blocked by the token's
