@@ -28,16 +28,15 @@ its gates and keep the disciplines listed in
 
 ## Status
 
-**Release 2 is tagged
-[`r2`](https://github.com/diegoami/harness_template/tree/r2)** — the four fixes
-the `toy-r1` field test named, landed through the bootstrap (design `f7753e3`
-to AGREE, implementation `4bb496c` to AGREE, PR #2; records in
-[`design/002-harness-release-2.md`](design/002-harness-release-2.md) and
-[`reviews/`](reviews/)). The toy run is **parked**: it was not a well-defined
-project, so the harness's next testbed is a real project, using the
-parametrizable scaffold (release 3, in progress). Release 1's record is in
-[`design/001-harness-release-1.md`](design/001-harness-release-1.md); the field
-test's in [`experiments/toy-r1/record.md`](experiments/toy-r1/record.md).
+**Release 3 is tagged
+[`r3`](https://github.com/diegoami/harness_template/tree/r3)** — the
+parametrizable scaffold: presets `light`/`standard`/`auto`, the setup questions
+and commands, and the merge and design policies (PR #3; design `4823705` to
+AGREE, implementation `c045a60` to AGREE). Release 2's record is in
+[`design/002`](design/002-harness-release-2.md), release 1's in
+[`design/001`](design/001-harness-release-1.md). The toy run is **parked**: it
+was not a well-defined project, so the harness's next testbed is a real
+project, scaffolded from `r3`.
 
 ## The harness
 
