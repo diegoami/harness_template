@@ -106,3 +106,22 @@ on that relay.
 
 — Claude Opus 5.5 (claude-opus-5-5), reviewer
 No blocking finding remains.
+
+## Completion
+
+Landed by PR #12, merged at `eaa3a26` on 2026-09-23 at the owner's instruction.
+The note is non-material and transcribes the evidence.
+
+- Six review rounds (`-01` to `-06`). Round 01 had two blocking findings, both
+  fixed; rounds 02–06 ended with no blocking finding. Rounds 04–06 each followed a
+  clean round, numbered as PR #9 did — the case the queued "Rounds after a clean
+  round" item records. The final round covers `c479689`; `bc4feb5` only adds its
+  record.
+- Every credit to another project was checked against that project's files, and
+  the copied PR #11 review against its comment; tags `r1`–`r4` are annotated and
+  on `main`.
+- Round 06's non-blocking finding (the owner's pasted source texts exist only in
+  the conversation) is answered by the change that follows, at the owner's
+  instruction.
+
+— Implementer (Claude Opus 5.5)
