@@ -54,8 +54,10 @@ Claude merge. The proposal keeps this harness's per-change review as it is in
 
 - **at a milestone**, Claude opens an issue requesting a review by any model
   that is not Claude (the owner's rule), holding the prompt and the commit
-  range from the last reviewed end (Scopetta, Tressette, balloons-JS; Geoclick
-  and discola-web use the milestone's existing thread instead). Only one
+  range (Scopetta, Tressette, balloons-JS; Geoclick and discola-web use the
+  milestone's existing thread instead). The design picks where a range
+  starts: at the last reviewed end (Scopetta, balloons-JS), or at the previous
+  issue's head, run or not, so ranges never overlap (Tressette). Only one
   review issue is open at a time (Scopetta, balloons-JS);
 - **the prompt is a fixed template** the author only fills in, so the author
   does not steer what the reviewer looks for (balloons-JS);
@@ -64,7 +66,7 @@ Claude merge. The proposal keeps this harness's per-change review as it is in
   comment (Tressette, balloons-JS) and one issue per finding (Scopetta,
   Geoclick, discola-web);
 - **when it arrives**, Claude reproduces each finding and replies on the
-  thread per finding (Tressette, Geoclick), and copies the review into
+  thread per finding (Tressette, Geoclick, discola-web), and copies it into
   `reviews/` (this repository's own practice).
 
 Open for the design: what a milestone is — here, perhaps a release tag — and
