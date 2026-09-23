@@ -100,8 +100,9 @@ design there:
   to the record's implementer. The recommended default, taken; the reason:
   its status line pointed at review round 01 although round 02 existed when
   r1 was tagged — stale, not a broken rule, since release 1 had no status
-  rule — and correcting it leaves every landed release findable by status. The original line is kept, and the additions are
-  signed as not the implementer's. From #10, finding 1.
+  rule — and correcting it leaves every landed release findable by status.
+  The original line is kept, and the additions are signed as not the
+  implementer's. From #10, finding 1.
 - Releases: `r1` (the consolidation), `r2` (field-test fixes), `r3` (the
   parametrizable scaffold), `r4` (the four lessons). Records in `design/` and
   `reviews/`.
