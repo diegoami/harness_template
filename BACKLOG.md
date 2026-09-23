@@ -9,15 +9,23 @@ itself — this file is it.
 ## Release 5: scope and claims
 
 **Status:** proposed on 2026-09-23. The owner confirms the scope and the
-decisions below before any r5 work starts. The claims are written before the
-work, as [Imperial Conquest 2's process](docs/sources/ic2-milestone-review.md)
+decisions below before any r5 work starts; the answers are written into the
+"owner" column in the change that lands this section. The claims are written
+before the work, as [Imperial Conquest 2's process](docs/sources/ic2-milestone-review.md)
 does. A claim changes only here, visibly and with its reason, and is never
 weakened to pass.
 
 **The promise.** After r5, the review loop happens on GitHub as it happens:
-every record is posted when it is written, by a tool that cannot mangle it,
-and a release is tagged only after a model independent of its implementer
-has checked it against claims written before the work.
+every record the implementer posts is posted when it is written, by a tool
+that cannot mangle it, and a release is tagged only after a model
+independent of its implementer has checked it against claims written before
+the work.
+
+**Where r5 starts.** The milestone range is `r4..<candidate>`, and the
+milestone reviewer reviews all of it. It opens with PRs #9 and #11–#14, the
+cleanup after r4 and this scope. They are reviewed as diffs, but the claims
+about how work is done (C1, C3) hold only for the **r5 PRs**: those opened
+after the PR that lands this section has merged.
 
 **In r5:** posting (candidates 1–3 below), milestone reviews, the four
 protocol gaps, and the smaller items except scratch-repository deletion.
@@ -29,83 +37,102 @@ protocol gaps, and the smaller items except scratch-repository deletion.
 - from Imperial Conquest 2: the never-merged review PR, the `review/` and
   `review-base/` branches, GitHub milestone objects, and a second reviewer.
 
-**Owner decisions** (🧑 each has the recommended default; the owner confirms
-or changes it):
+**Owner decisions** (🧑 each has the recommended default; the owner's answer
+goes in the last column):
 
-| # | decision | default | reason |
-|---|---|---|---|
-| D1 | the scope above | take it | one theme, the review loop on GitHub; adoption and planning are each a release of their own |
-| D2 | where the milestone rule lives | `PRINCIPLES.md`, for both modes; the reviewer is any model not of the implementer's family | the owner's definition holds for all projects; in Claude mode that reads "not Claude" |
-| D3 | who creates the tag after `AGREE` | the implementer | the verdict names the SHA, so the tag is mechanical |
-| D4 | may the owner tag without a review | only as an owner waiver recorded on the milestone issue | the tag waits for the review; a waiver is never the implementer's call |
-| D5 | do scaffolded runs get milestone reviews | yes, tagged `vX.Y.Z`; the harness keeps `rN` | the owner's rule is the same for all projects |
-| D6 | rounds after a clean round | rounds count on through a stage, and any round from the third that does not end clean goes to the owner | what PRs #9 and #12 did, now stated |
-| D7 | `design: none` homes | the bypass amendment goes in the project slot; the completion note in the last implementation review file | one home each; the second is Claude mode's rule |
-| D8 | the scaffold's `--github` default | stays `none` | a default must not create a repository |
-| D9 | milestone review file names | `reviews/rN-milestone-NN.md`, `NN` counting rounds | outside the per-change `NNN-slug-impl-NN` series |
+| # | decision | default | reason | owner |
+|---|---|---|---|---|
+| D1 | the scope above | take it | one theme, the review loop on GitHub; adoption and planning are each a release of their own | |
+| D2 | where the milestone rule lives, and who reviews | `PRINCIPLES.md`, for both modes; the reviewer is of a family that implemented none of the range, which for a Claude-mode range means any model that is not Claude | the owner's definition holds for all projects | |
+| D3 | who creates the tag after `AGREE` | the implementer | the verdict names the SHA, so the tag is mechanical | |
+| D4 | may the owner tag without a review | yes, as an owner override recorded on the milestone issue, never the implementer's call | the tag waits for the review, and only the owner may skip it; "waiver" stays the implementation-stage term | |
+| D5 | do scaffolded runs get milestone reviews | yes, tagged `vX.Y.Z`; the harness keeps `rN` | the owner's rule is the same for all projects | |
+| D6 | rounds after a clean round | rounds count on through a stage, and any round from the third that does not end clean goes to the owner | what PRs #9 and #12 did, now stated | |
+| D7 | `design: none` homes | the bypass amendment goes in the project slot; the completion note in the last implementation review file | one home each; the second is Claude mode's rule | |
+| D8 | the scaffold's `--github` default | stays `none` | a default must not create a repository | |
+| D9 | milestone review file names | `reviews/<tag>-milestone-NN.md`, `NN` counting the verdicts on that milestone in order | fits `rN` and `vX.Y.Z`; one number per verdict, even two in one round | |
+| D10 | milestone rounds | each verdict on the milestone issue is one round; a third that is not `AGREE` goes to the owner | the same ceiling as a stage, counted per milestone | |
+| D11 | "rules apply going forward" for every project | yes, stated in `PRINCIPLES.md` | this repository's decision in Notes, made general | |
 
 **Claims** (each with how it is proved; the milestone reviewer tests every
-one itself):
+one itself, at the candidate commit):
 
 - **C1. Records are posted when they are written.** `PRINCIPLES.md` assumes a
   remote: in OpenCode mode the design record opens as an issue before
   implementation and each verdict is posted as it is written; in both modes
   each implementation review is posted on the PR before the next round; with
-  no remote, the files stand alone. *Proof:* the text; on every r5 PR, each
-  review comment is dated before the next fix commit and before the merge
+  no remote, the files stand alone. *Proof:* the text; for every r5 PR, each
+  review file it adds has exactly one PR comment equal to it, dated before
+  the next commit and before the merge
   (`gh pr view N --json comments,commits,mergedAt`).
 - **C2. Posting is mechanical and keeps the text intact.**
-  `tools/post-record.mjs` posts a review file on a PR, or a design record as
-  an issue with its verdicts, through `--body-file`. It is a dry run unless
-  given `--confirm`. *Proof:* `node --check`; a dry run prints the `gh`
-  command and posts nothing; the body file it writes is byte-identical to
-  the source (`cmp`), with no byte-order mark; r5's own records, posted with
-  it, read back identical to their files.
+  `tools/post-record.mjs` posts a review file on a PR, a design record as an
+  issue with its verdicts, and a reply on an issue, through `--body-file`. It
+  is a dry run unless given `--confirm`. *Proof:* `node --check`; a dry run
+  prints the `gh` command and posts nothing; the body file it writes is
+  byte-identical to the source (`cmp`), with no byte-order mark; every
+  record an r5 PR posted reads back (`gh … --json body`) equal to its file,
+  apart from line endings and the final newline.
 - **C3. The PR mechanics are written down and followed.** The rules state:
   the PR names what it implements and the revision its clean review covers;
   `Closes #N` stands on its own line and is checked with
   `closingIssuesReferences`; the body has four parts (what was built, the
   done-when ticked, the check output, what was left out); no merge while a
-  review is running. *Proof:* the text; every r5 PR that closes an issue
-  shows it in `closingIssuesReferences`, and every r5 PR body has the four
-  parts.
+  review is running. *Proof:* the text; for every r5 PR, its body names the
+  reviewed revision and has the four parts, every issue it closes appears in
+  `closingIssuesReferences`, and it merged after its last review comment.
 - **C4. A milestone is a tag, and the tag waits for an independent review.**
   The rule (D2) defines a milestone as an annotated tag on `main`, on the
   commit the release is built from; lists what the milestone issue holds
-  (proposed tag, candidate SHA, previous tag, PRs since, gate results); and
-  has the reviewer post one verdict on it, with one issue per reproduced
-  finding. *Proof:* the text; `r5`'s own milestone issue holds those fields.
-  After tagging, which the reviewer cannot see, the completion note shows
-  that `r5` is annotated and equals the SHA the `AGREE` verdict names.
+  (proposed tag, candidate SHA, previous tag, PRs since, gate results); has
+  the reviewer post one verdict on it, with one issue per reproduced finding;
+  and says who tags (D3) and how the owner overrides (D4). *Proof:* the text;
+  `r5`'s milestone issue holds those fields. After tagging, anyone can check
+  `git cat-file -t r5` (`tag`) and that `git rev-parse r5^{commit}` equals
+  the SHA the `AGREE` verdict names; the completion note records both.
 - **C5. Claims come before the work.** The rule requires numbered claims,
   each with its proof, written when a release is scoped, with a "not in this
   release" list; one verdict per claim (MET, NOT MET, PARTLY MET, COULD NOT
-  TEST), where NOT MET blocks the tag; and four-way triage. *Proof:* the text;
-  this section is committed before the first r5 implementation commit
-  (`git log`), and `r5`'s verdict has one row per claim.
-- **C6. Milestone verdicts fit Claude mode.** The no-marker rule in
-  `CLAUDE.md` and `reviews/README.md` covers per-change reviews only; how
-  milestone rounds count is stated. *Proof:* the text, read together with
-  `PRINCIPLES.md`, has no contradiction; the reviewer names any it finds.
+  TEST), where NOT MET blocks the tag; and four-way triage. *Proof:* the
+  text; the PR that lands this section merged before the first r5 PR was
+  opened (`gh pr view … --json mergedAt,createdAt`).
+- **C6. Milestone verdicts fit Claude mode.** `CLAUDE.md` and
+  `reviews/README.md` scope "no marker" to per-change reviews, and the
+  Rounds rule in `PRINCIPLES.md` names milestone rounds as D10 sets them.
+  *Proof:* those three passages, quoted by `file:line`.
 - **C7. The four protocol gaps are closed.** `design: none` has one home for a
   bypass amendment and one for an OpenCode completion note (D7);
-  `PRINCIPLES.md` says a record is held to the rules in force when written;
-  the Rounds rule says how a round after a clean round counts (D6); and the
-  `light` preset links no file it does not ship. *Proof:* the text; a `light`
-  run generated from the candidate has no dangling relative link.
+  `PRINCIPLES.md` says a record is held to the rules in force when written
+  (D11); the Rounds rule says how a round after a clean round counts (D6);
+  and the `light` preset links no file it does not ship. *Proof:* the text;
+  a `light` run generated from the candidate has no dangling relative link.
 - **C8. Every preset generates cleanly from the candidate.** `light`,
-  `standard` and `auto`, each generated with `--ref <candidate>` and no
-  `--github`, exit 0 and leave no `{{…}}` placeholder and no dangling relative
-  link, and a generated run carries the milestone rule (D5).
-  `node --check` passes on every `tools/*.mjs`. *Proof:* the commands.
+  `standard` and `auto`, each generated with `--ref <candidate>` into a
+  temporary directory and without `--github`, exit 0 and leave no `{{…}}`
+  placeholder and no dangling relative link, and a generated run carries the
+  milestone rule (D5). `node --check` passes on every `tools/*.mjs`.
+  *Proof:* the commands.
 - **C9. The scaffold guards its input.** A `--test` value with an unbalanced
   double quote or an embedded newline exits non-zero with a hint about shell
   quoting, and `--help` carries a quoting note. *Proof:* run both, showing the
   guard fails before the fix and passes after.
-- **C10. The smaller rules land.** "A review never executes a creation path"
-  is a rule in `PRINCIPLES.md`; `reviews/README.md` names milestone reviews
-  (D9); and the restatements left after PR #9 are fixed. *Proof:* the text;
-  none of the restatements listed under "Smaller items" remains.
+- **C10. The smaller rules land.** `PRINCIPLES.md` rules that a review never
+  runs a path that creates something outside a temporary directory (no
+  `--github`, no `gh … create`); `reviews/README.md` names milestone reviews
+  (D9); and these restatements are gone: `ROADMAP.md`'s `in design` status
+  assuming a design stage, `README.md` giving OpenCode "the design agreed
+  before code" unconditionally and saying the modes differ only in how the
+  reviewer is obtained, and this file's preamble listing the harness files
+  itself. *Proof:* the text.
+- **C11. The milestone loop is complete and independent.** The rule has a
+  fixed milestone review prompt, kept as a file, that the implementer only
+  fills in; on `BLOCK` the implementer gives a re-review prompt unasked;
+  every body is posted through `--body-file`; and when a verdict arrives the
+  implementer reproduces each finding, replies on the milestone issue per
+  finding, and copies the verdict into `reviews/` (D9). *Proof:* the text
+  and the template file; `r5`'s milestone prompt differs from the template
+  only in its filled placeholders, and its verdict is signed with a model id
+  of a family that implemented none of the range (D2).
 
 ## Candidates
 
