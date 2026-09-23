@@ -86,8 +86,9 @@ Open for the design:
   owner has not decided it here);
 - **claims** (from Imperial Conquest 2's milestone process,
   [`docs/sources/ic2-milestone-review.md`](docs/sources/ic2-milestone-review.md)):
-  numbered claims written when the release is scoped, before the work, each naming the check that proves it, with a "not in this
-  milestone" list. The reviewer gives each claim a verdict: MET, NOT MET,
+  numbered claims written when the release is scoped, before the work,
+  each naming the check that proves it, with a "not in this milestone"
+  list. The reviewer gives each claim a verdict: MET, NOT MET,
   PARTLY MET or COULD NOT TEST, and any NOT MET blocks the tag. Here the
   claims would be the backlog items chosen for the release;
 - **triage four ways** (the same source): a defect; the claim was wrong
