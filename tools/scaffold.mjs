@@ -332,6 +332,7 @@ async function main() {
     "roadmap",
     "test",
     "ci",
+    "owner",
   ];
   const interactive =
     args.interactive ||
@@ -498,7 +499,6 @@ async function main() {
   }
 
   if (github !== "none") {
-    let owner = args.owner;
     try {
       owner =
         owner ??
