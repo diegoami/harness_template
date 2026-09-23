@@ -101,6 +101,14 @@ test("a design record splits into the issue body and one comment per verdict", (
   );
 });
 
+test("a design record checked out with CRLF line endings still splits", () => {
+  const crlf = DESIGN.replace(/\n/g, "\r\n");
+  const parts = splitDesign(crlf);
+  assert.equal(parts.verdicts.length, 2, "verdicts lost on a CRLF checkout");
+  assert.ok(parts.verdicts[0].startsWith("## Review — design stage\r\n"));
+  assert.equal(parts.body + parts.verdicts.map((v, i) => parts.separators[i] + v).join(""), crlf);
+});
+
 test("a new design record plans one issue, then its verdicts on that issue", () => {
   const s = scratch();
   try {

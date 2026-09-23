@@ -21,7 +21,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const KINDS = ["review", "design", "milestone", "reply"];
-const VERDICT_SEPARATOR = "\n---\n\n## Review";
+const VERDICT_SEPARATOR = /(\r?\n---\r?\n\r?\n)(?=## Review)/;
 
 function usage() {
   return `post-record — post a record to GitHub exactly as its file says
@@ -84,13 +84,19 @@ function readSource(file) {
 }
 
 // The issue body is the record up to its first verdict; each verdict is one
-// comment. Joining them back with the separator rebuilds the record exactly.
+// comment. A verdict follows a "---" line and a blank line, with LF or CRLF
+// endings (a Windows checkout has CRLF). The separators are kept as found, so
+// body + separators[i] + verdicts[i] ... rebuilds the record exactly.
 export function splitDesign(text) {
   const pieces = text.split(VERDICT_SEPARATOR);
-  return {
-    body: pieces[0],
-    verdicts: pieces.slice(1).map((p) => "## Review" + p),
-  };
+  const body = pieces[0];
+  const separators = [];
+  const verdicts = [];
+  for (let i = 1; i < pieces.length; i += 2) {
+    separators.push(pieces[i]);
+    verdicts.push(pieces[i + 1]);
+  }
+  return { body, separators, verdicts };
 }
 
 function firstHeading(text, file) {
