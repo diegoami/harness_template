@@ -1,6 +1,6 @@
 # 004 — Harness release 4
 
-**Stage:** design · **Status:** agreed · **Date:** 2026-09-23.
+**Stage:** design · **Status:** landed · **Date:** 2026-09-23.
 
 **How this record works** (`design/README.md`): the reviewer appends a signed
 verdict below; nothing is implemented before an AGREE.
@@ -153,6 +153,26 @@ project-slot rows already own the rest; no new owners.
 
 None. The round ceiling's exact wording — "the third verdict round" — is the
 reviewer's to confirm or correct.
+
+## Completion
+
+Written on landing (tag `r4`, merge `8e30733`), per the rule release 2
+introduced; the note is non-material and transcribes the verification items.
+
+- `node --check tools/scaffold.mjs` — clean.
+- `standard` was generated from the reviewed revision by the implementer and
+  independently by the reviewer, and the slot read: the canonical source and a
+  reason per ignored path are present; temporary directories removed.
+- Reviews: design `AGREE` on `682585b` (three rounds — the case the ceiling
+  names); implementation `AGREE` on `8cbcea5`
+  ([`reviews/004-release-4-impl-02.md`](../reviews/004-release-4-impl-02.md)).
+- Landed: PR #4 merged at `8e30733`; tag `r4` on the bookkeeping commit.
+- Recorded to GitHub after the fact, on the owner's observation: the design
+  proposal is [issue #5](https://github.com/diegoami/harness_template/issues/5)
+  with the three design verdicts as comments, and PR #4 carries the two
+  implementation reviews. Releases 1–3 remain file-only (git history).
+
+— Implementer (DeepSeek V4.1 Flash)
 
 ---
 

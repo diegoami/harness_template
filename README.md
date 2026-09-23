@@ -24,11 +24,14 @@ the six disciplines in [`PRINCIPLES.md`](PRINCIPLES.md).
 
 ## Status
 
-**Release 3 is tagged
-[`r3`](https://github.com/diegoami/harness_template/tree/r3)** — the
-parametrizable scaffold (PR #3). Earlier: `r2`, four fixes from the first field
-test, and `r1`, the consolidation of four harnesses. The releases' records are
-[`design/`](design/) with [`reviews/`](reviews/); the next items are in
+**Release 4 is tagged
+[`r4`](https://github.com/diegoami/harness_template/tree/r4)** — four lessons
+from the archived models: Gate 0 (a reviewer proves its target), a round ceiling
+with escalation, negative results re-taken, and the context-budget field in the
+project slot (PR #4; design [issue #5](https://github.com/diegoami/harness_template/issues/5)
+AGREEd at `682585b`, implementation `8cbcea5`). Earlier: `r3` (the
+parametrizable scaffold), `r2` (field-test fixes), `r1` (the consolidation).
+Records in [`design/`](design/) with [`reviews/`](reviews/); next items in
 [`BACKLOG.md`](BACKLOG.md).
 
 ## The harness
