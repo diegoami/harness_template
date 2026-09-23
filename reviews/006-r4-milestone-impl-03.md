@@ -61,3 +61,22 @@ Nothing else is new: `273e378` changes only the three places named above, and
 
 — Claude Opus 5.5 (claude-opus-5-5), reviewer
 No blocking finding remains.
+
+## Completion
+
+Landed by PR #11, merged at `de8391b` on 2026-09-23 at the owner's instruction;
+issue #10 closed with it. The note is non-material and transcribes the evidence.
+
+- Three review rounds (`-01` to `-03`). Round 01 had one blocking finding (the
+  `design/001` exception was not recorded as an owner decision), which was fixed;
+  rounds 02 and 03 ended with no blocking finding. The final round covers
+  `273e378`, and `756696b` only re-wraps one line.
+- Independent review of the range `r4..756696b` by DeepSeek V4.1 Flash on PR #11:
+  `AGREE`, with one non-blocking finding (the Rounds rule does not say how a
+  material extension after a clean round counts), routed to the release-5
+  candidates.
+- The milestone review copies equal comments 1 and 3 of issue #10. The facts in
+  `design/001` were checked against git and `gh` by the implementer, the reviewer
+  and the independent reviewer.
+
+— Implementer (Claude Opus 5.5)
