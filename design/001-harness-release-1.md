@@ -355,15 +355,16 @@ authored in `reviews/`.
 
 ## Completion
 
-Written after the fact on 2026-09-23, at the owner's decision on the r4
-milestone review ([issue #10](https://github.com/diegoami/harness_template/issues/10),
-finding 1). The `landed` status and the completion note arrived with release 2;
+Written after the fact on 2026-09-23, by the owner's decision recorded in
+`BACKLOG.md` (Notes), on the r4 milestone review
+([issue #10](https://github.com/diegoami/harness_template/issues/10), finding 1). The `landed` status and the completion note arrived with release 2;
 this record predates both, and it stated no done-when list, so the note
 transcribes the landing evidence only.
 
 - Implementation reviews: round 01 on `2857b50`, round 02 `AGREE` on
   `2cd33db` ([`reviews/001-harness-release-1-impl-02.md`](../reviews/001-harness-release-1-impl-02.md)).
-- Landed: PR #1 merged at `9f7b1a4` on 2026-09-22; tag `r1` is that commit.
+- Landed: PR #1 merged at `9f7b1a4` on 2026-09-23 00:31 +0200 (22:31 UTC
+  the day before); tag `r1` is that commit.
 - Posted to GitHub after the fact: the design as
   [issue #6](https://github.com/diegoami/harness_template/issues/6) with its
   verdicts as comments, the implementation reviews on PR #1.
