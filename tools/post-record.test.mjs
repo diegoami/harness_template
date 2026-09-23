@@ -47,11 +47,29 @@ class FakeGitHub {
   constructor({ mangle = (s) => s } = {}) {
     this.mangle = mangle;
     this.issues = new Map(); // number -> { title, body, comments: [id] }
-    this.prs = new Map([["15", { comments: [] }]]);
+    // PR 15's head: the files it holds (repo-relative) and their content.
+    this.prs = new Map([["15", { comments: [], head: "c0ffee1", tree: new Map() }]]);
     this.comments = new Map(); // id -> { thread, body }
     this.next = { issue: 70, comment: 900 };
     this.calls = [];
+    this.top = null; // the fake checkout's top-level directory
   }
+  // Make PR 15's head hold `file` as it is now, in a checkout rooted at its dir.
+  holds(file, content = readFileSync(file, "utf8")) {
+    this.top = path.dirname(file);
+    this.prs.get("15").tree.set(path.basename(file), content);
+    return this;
+  }
+  git = (dir, args) => {
+    if (args[0] === "rev-parse") return this.top + "\n";
+    if (args[0] === "show") {
+      const [oid, rel] = args[1].split(":");
+      const pr = [...this.prs.values()].find((p) => p.head === oid);
+      if (!pr || !pr.tree.has(rel)) throw new Error(`fatal: invalid object ${args[1]}`);
+      return pr.tree.get(rel);
+    }
+    throw new Error("unexpected git " + args.join(" "));
+  };
   thread(where, n) {
     return where === "pr" ? this.prs.get(n) : this.issues.get(n);
   }
@@ -77,6 +95,11 @@ class FakeGitHub {
       const t = this.thread(a, n);
       if (!t) throw new Error(`no ${a} #${n}`);
       if (args.includes("body")) return JSON.stringify({ body: t.body });
+      if (args.includes("headRefOid,files"))
+        return JSON.stringify({
+          headRefOid: t.head,
+          files: [...t.tree.keys()].map((p) => ({ path: p })),
+        });
       return JSON.stringify({
         comments: t.comments.map((id) => ({ body: this.comments.get(id).body })),
       });
@@ -100,8 +123,11 @@ class FakeGitHub {
   }
 }
 
-function confirm(argv, gh, extra = {}) {
-  run([...argv, "--confirm"], { gh, log: () => {}, committed: COMMITTED, ...extra });
+// `fake` is a FakeGitHub (its gh and git are used) or a bare gh function.
+function confirm(argv, fake, extra = {}) {
+  const gh = typeof fake === "function" ? fake : fake.gh;
+  const git = typeof fake === "function" ? NEVER : fake.git;
+  run([...argv, "--confirm"], { gh, git, log: () => {}, committed: COMMITTED, ...extra });
 }
 
 // --- plans and body files -------------------------------------------------
@@ -181,6 +207,19 @@ test("only verdicts split a design record, not fences or other headings", () => 
   assert.ok(parts.verdicts[1].includes("AGREE"));
 });
 
+test("fences follow CommonMark: matching closers, indentation, a rule after a fence", () => {
+  const v = "\n---\n\n## Review — design stage\n\nAGREE\n";
+  // A ~~~ line inside a ``` block does not close it.
+  assert.equal(splitDesign("# R\n\n```\n~~~\n```\n" + v).verdicts.length, 1);
+  // A verdict right after a closing fence is still a verdict (LF and CRLF).
+  assert.equal(splitDesign("# R\n\n```\ncode\n```" + v).verdicts.length, 1);
+  assert.equal(splitDesign(("# R\n\n```\ncode\n```" + v).replace(/\n/g, "\r\n")).verdicts.length, 1);
+  // A fence indented up to 3 spaces hides what it holds.
+  assert.equal(splitDesign("# R\n\n   ```\n" + v + "   ```\n").verdicts.length, 0);
+  // A shorter closer does not close a longer fence.
+  assert.equal(splitDesign("# R\n\n````\n```\n" + v + "````\n").verdicts.length, 0);
+});
+
 test("a design record checked out with CRLF line endings still splits", () => {
   const crlf = DESIGN.replace(/\n/g, "\r\n");
   const parts = splitDesign(crlf);
@@ -198,6 +237,11 @@ test("the title is the first heading outside a fence", () => {
     const src = write(s.dir, "m.md", "```\n# not this\n```\n\n# r5 — the review loop\n\nBody.\n");
     const p = plan(["milestone", src, "--out", s.dir]);
     assert.equal(p.actions[0].title, "r5 — the review loop");
+    const t = plan(["milestone", src, "--title", "Milestone: r5", "--out", s.dir]);
+    assert.equal(t.actions[0].title, "Milestone: r5", "--title was ignored");
+    const d = write(s.dir, "010-a-record.md", DESIGN);
+    const td = plan(["design", d, "--title", "010: given", "--out", s.dir]);
+    assert.equal(td.actions[0].title, "010: given", "--title was ignored");
   } finally {
     s.done();
   }
@@ -235,6 +279,11 @@ test("without --confirm nothing is posted, for every kind", () => {
       assert.ok(lines[0].startsWith("dry run"), argv.join(" "));
       assert.ok(lines.slice(1).every((l) => l.includes("--body-file")));
     }
+    // A printed path with a space, or a Windows path, is quoted for bash.
+    const out = path.join(s.dir, "with space");
+    const lines = [];
+    run(["review", r, "--pr", "15", "--out", out], { gh: NEVER, log: (l) => lines.push(l) });
+    assert.ok(lines[1].includes(`--body-file '${out}`), lines[1]);
   } finally {
     s.done();
   }
@@ -246,10 +295,10 @@ test("--confirm: a review is posted to the PR and read back by its own id", () =
   const s = scratch();
   try {
     const src = write(s.dir, "r.md", TRICKY);
-    const gh = new FakeGitHub();
+    const gh = new FakeGitHub().holds(src);
     gh.prs.get("15").comments.push("1");
     gh.comments.set("1", { thread: "pr#15", body: "an older comment" });
-    confirm(["review", src, "--pr", "15", "--out", s.dir], gh.gh);
+    confirm(["review", src, "--pr", "15", "--out", s.dir], gh);
     assert.equal(gh.posts().length, 1);
     const id = gh.prs.get("15").comments.at(-1);
     assert.ok(sameBody(gh.comments.get(id).body, TRICKY));
@@ -321,12 +370,30 @@ test("--confirm fails loudly when what GitHub holds differs from the file", () =
     const d = write(s.dir, "010-a-record.md", DESIGN);
     const mangle = (t) => t.replace("—", "ÔÇö");
     assert.throws(
-      () => confirm(["review", r, "--pr", "15", "--out", s.dir], new FakeGitHub({ mangle }).gh),
+      () => confirm(["review", r, "--pr", "15", "--out", s.dir], new FakeGitHub({ mangle }).holds(r)),
       /does not match/,
     );
     assert.throws(
       () => confirm(["design", d, "--out", s.dir], new FakeGitHub({ mangle }).gh),
       /issue #70 body does not match.*--issue 70/,
+    );
+  } finally {
+    s.done();
+  }
+});
+
+test("once an issue exists, any later failure says to rerun with --issue", () => {
+  const s = scratch();
+  try {
+    const d = write(s.dir, "010-a-record.md", DESIGN);
+    const gh = new FakeGitHub();
+    const failVerdict = (args) => {
+      if (args[0] === "issue" && args[1] === "comment") throw new Error("HTTP 502");
+      return gh.gh(args);
+    };
+    assert.throws(
+      () => confirm(["design", d, "--out", s.dir], failVerdict),
+      /HTTP 502; issue #70 exists, so rerun with --issue 70/,
     );
   } finally {
     s.done();
@@ -343,13 +410,13 @@ test("--confirm stops when gh prints an unexpected URL", () => {
     const quiet = (args) => (args[1] === "create" ? "Creating issue…\n" : noUrl.gh(args));
     assert.throws(() => confirm(["milestone", m, "--out", s.dir], quiet), /no issue URL/);
     // A comment URL on another thread: the comment did not land where asked.
-    const other = new FakeGitHub();
+    const other = new FakeGitHub().holds(r);
     const elsewhere = (args) => {
       const out = other.gh(args);
       return args[1] === "comment" ? out.replace("/pull/15#", "/pull/16#") : out;
     };
     assert.throws(
-      () => confirm(["review", r, "--pr", "15", "--out", s.dir], elsewhere),
+      () => confirm(["review", r, "--pr", "15", "--out", s.dir], elsewhere, { git: other.git }),
       /no comment URL for #15/,
     );
   } finally {
@@ -361,25 +428,58 @@ test("a body already on the thread is not posted twice", () => {
   const s = scratch();
   try {
     const src = write(s.dir, "r.md", TRICKY);
-    const gh = new FakeGitHub();
-    confirm(["review", src, "--pr", "15", "--out", s.dir], gh.gh);
-    confirm(["review", src, "--pr", "15", "--out", s.dir], gh.gh);
+    const gh = new FakeGitHub().holds(src);
+    confirm(["review", src, "--pr", "15", "--out", s.dir], gh);
+    confirm(["review", src, "--pr", "15", "--out", s.dir], gh);
     assert.equal(gh.posts().length, 1);
   } finally {
     s.done();
   }
 });
 
-test("--confirm refuses a review or design record that is not committed as it is", () => {
+test("--confirm posts a review only if the PR holds it at its head", () => {
+  const s = scratch();
+  try {
+    const src = write(s.dir, "r.md", TRICKY);
+    const other = write(s.dir, "README.md", "# harness\n");
+    // Not one of the PR's files: the README.md slip on PR #15.
+    const notInPr = new FakeGitHub().holds(src);
+    assert.throws(
+      () => confirm(["review", other, "--pr", "15", "--out", s.dir], notInPr),
+      /not one of PR #15's files/,
+    );
+    // In the PR, but the local file differs from the PR's head (not pushed).
+    const stale = new FakeGitHub().holds(src, "an older version\n");
+    assert.throws(
+      () => confirm(["review", src, "--pr", "15", "--out", s.dir], stale),
+      /differs from PR #15's head/,
+    );
+    // The PR's head is not in this clone.
+    const unfetched = new FakeGitHub().holds(src);
+    const noObject = (d, a) => (a[0] === "show" ? NEVER() : unfetched.git(d, a));
+    assert.throws(
+      () => confirm(["review", src, "--pr", "15", "--out", s.dir], unfetched.gh, { git: noObject }),
+      /not in this clone; git fetch/,
+    );
+    for (const f of [notInPr, stale, unfetched]) assert.equal(f.posts().length, 0);
+    // The same text with other line endings is the same file.
+    const crlf = new FakeGitHub().holds(src, TRICKY.replace(/\n/g, "\r\n"));
+    confirm(["review", src, "--pr", "15", "--out", s.dir], crlf);
+    assert.equal(crlf.posts().length, 1);
+  } finally {
+    s.done();
+  }
+});
+
+test("--confirm refuses a design record that is not committed as it is", () => {
   const s = scratch();
   try {
     const src = write(s.dir, "r.md", TRICKY);
     const d = write(s.dir, "010-a-record.md", DESIGN);
-    for (const argv of [["review", src, "--pr", "15"], ["design", d]])
-      assert.throws(
-        () => confirm([...argv, "--out", s.dir], NEVER, { committed: () => false }),
-        /not committed/,
-      );
+    assert.throws(
+      () => confirm(["design", d, "--out", s.dir], NEVER, { committed: () => false }),
+      /not committed/,
+    );
     // A reply or a milestone issue is not a repository record: no such check.
     const gh = new FakeGitHub();
     confirm(["milestone", write(s.dir, "m.md", "# M\n"), "--out", s.dir], gh.gh, { committed: NEVER });
@@ -403,6 +503,8 @@ test("the committed check: tracked and unmodified only (a local scratch repo)", 
     assert.equal(defaultCommitted(tracked), true);
     writeFileSync(tracked, TRICKY + "edited\n");
     assert.equal(defaultCommitted(tracked), false, "a modified file passed");
+    git("add", "tracked.md");
+    assert.equal(defaultCommitted(tracked), false, "a staged, uncommitted edit passed");
     assert.equal(defaultCommitted(write(s.dir, "new.md", TRICKY)), false, "an untracked file passed");
   } finally {
     s.done();
@@ -413,4 +515,5 @@ test("sameBody ignores only line endings and trailing newlines", () => {
   assert.ok(sameBody("a\r\nb\n\n", "a\nb"));
   assert.ok(!sameBody("a — b\n", "a ÔÇö b\n"));
   assert.ok(!sameBody("a\n", " a\n"));
+  assert.ok(!sameBody("a \nb\n", "a\nb\n"), "trailing spaces are content");
 });

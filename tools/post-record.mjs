@@ -10,9 +10,9 @@
 // A dry run unless --confirm is given: it writes each body file, prints the
 // `gh` command that would post it, and posts nothing. Every body goes through
 // `gh … --body-file`, byte for byte as the source holds it, so no shell ever
-// re-encodes it. With --confirm it posts a review or design record only when
-// it is committed and unmodified (so the PR holds what is posted), then reads
-// each body back from GitHub and fails if it differs from the file
+// re-encodes it. With --confirm it posts a review only when the PR holds it
+// (one of the PR's files, equal to it at the PR's head) and a design record
+// only when it is committed and unmodified, then reads each body back from GitHub and fails if it differs from the file
 // (line endings and trailing newlines aside). A body already on the thread is
 // not posted again.
 
@@ -38,7 +38,7 @@ const KINDS = {
 // A verdict follows a "---" line and a blank line, with LF or CRLF endings
 // (a Windows checkout has CRLF), and starts "## Review — ".
 const VERDICT_SEPARATOR = /(\r?\n---\r?\n\r?\n)(?=## Review — )/g;
-const FENCE = /^(```|~~~)/;
+const FENCE = /^ {0,3}(`{3,}|~{3,})/;
 
 function usage() {
   return `post-record — post a record to GitHub exactly as its file says
@@ -57,7 +57,8 @@ function usage() {
   reply      the file as one comment on an issue or pull request
 
   --confirm       post (without it: a dry run that posts nothing); a review
-                  or design record is posted only committed and unmodified
+                  only if the PR holds it at its head, a design record only
+                  if it is committed and unmodified
   --out <dir>     where the body files are written (default: a new temp dir)
   --title <t>     the issue title (default: the file's first "# " heading)
   -h, --help      this text`;
@@ -104,22 +105,30 @@ function readSource(file) {
 }
 
 // Offsets inside fenced code blocks, which never hold a verdict or a title.
+// As in CommonMark: a fence is 3+ backticks or tildes indented at most 3
+// spaces, and only a fence of the same character, at least as long and with
+// nothing after it, closes it. A span ends before its closing line's ending.
 function inFence(text) {
   const spans = [];
-  let open = null;
+  let open = null; // { at, char, len }
   let pos = 0;
-  for (const line of text.split("\n")) {
-    if (FENCE.test(line)) {
-      if (open === null) open = pos;
-      else {
-        spans.push([open, pos + line.length]);
-        open = null;
-      }
+  for (const raw of text.split("\n")) {
+    const line = raw.replace(/\r$/, "");
+    const m = FENCE.exec(line);
+    if (m && open === null) open = { at: pos, char: m[1][0], len: m[1].length };
+    else if (
+      m &&
+      m[1][0] === open.char &&
+      m[1].length >= open.len &&
+      line.slice(m[0].length).trim() === ""
+    ) {
+      spans.push([open.at, pos + line.length]);
+      open = null;
     }
-    pos += line.length + 1;
+    pos += raw.length + 1;
   }
-  if (open !== null) spans.push([open, text.length]);
-  return (i) => spans.some(([a, b]) => i >= a && i <= b);
+  if (open !== null) spans.push([open.at, text.length]);
+  return (i) => spans.some(([a, b]) => i >= a && i < b);
 }
 
 // The issue body is the record up to its first verdict; each verdict is one
@@ -255,10 +264,42 @@ export function defaultCommitted(file) {
   }
 }
 
+function defaultGit(dir, args) {
+  return execFileSync("git", ["-C", dir, ...args], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+    maxBuffer: 16 * 1024 * 1024,
+  });
+}
+
+// A review is posted only when the PR holds it: the file is one of PR N's
+// files and equals the file at the PR's head (line endings aside). This is
+// what C1 compares, so a file the PR does not hold is never posted to it.
+export function checkPrHolds({ gh, git, pr, file, text }) {
+  const dir = path.dirname(path.resolve(file));
+  const top = git(dir, ["rev-parse", "--show-toplevel"]).trim();
+  const rel = path.relative(top, path.resolve(file)).split(path.sep).join("/");
+  const info = JSON.parse(gh(["pr", "view", String(pr), "--json", "headRefOid,files"]));
+  if (!info.files.some((f) => f.path === rel))
+    throw new UsageError(`${rel} is not one of PR #${pr}'s files; post only what the PR holds`);
+  let atHead;
+  try {
+    atHead = git(dir, ["show", `${info.headRefOid}:${rel}`]);
+  } catch {
+    throw new UsageError(
+      `PR #${pr}'s head ${info.headRefOid} is not in this clone; git fetch, then retry`,
+    );
+  }
+  if (!sameBody(atHead, text))
+    throw new UsageError(
+      `${rel} differs from PR #${pr}'s head ${info.headRefOid.slice(0, 7)}; push it first`,
+    );
+}
+
 // Quote for a POSIX shell, so the printed command can be pasted as it is.
 function show(args) {
   const q = (a) =>
-    /^[A-Za-z0-9_@%+=:,./\\-]+$/.test(a) ? a : `'${a.replace(/'/g, `'\\''`)}'`;
+    /^[A-Za-z0-9_@%+=:,./-]+$/.test(a) ? a : `'${a.replace(/'/g, `'\\''`)}'`;
   return "gh " + args.map(q).join(" ");
 }
 
@@ -270,7 +311,12 @@ function existingBodies(gh, where, number) {
 // Post the plan (or, without --confirm, only print it).
 export function run(
   argv,
-  { gh = defaultGh, log = console.log, committed = defaultCommitted } = {},
+  {
+    gh = defaultGh,
+    git = defaultGit,
+    log = console.log,
+    committed = defaultCommitted,
+  } = {},
 ) {
   const { opts, actions } = plan(argv);
   if (opts.help) {
@@ -282,12 +328,23 @@ export function run(
     for (const a of actions) log("  " + show(a.gh));
     return;
   }
-  if (["review", "design"].includes(opts.kind) && !committed(opts.file))
+  if (opts.kind === "review")
+    checkPrHolds({ gh, git, pr: opts.pr, file: opts.file, text: actions[0].text });
+  if (opts.kind === "design" && !committed(opts.file))
     throw new UsageError(
-      `${opts.file} is not committed as it is; commit it first, so what is posted is what the PR holds`,
+      `${opts.file} is not committed as it is; commit it first, so what is posted is what the repository holds`,
     );
   let issueNumber;
-  for (const a of actions) {
+  try {
+    for (const a of actions) post(a);
+  } catch (e) {
+    // Once an issue exists, a plain rerun would create a second one.
+    if (issueNumber !== undefined)
+      e.message += `; issue #${issueNumber} exists, so rerun with --issue ${issueNumber} rather than creating another`;
+    throw e;
+  }
+
+  function post(a) {
     if (a.kind === "issue") {
       const url = gh(a.gh).trim();
       const m = /\/issues\/([0-9]+)$/.exec(url);
@@ -295,18 +352,16 @@ export function run(
       issueNumber = m[1];
       const back = JSON.parse(gh(["issue", "view", issueNumber, "--json", "body"])).body;
       if (!sameBody(back, a.text))
-        throw new Error(
-          `issue #${issueNumber} body does not match ${a.bodyFile}; the issue exists, so rerun with --issue ${issueNumber} rather than creating another`,
-        );
+        throw new Error(`issue #${issueNumber} body does not match ${a.bodyFile}`);
       log(`posted ${url}`);
-      continue;
+      return;
     }
     const number = a.number === "{issue}" ? issueNumber : a.number;
     if (number === undefined) throw new Error("no issue to post the verdict on");
     a.number = number;
     if (existingBodies(gh, a.where, number).some((b) => sameBody(b, a.text))) {
       log(`already on ${a.where} #${number}: ${a.bodyFile}`);
-      continue;
+      return;
     }
     const url = gh(a.gh).trim();
     const m = /\/(?:pull|issues)\/([0-9]+)#issuecomment-([0-9]+)$/.exec(url);
