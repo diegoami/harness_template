@@ -45,9 +45,28 @@ whose builder does not know how to build it. Geoclick's plan-per-release
 (Why / tasks with DoD / Order / a progress ledger / a product-decisions table)
 is the middle shape; IC2's catalogue is the heavy end.
 
-**Protocol gaps from the r4 milestone review**
-([#10](https://github.com/diegoami/harness_template/issues/10)), routed to this
-design there:
+**Milestone reviews in Claude mode.** Five Claude-mode projects converged on
+this on 2026-09-23 (Scopetta, Tressette, balloons-JS, Geoclick2027,
+discola-web). Adopt it in Scopetta's form, which already matches `CLAUDE.md`:
+
+- **each change** lands on a fresh-context Claude review, as now;
+- **at a milestone**, Claude opens an issue requesting an independent review:
+  any model that is not Claude. The issue holds a fixed prompt and the commit
+  range, from the last reviewed end to `main`. Only one review issue is open
+  at a time, and it blocks nothing;
+- **the reviewer** posts one comment, written to a file as UTF-8 without a
+  byte-order mark and passed with `--body-file`;
+- **when it arrives**, Claude reproduces each finding, replies on the thread
+  per finding, and copies the review into `reviews/`.
+
+For this repository a milestone is a release tag. Whether scaffolded runs get
+it, and what their milestones are, is this design's question. It has been run
+by hand twice: [#10](https://github.com/diegoami/harness_template/issues/10) on
+`r4`, and PR #11 on the work since.
+
+**Protocol gaps found by the milestone reviews**
+([#10](https://github.com/diegoami/harness_template/issues/10) and PR #11),
+routed to this design:
 
 - **`design: none` gives a design bypass two homes.** The Waiver bullet in
   `PRINCIPLES.md` records it in the design record, which `design: none`
@@ -60,6 +79,10 @@ design there:
 - **State whether rules apply to earlier records.** `PRINCIPLES.md` is silent,
   which is why the two milestone reviews disagreed on Gate 0 for pre-r4
   records; the owner decision in the Notes settles it for this repository only.
+- **Rounds after a clean round.** The Rounds rule caps a stage at three but
+  does not say whether a material extension after a clean round restarts the
+  count or adds to it. PR #9 went on to rounds 04 and 05 after a clean round 03
+  without saying which. (The independent review on PR #11.)
 
 ## Smaller items
 
@@ -110,3 +133,6 @@ design there:
   `006-r4-milestone-01.md` by DeepSeek V4.1 Flash, r4's implementer — not
   independent, kept as input — and `006-r4-milestone-02.md` by GPT-5.6 Luna,
   the milestone verdict.
+- The independent review of the work since r4 (`r4..756696b`, on PR #11) is
+  copied verbatim into `reviews/007-milestone-since-r4-01.md`: DeepSeek V4.1
+  Flash, `AGREE`.
