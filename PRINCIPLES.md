@@ -12,7 +12,7 @@
 | the principles and habits on this page | `PRINCIPLES.md` |
 | the non-trivial test, the conservative floor, the pure-typo exception | `PRINCIPLES.md` |
 | the six gates disciplines | `PRINCIPLES.md` |
-| the verdict protocol: revision scope, materiality, reviewer sessions, fallback, waiver, owner decisions, defect path, bootstrap, comment-not-approval | `PRINCIPLES.md` |
+| the verdict protocol: revision scope, materiality, reviewer sessions, fallback, waiver, owner decisions, defect path, completion note, bootstrap, comment-not-approval | `PRINCIPLES.md` |
 | the OpenCode process: roles, assignment table, reviewer acquisition, the two stages, BLOCK scope, withdraw/re-scope | `AGENTS.md` |
 | the Claude Code process: fresh-context review, same-family default, no design stage, the external-process option | `CLAUDE.md` |
 | the project rules: product, paths, never-echo, the gates table, conventions, one source of truth, decided-not-to-reopen, open work | `CLAUDE.md`, the project slot |
@@ -99,6 +99,14 @@ and does not relax CI.
   the fix takes the design stage unless all four hold: limited to the recorded
   defect; no behaviour beyond it; no change to what a check measures; no process
   change. Claude mode has no design stage; the fix is reviewed like any change.
+- **Completion.** When a change lands, the implementer appends a short
+  **completion note** to the change's record: each done-when item and the
+  evidence that closed it — the CI run, the gate output. The note is
+  **non-material**: it may only transcribe the already-agreed done-when items
+  and their outcome. Changing a done-when, an assertion, an owner decision or
+  any process rule is material and takes the review its mode requires; a note
+  that does any of that is not a completion note. The latest verdict still
+  governs.
 - **Bootstrap.** A change to a harness file that changes what a builder must do
   or how the process works takes the review its mode requires — both stages in
   OpenCode, the review in Claude; a pure typo takes neither.

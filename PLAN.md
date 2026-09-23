@@ -22,14 +22,21 @@ Every iteration states, before it starts:
 - **the mode** — OpenCode or Claude, and for OpenCode the design record it
   starts from.
 
-## Effort and reviewer per iteration
+## The iteration table
 
-Fill this table as the plan becomes clear; it is a plan, not a contract.
+Fill this table as the plan becomes clear; it is a plan, not a contract. Every
+column is required: the request with the roadmap id and the owner's wording, the
+done-when, what is out of scope, the mode, the design record the iteration
+starts from, the effort, and the reviewer.
 
-| iteration | request | effort | reviewer |
-|---|---|---|---|
-| 0 | scaffold | medium | — |
-| … | … | … | … |
+An iteration may be a **build-order step** with no roadmap request — a step the
+project's own plan fixes (a scaffold, an engine, a check). Its request cell says
+so; the exception is recorded, never improvised.
+
+| iteration | request | done when | out of scope | mode | design record | effort | reviewer |
+|---|---|---|---|---|---|---|---|
+| 0 | <the first step> (build order 0; not a roadmap request) | <the runnable checks that complete it> | <what is deferred> | OpenCode | written when the iteration starts | medium | the assignment table |
+| 5+ | the first unblocked roadmap request, in the owner's order | that request's block in `ROADMAP.md` | the other requests | OpenCode | written when the request is shaped | per request | the assignment table |
 
 ## The owner's part
 
