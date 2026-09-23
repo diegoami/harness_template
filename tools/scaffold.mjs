@@ -201,8 +201,8 @@ function slotText({ name, description, merge, design, test, ci }) {
   return `- **product:** ${name} — ${description}
 - **paths to inspect:** the project's source roots and documents worth reading
   by default.
-- **the canonical source:** the source root; name mirrors, copies or generated
-  artifacts here as they appear.
+- **the canonical source:** the one place to read and edit; name any mirror,
+  copy or generated artifact that must never be edited or cited.
 - **paths to normally ignore:** generated, vendored or binary paths, each with
   its reason; read the lockfile only when dependencies are the task. Ignoring a
   path never means deleting or gitignoring it.
