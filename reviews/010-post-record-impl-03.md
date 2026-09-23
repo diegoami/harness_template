@@ -143,3 +143,21 @@ the owner's decision for C10, not a condition on this PR.
 
 — Claude Opus 5.5 (claude-opus-5-5), reviewer
 No blocking finding remains.
+
+## Completion
+
+Landed by PR #15, merged at `ab073e2` on 2026-09-23 (20:19:55 UTC) at the owner's
+instruction ("merge #15 when the review is clean"), after the last review comment
+(20:19:26 UTC). The note is non-material and transcribes the evidence for C2.
+
+- `node --check tools/post-record.mjs` passes; `node --test tools/post-record.test.mjs`:
+  23 pass, 0 fail.
+- A dry run posts nothing, for every kind; the body files are byte-identical to
+  their sources, with no byte-order mark.
+- The three review rounds of this PR were each committed, pushed and then posted
+  with the tool before the next commit, and each was read back equal to its file.
+- The reviewed revision is `2c505bf`; `e4d5a9a` only adds its record.
+- Known gaps, non-blocking, carried to the backlog: the subdirectory path
+  conversion, three surviving breaks, and the symlinked entry point untested.
+
+— Implementer (Claude Opus 5.5)
