@@ -1,9 +1,13 @@
 # Review records
 
 - **Naming:** `reviews/NNN-<slug>-impl-NN.md`. `NN` starts at `01` and
-  increments per review round of the same implementation stage.
-- The file opens with **the revision it covers** (the commit sha), the
-  reviewer's display name and model id, and the mode (OpenCode or Claude).
+  increments per review round of the same implementation stage; the third round
+  that does not end clean goes to the owner ([`PRINCIPLES.md`](../PRINCIPLES.md)).
+- The verdict opens with **the revision it covers** (the commit sha), the file
+  list the reviewer checked and how it was obtained (the pull request's files,
+  or the local diff from the merge base), the reviewer's display name and model
+  id, and the mode. Findings name files from that list; a mismatch or an empty
+  list is a wrong target, not a finding.
 - **Findings** are numbered, each marked `blocking` — it must be fixed before
   the change is approved — or `non-blocking`, each with `file:line` or a short
   quote as evidence.

@@ -12,7 +12,7 @@
 | the principles and habits on this page | `PRINCIPLES.md` |
 | the non-trivial test, the conservative floor, the pure-typo exception | `PRINCIPLES.md` |
 | the six gates disciplines | `PRINCIPLES.md` |
-| the verdict protocol: revision scope, materiality, reviewer sessions, fallback, waiver, owner decisions, defect path, completion note, merge policy, `design: none` scoping, bootstrap, comment-not-approval | `PRINCIPLES.md` |
+| the verdict protocol: revision scope and target proof, rounds, materiality, reviewer sessions, fallback, waiver, owner decisions, defect path, completion note, merge policy, `design: none` scoping, bootstrap, comment-not-approval | `PRINCIPLES.md` |
 | the OpenCode process: roles, assignment table, reviewer acquisition, the two stages, BLOCK scope, withdraw/re-scope | `AGENTS.md` |
 | the Claude Code process: fresh-context review, same-family default, no design stage, the external-process option | `CLAUDE.md` |
 | the project rules: product, paths, never-echo, the gates table, conventions, one source of truth, decided-not-to-reopen, open work | `CLAUDE.md`, the project slot |
@@ -55,7 +55,10 @@ and does not relax CI.
 1. **Declare the gates in one table**: the commands, what each covers, when it
    runs, how many repeats, and the failure model that justifies the repeats.
 2. **A red gate does not merge.**
-3. **A new assertion is made to fail before it is made to pass.**
+3. **A new assertion is made to fail before it is made to pass**, and a claim
+   that *nothing* caught it is re-taken before it is believed: show that the
+   break landed, that the command ran, and that it ran on the revision under
+   review. A false red announces itself; a false green is silent.
 4. **Reproduce before you act** — a reviewer's finding and your own claim alike.
 5. **Assert what a person would notice** — pixels, contrast, timing — then play
    it.
@@ -69,7 +72,15 @@ and does not relax CI.
   `reviews/NNN-<slug>-impl-NN.md`, naming the revision it covers. A **design
   record** (`design/NNN-<slug>.md`) exists only in OpenCode mode, which has a
   design stage; Claude mode has none, so it has no design records.
-- A verdict or review covers **the named revision**.
+- A verdict or review covers **the named revision**, and the reviewer shows the
+  target before judging: the revision, and the files of the change — the pull
+  request's head and file list where a pull request exists, otherwise the diff
+  from the change's base (`git merge-base main <revision>`, then
+  `git diff --name-only <merge-base>..<revision>`). **The revision the reviewer
+  holds must equal the named target, and its file list must equal the change's
+  file list**; every finding names a file in that list. An empty diff or a
+  mismatched revision is the wrong tree, so the review stops and says so rather
+  than reviewing what it can see.
 - **Materiality.** Non-material edits: commit messages, whitespace, and typos
   that change no behaviour, no assertion and no process text. A material edit to
   a design record, or a comment that changes the proposal or records an owner
@@ -80,6 +91,12 @@ and does not relax CI.
   session; a re-review after fixes may continue that session, because the
   separation the gate protects is from the implementer's context, and the
   reviewer re-reads the current revision.
+- **Rounds.** Rounds are counted per stage: each appended design verdict, and
+  each implementation review file (`-NN`), is one round. Rounds 1 and 2 may
+  rework; a third round that does not end clean — `AGREE` in OpenCode mode, the
+  statement that no blocking finding remains in Claude mode — stops and goes to
+  the owner, who decides: re-scope, record a decision, or, at the implementation
+  stage only, waive. It does not loop.
 - **Fallback.** A failed, cancelled or unavailable review is no review and no
   approval. Retry, or select another reviewer; record its model id and who
   selected it; the fallback becomes the designated reviewer for its stage. Each
