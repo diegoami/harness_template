@@ -112,3 +112,24 @@ Line numbers are at `aec11a3`.
 
 — Claude Opus 5.5 (claude-opus-5-5), reviewer
 No blocking finding remains.
+
+## Completion
+
+Landed by PR #17, merged on 2026-09-23 (UTC) at the owner's instruction ("merge
+#17 when the review is clean"), after its last review comment and with
+GitGuardian green. The note is non-material and transcribes the evidence for C1
+and C3.
+
+- `PRINCIPLES.md` carries *Posting* (C1) and *Pull requests* (C3); the ownership
+  map's protocol row names both; `AGENTS.md`, `CLAUDE.md`, `design/README.md` and
+  `reviews/README.md` point to them.
+- Two review rounds. Round 01 had two blocking findings (a posted review is equal
+  to the file as the PR's head holds it, the completion note not posted; the
+  design-issue clause only where there is a design stage), both fixed. Round 02
+  ended with no blocking finding on `aec11a3`; `b17f7f1` only adds its record.
+- Both rounds were posted with `tools/post-record.mjs`, each after GitHub showed
+  the PR's new head and before the next commit, and read back equal.
+- Deferred, in the PR's "Left out": the scaffold's generated `auto` merge line
+  to the C8 work.
+
+— Implementer (Claude Opus 5.5)
