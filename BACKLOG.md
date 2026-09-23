@@ -45,6 +45,22 @@ whose builder does not know how to build it. Geoclick's plan-per-release
 (Why / tasks with DoD / Order / a progress ledger / a product-decisions table)
 is the middle shape; IC2's catalogue is the heavy end.
 
+**Protocol gaps from the r4 milestone review**
+([#10](https://github.com/diegoami/harness_template/issues/10)), routed to this
+design there:
+
+- **`design: none` gives a design bypass two homes.** The Waiver bullet in
+  `PRINCIPLES.md` records it in the design record, which `design: none`
+  resolves to the implementation review file, while the `design: none` bullet
+  records it in the project slot; and no file places the completion note of an
+  OpenCode `design: none` run. (DeepSeek finding 1.)
+- **The `light` preset links a file it does not ship.** Its `AGENTS.md` stage 1
+  points at `design/README.md`, and the ownership map in `PRINCIPLES.md` names
+  it as an owner, but `presets/light.json` leaves it out. (DeepSeek finding 2.)
+- **State whether rules apply to earlier records.** `PRINCIPLES.md` is silent,
+  which is why the two milestone reviews disagreed on Gate 0 for pre-r4
+  records; the owner decision in the Notes settles it for this repository only.
+
 ## Smaller items
 
 - **Guard the `--test` value.** Reject a value with an unbalanced double quote
@@ -53,6 +69,14 @@ is the middle shape; IC2's catalogue is the heavy end.
 - **A review rule: reviews never execute a creation path.** A reviewer's fake
   CLI was bypassed and created a stray public repository.
 - **Scratch-repository deletion** needs the token's `delete_repo` scope.
+- **Restatements left after PR #9** (its round-05 review): `ROADMAP.md`'s
+  `in design` status assumes a design stage; `README.md` gives OpenCode "the
+  design agreed before code" unconditionally and says the modes differ only in
+  how the reviewer is obtained; this file's preamble lists the harness files
+  itself, and omits the bootstrap rule's trigger and its typo exception.
+- **Name milestone reviews.** `reviews/README.md` names only implementation
+  rounds; the r4 milestone reviews use `006-r4-milestone-NN.md` as a stopgap,
+  where `NN` counts separate reviews, not rounds.
 
 ## Notes
 
@@ -61,6 +85,28 @@ is the middle shape; IC2's catalogue is the heavy end.
   knows the project, and a copy tool cannot reconcile the collisions.
 - The root `PLAN.md` and `ROADMAP.md` are the *templates* a run receives, not
   this repository's own plans.
+- **Owner decision (2026-09-23): the rules apply going forward.** A record is
+  held to the rules in force when it was written, and a later rule is not
+  applied to it: the verdicts written before Gate 0 landed (`80702f8`) — the
+  implementation reviews of releases 1–3 and the design verdicts of 001–004 —
+  carry no target proof and are not backfilled. The recommended default,
+  taken; the reason: a backfill would append to verdicts signed by other
+  models a proof they never made. From the r4 milestone review
+  ([#10](https://github.com/diegoami/harness_template/issues/10), finding 2).
+- **Owner decision (2026-09-23): `design/001` is completed, the one exception
+  to the decision above.** Its status is corrected to `landed` and a
+  completion note appended, although both rules arrived with r2, and both are
+  written by Claude although `design/README.md` gives the status and the note
+  to the record's implementer. The recommended default, taken; the reason:
+  its status line pointed at review round 01 although round 02 existed when
+  r1 was tagged — stale, not a broken rule, since release 1 had no status
+  rule — and correcting it leaves every landed release findable by status.
+  The original line is kept, and the additions are signed as not the
+  implementer's. From #10, finding 1.
 - Releases: `r1` (the consolidation), `r2` (field-test fixes), `r3` (the
   parametrizable scaffold), `r4` (the four lessons). Records in `design/` and
   `reviews/`.
+- The r4 milestone review (#10) is copied verbatim into `reviews/`:
+  `006-r4-milestone-01.md` by DeepSeek V4.1 Flash, r4's implementer — not
+  independent, kept as input — and `006-r4-milestone-02.md` by GPT-5.6 Luna,
+  the milestone verdict.

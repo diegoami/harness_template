@@ -2,6 +2,9 @@
 
 **Stage:** design · **Status:** agreed (revision 3, `061e576`); implementation
 review round 01 in [`reviews/001-harness-release-1-impl-01.md`](../reviews/001-harness-release-1-impl-01.md).
+**Status (corrected 2026-09-23):** landed — the latest implementation review
+is round 02 ([`reviews/001-harness-release-1-impl-02.md`](../reviews/001-harness-release-1-impl-02.md)),
+AGREE on `2cd33db`; see Completion. The line above is kept as written.
 
 **How this record works** (D-6 in `docs/03-standardization-decisions.md`): this
 file is the design proposal; the reviewer's verdict is appended below as a
@@ -349,6 +352,26 @@ authored in `reviews/`.
    BLOCK scope rules are written out (protocol + the `AGENTS.md` section).
 5. **Floor** — restored to Scopetta's full list, including `.claude/**`,
    `mobile/**` and `netlify.toml`, with the reason recorded.
+
+## Completion
+
+Written after the fact on 2026-09-23, by the owner's decision recorded in
+`BACKLOG.md` (Notes), on the r4 milestone review
+([issue #10](https://github.com/diegoami/harness_template/issues/10), finding
+1). The `landed` status and the completion note arrived with release 2; this
+record predates both, and it stated no done-when list, so the note transcribes
+the landing evidence only.
+
+- Implementation reviews: round 01 on `2857b50`, round 02 `AGREE` on
+  `2cd33db` ([`reviews/001-harness-release-1-impl-02.md`](../reviews/001-harness-release-1-impl-02.md)).
+- Landed: PR #1 merged at `9f7b1a4` on 2026-09-23 00:31 +0200 (22:31 UTC
+  the day before); tag `r1` is that commit.
+- Posted to GitHub after the fact: the design as
+  [issue #6](https://github.com/diegoami/harness_template/issues/6) with its
+  verdicts as comments, the implementation reviews on PR #1.
+
+— Claude Opus 5.5, completing the record after the fact (not this record's
+implementer)
 
 ---
 
