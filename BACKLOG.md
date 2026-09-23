@@ -188,8 +188,10 @@ in `harness_prompts` (interview first; demonstrate once on a real change; the
 handover file; the PR mechanics; dry-run outward tooling).
 
 **From the first real adoption** (boar_life, a Godot game, adopting r4 in
-Claude mode, its PR #1, 2026-09-23). Four template problems every real product
-meets, routed to r6 with the ADOPT rebuild by the owner's decision (Notes):
+Claude mode, its PR #1, 2026-09-23; the report is
+[`docs/sources/boar-life-field-report.md`](docs/sources/boar-life-field-report.md)).
+Four template problems every real product meets, routed to r6 with the ADOPT
+rebuild by the owner's decision (Notes):
 
 - **The artistic license assumes a testbed.** `ROADMAP.md` says "the project
   exists to exercise the process; its content is not the deliverable" and
