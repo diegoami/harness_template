@@ -108,9 +108,10 @@ and does not relax CI.
   that does any of that is not a completion note. The latest verdict still
   governs.
 - **Merge policy.** The owner merges, unless the project slot records
-  `merge: auto`; then a change merges as soon as its review is clean — `AGREE`
-  in OpenCode mode, no blocking finding in Claude mode — and every gate is
-  green. The mode adapters say who performs it.
+  `merge: auto`; then a change merges when its review is clean — `AGREE` in
+  OpenCode mode, no blocking finding in Claude mode — and every gate is green.
+  A project that takes `auto` states its merge conditions in its slot, and the
+  pull request records the merge.
 - **`design: none`.** Where a project's slot records `design: none`, every
   reference to a design record in this file resolves to the implementation
   review file; the design stage does not exist in either mode; the defect path

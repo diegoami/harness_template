@@ -120,16 +120,30 @@ Questions and flags (each flag is asked when absent):
   --test <command>       the test command for the gates table      (${DEFAULT_TEST})
   --ci <yes|no>          write .github/workflows/check.yml          (yes with a remote)
   --owner <login>        the GitHub owner                          (gh login)
+  --interactive          ask every question (default without --yes)
   --yes                  accept every default`);
 }
 
-let rl = null;
+let ttyRl = null;
+let pipedLines = null;
+
+async function initInput() {
+  if (process.stdin.isTTY) return;
+  pipedLines = [];
+  const source = createInterface({ input: process.stdin });
+  for await (const line of source) pipedLines.push(line);
+}
+
 async function ask(question, def) {
-  if (!rl) {
-    rl = createInterface({ input: process.stdin, output: process.stdout });
-  }
   const suffix = def !== undefined ? ` [${def}]` : "";
-  const answer = (await rl.question(`${question}${suffix}: `)).trim();
+  if (pipedLines) {
+    const answer = (pipedLines.shift() ?? "").trim();
+    return answer || def;
+  }
+  if (!ttyRl) {
+    ttyRl = createInterface({ input: process.stdin, output: process.stdout });
+  }
+  const answer = (await ttyRl.question(`${question}${suffix}: `)).trim();
   return answer || def;
 }
 
@@ -177,6 +191,13 @@ function slotText({ name, description, merge, design, test, ci }) {
     ? `
   | CI | \`.github/workflows/check.yml\` | the unit gate | pull requests and \`main\` pushes | as CI runs | a red CI blocks the merge |`
     : "";
+  const mergeConditions =
+    merge === "auto"
+      ? `- **merge conditions:** a clean review (\`AGREE\` in OpenCode mode, no
+  blocking finding in Claude mode) and every gate green; the implementer merges
+  with \`gh pr merge --squash --delete-branch\`, and the pull request records it.
+`
+      : "";
   return `- **product:** ${name} — ${description}
 - **paths to inspect:** the source root and the documents worth reading by
   default.
@@ -185,7 +206,7 @@ function slotText({ name, description, merge, design, test, ci }) {
 - **never read or echo:** secrets, signing material, one machine's paths. None
   are known; keep it that way and list them here when that changes.
 - **merge:** ${merge}
-- **design:** ${design}
+${mergeConditions}- **design:** ${design}
 - **the gates table:**
 
   | gate | command | covers | when | repeats | failure model |
@@ -222,6 +243,7 @@ function readmeText({
   plan,
   roadmap,
   ci,
+  github,
   tbd,
 }) {
   const steps = [];
@@ -234,7 +256,7 @@ function readmeText({
     steps.push(`**Owner action — the remote.** Create it before the first iteration:
 
    \`\`\`sh
-   gh repo create <owner>/${name} --private --source . --push
+   gh repo create <owner>/${name} --${github === "public" ? "public" : "private"} --source . --push${github === "none" ? "   # or --public" : ""}
    \`\`\`
 
    A done-when that names CI is not met until the workflow has run green.`);
@@ -297,7 +319,24 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.help) return printHelp();
 
-  const interactive = args.interactive || (!args.name && !args.yes);
+  const askedFlags = [
+    "name",
+    "dir",
+    "description",
+    "preset",
+    "ref",
+    "github",
+    "merge",
+    "design",
+    "plan",
+    "roadmap",
+    "test",
+    "ci",
+  ];
+  const interactive =
+    args.interactive ||
+    (!args.yes && askedFlags.some((flag) => args[flag] === undefined));
+  if (interactive) await initInput();
   const name =
     args.name ??
     (interactive ? await ask("Project name (repo slug)") : undefined);
@@ -305,8 +344,9 @@ async function main() {
   const dir =
     args.dir ??
     (interactive ? await ask("Target directory", `../${name}`) : `../${name}`);
-
-  const ref = args.ref ?? newestTag();
+  const ref =
+    args.ref ??
+    (interactive ? await ask("Harness ref", newestTag()) : newestTag());
   const sha = resolveCommit(ref);
 
   const presetName =
@@ -318,12 +358,7 @@ async function main() {
   if (description === undefined && interactive) {
     description = await ask("Product description (empty writes TBD)");
   }
-  if (!description) {
-    if (!interactive && !args.yes) {
-      fail("--description is required unless --yes");
-    }
-    description = TBD;
-  }
+  if (!description) description = TBD;
 
   const github =
     args.github ??
@@ -345,12 +380,41 @@ async function main() {
         )
       : preset.policy.design);
   const plan =
-    (args.plan ?? (preset.policy.plan ? "yes" : "no")) === "yes";
+    (args.plan ??
+      (interactive
+        ? await askChoice("Copy PLAN.md?", ["yes", "no"], preset.policy.plan ? "yes" : "no")
+        : preset.policy.plan
+          ? "yes"
+          : "no")) === "yes";
   const roadmap =
-    (args.roadmap ?? (preset.policy.roadmap ? "yes" : "no")) === "yes";
-  const test = args.test ?? DEFAULT_TEST;
+    (args.roadmap ??
+      (interactive
+        ? await askChoice(
+            "Copy ROADMAP.md?",
+            ["yes", "no"],
+            preset.policy.roadmap ? "yes" : "no",
+          )
+        : preset.policy.roadmap
+          ? "yes"
+          : "no")) === "yes";
+  const test =
+    args.test ??
+    (interactive ? await ask("Test command", DEFAULT_TEST) : DEFAULT_TEST);
   const ci =
-    (args.ci ?? (github === "none" ? "no" : "yes")) === "yes";
+    (args.ci ??
+      (interactive
+        ? await askChoice(
+            "Write the CI workflow?",
+            ["yes", "no"],
+            github === "none" ? "no" : "yes",
+          )
+        : github === "none"
+          ? "no"
+          : "yes")) === "yes";
+  let owner = args.owner;
+  if (github !== "none" && interactive) {
+    owner = (await ask("GitHub owner (empty uses the gh login)", "")) || undefined;
+  }
 
   if (merge === "auto" && github === "none") {
     console.warn(
@@ -396,7 +460,19 @@ async function main() {
   }
   writeFileSync(
     path.join(target, "README.md"),
-    readmeText({ name, ref, sha, preset: presetName, merge, design, plan, roadmap, ci, tbd }),
+    readmeText({
+      name,
+      ref,
+      sha,
+      preset: presetName,
+      merge,
+      design,
+      plan,
+      roadmap,
+      ci,
+      github,
+      tbd,
+    }),
   );
   if (ci) {
     const workflow = path.join(target, ".github", "workflows", "check.yml");
@@ -464,7 +540,7 @@ async function main() {
   if (github !== "none") console.log(`  remote: https://github.com/${owner}/${name}`);
   else console.log("  no remote; see README.md to add one");
   console.log("  next: read the generated README.md");
-  if (rl) rl.close();
+  if (ttyRl) ttyRl.close();
 }
 
 await main();
