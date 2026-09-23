@@ -37,8 +37,8 @@ bootstrap applies as written there — one review, not two stages.
 <!-- SLOT:BEGIN -->
 
 <!-- The scaffold replaces everything between the markers. In the harness source
-     repository this slot stays unfilled by design: the harness's own rules are
-     README.md and docs/. -->
+     repository this slot stays unfilled by design: the harness's own next items
+     are in BACKLOG.md, and its history in design/ and reviews/. -->
 
 - **product:** {{PROJECT}} — one paragraph: what it is and who it is for.
 - **paths to inspect:** the source roots and documents worth reading by default.

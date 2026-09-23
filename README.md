@@ -1,7 +1,7 @@
 # harness_template
 
-The process for running a project under two working modes — **OpenCode**
-(DeepSeek implements, Luna reviews cross-family) or **Claude Code** (Claude
+The process for running a project under two working modes — **OpenCode** (one
+model implements, a model of another family reviews) or **Claude Code** (Claude
 implements, a fresh-context session reviews) — and the scaffold that creates a
 project with it.
 
@@ -9,11 +9,13 @@ project with it.
 
 The harness runs the same project either:
 
-- **with OpenCode** — DeepSeek implements, Luna reviews: a different model
-  family, fresh context, an explicit model id, the design agreed before code,
-  signed verdicts, and a BLOCK that is not overridden; or
+- **with OpenCode** — the implementer and reviewer in `AGENTS.md`'s assignment
+  table: a different model family, fresh context, an explicit model id, the
+  design agreed before code, signed verdicts, and a BLOCK that is not
+  overridden; or
 - **with Claude Code** — Claude implements, and a fresh-context Claude session
-  reviews; no design stage and no cross-family reviewer.
+  reviews; no design stage, and no cross-family reviewer required (the
+  options are in `CLAUDE.md`).
 
 The two modes share the principles, the owner-decision convention, the records
 and the gates discipline; they differ in how the reviewer is obtained.
@@ -39,7 +41,7 @@ Records in [`design/`](design/) with [`reviews/`](reviews/); next items in
 | file | what it owns |
 |---|---|
 | [`PRINCIPLES.md`](PRINCIPLES.md) | the habits, the ownership map, the non-trivial test, the six gates disciplines, the verdict protocol |
-| [`AGENTS.md`](AGENTS.md) | the OpenCode mode: DeepSeek implements, Luna reviews cross-family |
+| [`AGENTS.md`](AGENTS.md) | the OpenCode mode, and the current implementer/reviewer assignment |
 | [`CLAUDE.md`](CLAUDE.md) | the Claude Code mode, and the project slot |
 | [`PLAN.md`](PLAN.md) | the optional iteration overlay — a template, not this repository's plan |
 | [`ROADMAP.md`](ROADMAP.md) | feature requests, with artistic license — a template |
@@ -58,7 +60,7 @@ node tools/scaffold.mjs --preset auto --name my-app --dir ../my-app --github pri
 |---|---|---|
 | `light` | no design stage, no plan, no roadmap; the implementation review decides | owner |
 | `standard` | the two stages, `PLAN.md` and `ROADMAP.md` | owner |
-| `auto` | the two stages, `PLAN.md` and `ROADMAP.md` | the implementer merges on a clean review plus green gates |
+| `auto` | the two stages, `PLAN.md` and `ROADMAP.md` | `auto` — the conditions are in `PRINCIPLES.md` |
 
 The flags, questions and defaults are in `node tools/scaffold.mjs --help`;
 `presets/*.json` holds each preset's files and policy. The generator fills the
