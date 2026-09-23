@@ -77,15 +77,16 @@ Decided by the owner: the definition; that the tag waits for the review;
 that the reviewer is any model that is not Claude; and that each
 repository keeps its own per-change review and merge setting. The rest of
 the bullets, including what `BLOCK` and `AGREE` do to the tag and the round
-ceiling on re-reviews, is the proposal, taken from the process the owner
-pointed to. Open for the design:
+ceiling on re-reviews, is the proposal, taken from the definition the owner
+shared ([`docs/sources/milestone-definition.md`](docs/sources/milestone-definition.md)).
+Open for the design:
 
 - who creates the tag after `AGREE` (default: the implementer);
 - whether the owner may tag without a review, the issue recording it (the
   owner has not decided it here);
-- **claims** (from Imperial Conquest 2's milestone process, as the owner
-  shared it): numbered claims written when the release is scoped, before
-  the work, each naming the check that proves it, with a "not in this
+- **claims** (from Imperial Conquest 2's milestone process,
+  [`docs/sources/ic2-milestone-review.md`](docs/sources/ic2-milestone-review.md)):
+  numbered claims written when the release is scoped, before the work, each naming the check that proves it, with a "not in this
   milestone" list. The reviewer gives each claim a verdict: MET, NOT MET,
   PARTLY MET or COULD NOT TEST, and any NOT MET blocks the tag. Here the
   claims would be the backlog items chosen for the release;
