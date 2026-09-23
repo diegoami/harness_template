@@ -12,7 +12,7 @@
 | the principles and habits on this page | `PRINCIPLES.md` |
 | the non-trivial test, the conservative floor, the pure-typo exception | `PRINCIPLES.md` |
 | the six gates disciplines | `PRINCIPLES.md` |
-| the verdict protocol: revision scope and target proof, rounds, materiality, reviewer sessions, fallback, waiver, owner decisions, defect path, completion note, merge policy, `design: none` scoping, bootstrap, comment-not-approval | `PRINCIPLES.md` |
+| the verdict protocol: revision scope and target proof, rounds, materiality, reviewer sessions, fallback, waiver, owner decisions, defect path, completion note, merge policy, `design: none` scoping, bootstrap, comment-not-approval, posting, pull requests | `PRINCIPLES.md` |
 | the OpenCode process: roles, assignment table, reviewer acquisition, the two stages, BLOCK scope, withdraw/re-scope | `AGENTS.md` |
 | the Claude Code process: fresh-context review, same-family default, no design stage, the external-process option | `CLAUDE.md` |
 | the project rules: product, paths, never-echo, the gates table, conventions, one source of truth, decided-not-to-reopen, open work | `CLAUDE.md`, the project slot |
@@ -141,8 +141,26 @@ and does not relax CI.
   the file locally); it is never an approval action. Under the single GitHub
   account an approval is impossible, and the signature is the only marker of
   authorship.
-- With a remote, the same text is posted as the issue or pull-request comment;
-  the file stays canonical.
+- **Posting.** A remote is assumed, and a record is posted when it is
+  written, not after the fact; the file stays canonical. In OpenCode mode the
+  design record opens as an issue before any implementation, and each verdict
+  is posted on it as it is appended. In both modes each implementation review
+  file is committed to the pull request's branch, pushed, and posted on the
+  pull request before the next commit, the next round and the merge — one
+  comment per review file, equal to it. Post with `tools/post-record.mjs`
+  where the project has it (it refuses a review the pull request does not
+  hold, and reads every body back); otherwise with `gh … --body-file` from a
+  UTF-8 file without a byte-order mark, never from text a shell has passed
+  on. Without a remote, the files stand alone.
+- **Pull requests.** A pull request names what it implements — the issue,
+  the design record or the claim — and, once a round ends clean, the revision
+  that round covered. Its body has four parts: what was built; the done-when,
+  ticked; the check output, verbatim; and what was left out. An issue it
+  completes is closed by `Closes #N` on a line of its own, outside any code
+  span, and the pull request is checked to list it
+  (`gh pr view <n> --json closingIssuesReferences`); a reference that only
+  links says so. **No merge while a review is running**: a pull request
+  merges only after its last review is posted.
 
 The **record format** — naming, the exact signature line, the marker rules — is
 owned by [`reviews/README.md`](reviews/README.md).

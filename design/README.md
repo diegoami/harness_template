@@ -38,4 +38,5 @@ each done-when item and the evidence that closed it (the CI run, the gate
 output) — signed by the implementer. The note is non-material and may only
 transcribe the already-agreed items; its boundary is in `PRINCIPLES.md`.
 
-**With a remote**, the protocol's posting rule applies (`PRINCIPLES.md`).
+**Posting**: the record is posted as it is written, as the protocol's posting
+rule says (`PRINCIPLES.md`, *Posting*).
