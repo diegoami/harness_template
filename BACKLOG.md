@@ -45,24 +45,31 @@ whose builder does not know how to build it. Geoclick's plan-per-release
 (Why / tasks with DoD / Order / a progress ledger / a product-decisions table)
 is the middle shape; IC2's catalogue is the heavy end.
 
-**Milestone reviews in Claude mode.** Five Claude-mode projects converged on
-this on 2026-09-23 (Scopetta, Tressette, balloons-JS, Geoclick2027,
-discola-web). Adopt it in Scopetta's form, which already matches `CLAUDE.md`:
+**Milestone reviews in Claude mode.** On 2026-09-23 five Claude-mode projects
+(Scopetta, Tressette, balloons-JS, Geoclick2027, discola-web) adopted an
+independent review at milestones, which blocks nothing. Their per-change
+review differs: only Scopetta keeps one, and it ends in a marker and lets
+Claude merge. The proposal keeps this harness's per-change review as it is in
+`CLAUDE.md`, and adds the milestone half, drawing on each project:
 
-- **each change** lands on a fresh-context Claude review, as now;
-- **at a milestone**, Claude opens an issue requesting an independent review:
-  any model that is not Claude. The issue holds a fixed prompt and the commit
-  range, from the last reviewed end to `main`. Only one review issue is open
-  at a time, and it blocks nothing;
-- **the reviewer** posts one comment, written to a file as UTF-8 without a
-  byte-order mark and passed with `--body-file`;
-- **when it arrives**, Claude reproduces each finding, replies on the thread
-  per finding, and copies the review into `reviews/`.
+- **at a milestone**, Claude opens an issue requesting a review by any model
+  that is not Claude (the owner's rule), holding the prompt and the commit
+  range from the last reviewed end (Scopetta, Tressette, balloons-JS; Geoclick
+  and discola-web use the milestone's existing thread instead). Only one
+  review issue is open at a time (Scopetta, balloons-JS);
+- **the prompt is a fixed template** the author only fills in, so the author
+  does not steer what the reviewer looks for (balloons-JS);
+- **the reviewer posts** from a file written as UTF-8 without a byte-order
+  mark, passed with `--body-file` (Geoclick). The design picks between one
+  comment (Tressette, balloons-JS) and one issue per finding (Scopetta,
+  Geoclick, discola-web);
+- **when it arrives**, Claude reproduces each finding and replies on the
+  thread per finding (Tressette, Geoclick), and copies the review into
+  `reviews/` (this repository's own practice).
 
-For this repository a milestone is a release tag. Whether scaffolded runs get
-it, and what their milestones are, is this design's question. It has been run
-by hand twice: [#10](https://github.com/diegoami/harness_template/issues/10) on
-`r4`, and PR #11 on the work since.
+Open for the design: what a milestone is — here, perhaps a release tag — and
+whether scaffolded runs get it. Run by hand twice so far, ad hoc: #10 on `r4`,
+and on PR #11 for `r4..756696b`, which ends at no tag.
 
 **Protocol gaps found by the milestone reviews**
 ([#10](https://github.com/diegoami/harness_template/issues/10) and PR #11),
@@ -72,17 +79,19 @@ routed to this design:
   `PRINCIPLES.md` records it in the design record, which `design: none`
   resolves to the implementation review file, while the `design: none` bullet
   records it in the project slot; and no file places the completion note of an
-  OpenCode `design: none` run. (DeepSeek finding 1.)
+  OpenCode `design: none` run. (#10, DeepSeek finding 1.)
 - **The `light` preset links a file it does not ship.** Its `AGENTS.md` stage 1
   points at `design/README.md`, and the ownership map in `PRINCIPLES.md` names
-  it as an owner, but `presets/light.json` leaves it out. (DeepSeek finding 2.)
+  it as an owner, but `presets/light.json` leaves it out. (#10, DeepSeek
+  finding 2.)
 - **State whether rules apply to earlier records.** `PRINCIPLES.md` is silent,
   which is why the two milestone reviews disagreed on Gate 0 for pre-r4
   records; the owner decision in the Notes settles it for this repository only.
-- **Rounds after a clean round.** The Rounds rule caps a stage at three but
-  does not say whether a material extension after a clean round restarts the
-  count or adds to it. PR #9 went on to rounds 04 and 05 after a clean round 03
-  without saying which. (The independent review on PR #11.)
+- **Rounds after a clean round.** The Rounds rule sends a third round that does
+  not end clean to the owner, but does not say whether a material extension
+  after a clean round restarts the count or adds to it. PR #9 went on to
+  rounds 04 and 05 after a clean round 03 without saying which. (The
+  independent review on PR #11.)
 
 ## Smaller items
 
@@ -98,8 +107,10 @@ routed to this design:
   how the reviewer is obtained; this file's preamble lists the harness files
   itself, and omits the bootstrap rule's trigger and its typo exception.
 - **Name milestone reviews.** `reviews/README.md` names only implementation
-  rounds; the r4 milestone reviews use `006-r4-milestone-NN.md` as a stopgap,
-  where `NN` counts separate reviews, not rounds.
+  rounds; the milestone reviews use `006-r4-milestone-NN.md` and
+  `007-milestone-since-r4-01.md` as a stopgap, where `NN` counts separate
+  reviews, not rounds. Also settle whether a milestone copy and the change
+  that records it share a number: `006` has one slug, `007` has two.
 
 ## Notes
 
