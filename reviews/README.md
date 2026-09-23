@@ -22,8 +22,8 @@
   Claude mode, replace the marker with one line stating whether any blocking
   finding remains; there is no marker and no design stage.
 - **A comment, not an approval:** the verdict is written here and posted as the
-  issue or pull-request comment when a remote exists; it is never an approval
-  action. The file stays canonical.
+  pull-request or issue comment when and how `PRINCIPLES.md` (*Posting*) says;
+  it is never an approval action. The file stays canonical.
 - **Completion.** When the change lands, the implementer appends a
   `## Completion` section — the done-when items and the evidence that closed
   them — owned and signed by the implementer. In Claude mode, which has no
