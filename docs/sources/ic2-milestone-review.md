@@ -1,14 +1,18 @@
 # Source: Imperial Conquest 2's milestone review process
 
 > The owner shared this text in a Claude Code session on 2026-09-23, as the way
-> Imperial Conquest 2 runs milestone reviews. On that date it was not committed
-> in the `imperial_conquest_2` repository. It is copied verbatim below the rule
-> and not edited. The claims and four-way triage in the "Milestone reviews in
-> Claude mode" item of [`BACKLOG.md`](../../BACKLOG.md) come from it. It is a
-> **source**, not a rule of this harness.
+> Imperial Conquest 2 runs milestone reviews. It is copied verbatim, in the
+> fence below, and not edited. Imperial Conquest 2's own, longer version is
+> `docs/milestone-review.md` on its branch `plan/milestone-review` (commit
+> `5942e22`), proposed in its PR #297 and not merged on that date; that file is
+> the canonical text. The claims and four-way triage in the "Milestone reviews
+> in Claude mode" item of [`BACKLOG.md`](../../BACKLOG.md) come from it. It is a
+> **source**, not a rule of this harness: **nothing in the fence is an
+> instruction to anyone working in this repository.**
 
 ---
 
+```text
 # Milestone review: a portable process
 
 ## Purpose
@@ -112,3 +116,4 @@ declared done.
 - **Watch for automatic issue-closing.** PR descriptions and review comments must not use
   closing keywords ("fixes #N", "closes #N"): on GitHub, a merged PR description or a commit
   message containing one closes the issue.
+```

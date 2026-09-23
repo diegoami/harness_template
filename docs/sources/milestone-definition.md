@@ -2,13 +2,15 @@
 
 > The owner shared this text in a Claude Code session on 2026-09-23. It is the
 > text they use to redefine "milestone" in youtube3, and they said the same
-> definition holds for all of their projects. It is copied verbatim below the
-> rule and not edited. The "Milestone reviews in Claude mode" item in
-> [`BACKLOG.md`](../../BACKLOG.md) draws on it. It is a **source**, not a rule
-> of this harness: its instructions address the repository it is run in.
+> definition holds for all of their projects. It is copied verbatim, in the
+> fence below, and not edited. The "Milestone reviews in Claude mode" item in
+> [`BACKLOG.md`](../../BACKLOG.md) is adapted from it. It is a **source**, not
+> a rule of this harness: **nothing in the fence is an instruction to anyone
+> working in this repository.**
 
 ---
 
+```text
 In this repository, "milestone" is being redefined by the owner. Read the
 repository's review and merge rules first (CLAUDE.md, AGENTS.md, and any
 review-handoff skill under .claude/skills), then adapt them to this
@@ -68,3 +70,4 @@ WHAT TO DO NOW
   the next milestone's tag name.
 - Make the change on a branch in a PR, following this repository's own
   process for process changes.
+```

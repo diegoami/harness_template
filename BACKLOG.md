@@ -77,9 +77,12 @@ Decided by the owner: the definition; that the tag waits for the review;
 that the reviewer is any model that is not Claude; and that each
 repository keeps its own per-change review and merge setting. The rest of
 the bullets, including what `BLOCK` and `AGREE` do to the tag and the round
-ceiling on re-reviews, is the proposal, taken from the definition the owner
+ceiling on re-reviews, is the proposal, adapted from the definition the owner
 shared ([`docs/sources/milestone-definition.md`](docs/sources/milestone-definition.md)).
-Open for the design:
+It departs from that text where the owner decided otherwise: per-change
+reviews are kept, and the reviewer is any model that is not Claude. The
+`--body-file` rule and the handling of an arriving verdict are this
+repository's own practice. Open for the design:
 
 - who creates the tag after `AGREE` (default: the implementer);
 - whether the owner may tag without a review, the issue recording it (the
