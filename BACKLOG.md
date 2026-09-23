@@ -187,6 +187,27 @@ restored by hand, and its stale "Closes nothing" line removed.
 in `harness_prompts` (interview first; demonstrate once on a real change; the
 handover file; the PR mechanics; dry-run outward tooling).
 
+**From the first real adoption** (boar_life, a Godot game, adopting r4 in
+Claude mode, its PR #1, 2026-09-23). Four template problems every real product
+meets, routed to r6 with the ADOPT rebuild by the owner's decision (Notes):
+
+- **The artistic license assumes a testbed.** `ROADMAP.md` says "the project
+  exists to exercise the process; its content is not the deliverable" and
+  "the point is the process". That holds for a testbed, not for a product;
+  boar_life's reviewer flagged it against the slot's product line. Ask it at
+  adoption as an owner decision, or move the sentence into the slot.
+- **The conservative floor names web paths.** `PRINCIPLES.md` lists
+  `public/**`, `mobile/**`, `netlify.toml` and "the package manifests", which
+  is project knowledge in a shared file, so every adopter must edit
+  `PRINCIPLES.md` and diverge. Keep the rule there; the slot owns the path
+  list.
+- **"A comparison run copies a frozen subset"** in `ROADMAP.md` applies only
+  to projects that test the harness.
+- **Never-echo versus paths outside the repository.** "Paths to ignore" names
+  things outside the repository (a sibling clone, a download cache), and the
+  never-echo rule forbids one machine's paths. One line: describe them
+  relative to the repository.
+
 **Planning.** An optional planner layer: a task catalogue (id, scope, `Owns`,
 done-when, dependencies) with a planner session that proposes and maintains
 tasks from a goal, and the owner approving the plan — the model for a project
@@ -302,6 +323,17 @@ on PR #11**, routed to this design:
   counts separate reviews, not rounds. Also settle whether a copied review
   and the change that records it share a number: `006` has one slug, `007`
   has two.
+- **A verification pattern: a tool that exits 0 on failure.** Gate on its
+  log, not its exit code: Godot exits 0 after `SCRIPT ERROR`, so boar_life's
+  gate greps the log, and it also parses every script with `--check-only`,
+  since running the main scene misses scripts no scene loads. For
+  `verification/README.md`. (boar_life field report, item 6.)
+- **`post-record.mjs` test gaps** (PR #15, review round 03; the code is right
+  in each case): the fake `git` never places a file in a subdirectory, so the
+  `\` to `/` path conversion is untested; three breaks survive (a lone
+  backslash in the quoting set, text after a closing fence, a hard-coded PR
+  number); and the entry point through a symlink is untested (a directory
+  junction needs no admin rights).
 
 ## Notes
 
@@ -331,6 +363,15 @@ on PR #11**, routed to this design:
 - Releases: `r1` (the consolidation), `r2` (field-test fixes), `r3` (the
   parametrizable scaffold), `r4` (the four lessons). Records in `design/` and
   `reviews/`.
+- **Owner decisions (2026-09-23), on the boar_life field report.** (a) Its
+  items 1, 3, 4 and 5 go to r6 with the ADOPT rebuild, and r5's claims stay as
+  decided. The recommended default, taken; the reason: they are adoption
+  problems, and r6 rebuilds adoption. (b) No point release `r4.1`, although
+  `ADOPT.md` at the `r4` tag still names `r3` and lacks the Claude-mode steps.
+  The recommended default, taken; the reason: a tag is a milestone and waits
+  for an independent review, and `r5` carries the fixes. Until `r5`, an
+  adopter takes `r4` plus `main`'s fixes and records both SHAs, as boar_life
+  did.
 - The r4 milestone review (#10) is copied verbatim into `reviews/`:
   `006-r4-milestone-01.md` by DeepSeek V4.1 Flash, r4's implementer — not
   independent, kept as input — and `006-r4-milestone-02.md` by GPT-5.6 Luna,
