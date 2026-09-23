@@ -118,3 +118,23 @@ No blocking finding. These refine the new text and are not conditions:
 
 — Claude Opus 5.5 (claude-opus-5-5), reviewer
 No blocking finding remains.
+
+## Completion
+
+Landed by PR #16, merged on 2026-09-23 (UTC) at the owner's instruction
+("merge #16"), after the last review comment and with GitGuardian green. The note
+is non-material and transcribes the evidence.
+
+- Two review rounds. Round 01 had two blocking findings, both answered by the
+  owner's decisions (the test gaps join r5 through C2, and item 6 does not; the
+  exact-commit pin waits for r6, and ADOPT.md naming r5 becomes a release step).
+  Round 02 ended with no blocking finding on `062db44`; `2c6f418` only adds its
+  record.
+- Both rounds were posted with `tools/post-record.mjs`, each read back equal to
+  its file. Round 02 was first refused because GitHub's record of the PR's head
+  stayed on `062db44` after the push; at the owner's decision the PR was closed
+  and reopened, which re-synced it, and the post then passed the PR check.
+- C5: C2's extension is dated, with its reason in the same commit, and only
+  adds to the claim.
+
+— Implementer (Claude Opus 5.5)
