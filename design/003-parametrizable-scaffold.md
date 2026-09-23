@@ -1,14 +1,15 @@
 # 003 — Harness release 3: the parametrizable scaffold
 
-**Stage:** design · **Status:** revision 2, awaiting re-review · **Date:** 2026-09-23.
+**Stage:** design · **Status:** revision 3, awaiting re-review · **Date:** 2026-09-23.
 
 **How this record works** (`design/README.md`): the reviewer appends a signed
 verdict below; nothing is implemented before an AGREE.
 
-**Revisions.** v1 (`a3ae6c8`) was BLOCKED on five findings: light's scoping of
-the shared protocol, the incomplete flag contract, a light README that
-prescribed absent files, no mechanism for the promised auto-merge, and an
-end-to-end plan that could not pass. v2 is this revision.
+**Revisions.** v1 (`a3ae6c8`) was BLOCKED on five findings (light's scoping, the
+flag contract, a preset-blind README, no auto-merge mechanism, an unpassable
+end-to-end plan). v2 (`7048391`) resolved those and was BLOCKED on two it
+introduced: the unused-adapter deletion was called trivial, and the generated
+README's design step was not mode-scoped. v3 is this revision.
 
 **Input.** Owner directive (2026-09-23): give me a few scaffolds to test on the
 next, well-defined project; assume GitHub exists and the owner auto-approves
@@ -113,9 +114,10 @@ Precedence, defaults and refusals:
   description) is written as an explicit `TBD` line that the first session
   replaces, and the generated README says so.
 - Both adapters (`AGENTS.md`, `CLAUDE.md`) always ship, because the project slot
-  lives in `CLAUDE.md`. A single-mode project deletes the other adapter — a
-  trivial change. Unbundling the slot so a `--modes` flag could exist is out of
-  scope.
+  lives in `CLAUDE.md`. A single-mode project may delete the other adapter, but
+  the deletion is a **harness-file change**: it changes the available process
+  and takes the review its mode requires — a reviewed change, not a trivial
+  one. Unbundling the slot so a `--modes` flag could exist is out of scope.
 - The file set is **derived from the policy, not fixed per preset**: `--plan no`
   removes `PLAN.md`, `--plan yes` adds it; the same for `--roadmap` /
   `ROADMAP.md`; `--design none` removes `design/README.md`, `--design required`
@@ -133,7 +135,9 @@ Behavior:
    command, CI), and the default read/ignore and never-echo lists.
 5. Write the generated README **from the chosen policy**: the remote owner step
    only when `--ci yes`; the roadmap and plan steps only when those files
-   shipped; the design-record step only when `design: required`.
+   shipped; the design-record step only when `design: required`, and marked
+   **OpenCode-only** — Claude has no design stage, and the shared README must
+   not instruct a Claude user to write one.
 6. Write `.github/workflows/check.yml` when `--ci yes`: one job on
    `push: [main]` and `pull_request`, running the test command as given. On a
    fresh project with no tests yet the command matches nothing, reports `1..0`
@@ -231,6 +235,34 @@ ref, and the filled policy.
 ### Not verified
 
 - No implementation exists at this revision, so the generated prompts, derived file sets, README variants, `check.yml`, GitHub fallback behavior, and actual auto-merge run could not be executed. Those require implementation-stage verification after the blocking design findings are resolved.
+
+— GPT-5.6 Luna (opencode/gpt-5.6-luna#high), reviewer
+BLOCK
+
+---
+
+## Review — design stage (revision 2, 7048391)
+
+**Verdict:** BLOCK — all five v1 findings are addressed, but v2 introduces two blocking process contradictions.
+
+### Findings
+
+1. **Deleting the unused adapter is incorrectly classified as trivial** — blocking. The v2 interface removes `--modes` and correctly says both adapters always ship because the slot is in `CLAUDE.md` (`design/003-parametrizable-scaffold.md:115-118`), but it then says that a single-mode project may delete the other adapter as “a trivial change.” `PRINCIPLES.md:41-47` makes any harness-file diff non-trivial unless it is a pure typo/comment, and `PRINCIPLES.md:110-112` requires a harness-process change to take its mode's review. Deleting `AGENTS.md` or `CLAUDE.md` changes the available process and cannot be an unreviewed trivial change; classify it as a reviewed change or remove that instruction.
+
+2. **The generated README's design instruction is not mode-scoped** — blocking. The revised behavior says the design-record step is emitted when `design: required` (`design/003-parametrizable-scaffold.md:134-136`), but `design: required` is the standard and auto default (`:151-155`) while Claude explicitly has no design stage and no design records (`CLAUDE.md:19-20`, `PRINCIPLES.md:68-71`). Because both adapters always ship (`:115-116`), the shared generated README must say that this step is OpenCode-only; otherwise a Claude user following the generated README is instructed to do exactly the stage its adapter forbids.
+
+### Verified
+
+- **Light scoping is resolved.** The v2 sentence at `design/003-parametrizable-scaffold.md:61-67` covers all the previously problematic shared references: a design record resolves to the implementation review, no design stage exists in either mode, the defect path is the implementation review, and a would-be design bypass is recorded in the project slot. This agrees with the light file set and review-record placement at `:161-163` and with Claude's existing no-design boundary.
+- **The flag contract is resolved.** Defaults and the explicit `TBD` behavior are stated at `:88-102` and `:112-114`; invalid values, required interactive name, alias precedence, and version-sorted newest-tag selection are specified at `:104-114`; and policy-derived file-set rules are explicit at `:119-122`. Removing `--modes` is coherent as an interface decision because both adapters and the `CLAUDE.md` slot always ship, with unbundling out of scope (`:115-118`), subject to finding 1's classification correction.
+- **The preset-aware README requirement is resolved for shipped-file presence.** The revised behavior at `design/003-parametrizable-scaffold.md:134-136` suppresses remote, roadmap, plan, and design-record instructions according to the selected policy, so light no longer points at absent `PLAN.md`, `ROADMAP.md`, or `design/`. Finding 2 is the remaining mode-specific qualification.
+- **The auto-merge mechanism is now explicit and honest.** The implementer session, rather than GitHub automation, waits for the clean review and green PR CI and runs `gh pr merge <n> --squash --delete-branch`, then writes the completion note after landing (`design/003-parametrizable-scaffold.md:69-76`). This removes the v1 assumption about branch protection, GitHub auto-merge, workflow permissions, or an unmentioned action. The post-landing ordering is supported by `design/002-harness-release-2.md:191-204`.
+- **The E2E plan is corrected.** It now calls for a non-trivial first content-and-test change under `tools/` and explicitly names the design review, implementation review, merge command, green CI, and experiment record (`design/003-parametrizable-scaffold.md:181-188`). The default command is the dependency-free Node test glob (`:99`, `:137-141`); Scopetta's workflow documents that the empty glob reports `1..0` and exits 0 (`../Scopetta/.github/workflows/check.yml:26-35`), while its UI check demonstrates that dependency-heavy checks are separately installed when needed (`../Scopetta/.github/workflows/check.yml:37-54`, `../Scopetta/tools/check_ui.mjs:5-9`). The first non-trivial change makes the initially honest-green gate meaningful before the two reviews and merge.
+- The three open questions remain correctly marked as owner decisions (`design/003-parametrizable-scaffold.md:197-203`), and no contradiction with the competition's owner-gate variable was introduced (`docs/05-harness-competition.md:47-50`).
+
+### Not verified
+
+- No implementation exists at revision `7048391`, so the actual prompt flow, generated README variants, derived file sets, workflow execution, GitHub merge command, and E2E experiment remain implementation-stage checks.
 
 — GPT-5.6 Luna (opencode/gpt-5.6-luna#high), reviewer
 BLOCK
