@@ -266,3 +266,30 @@ BLOCK
 
 — GPT-5.6 Luna (opencode/gpt-5.6-luna#high), reviewer
 BLOCK
+
+---
+
+## Review — design stage (revision 3, 4823705)
+
+**Verdict:** AGREE — the two v2 findings are resolved and no blocking finding remains.
+
+### Findings
+
+1. **No blocking findings remain** — non-blocking. Adapter deletion is now explicitly a reviewed harness-file change, and the generated README's design instruction is explicitly OpenCode-only.
+
+### Verified
+
+- The adapter-deletion correction at `design/003-parametrizable-scaffold.md:116-120` is consistent with `PRINCIPLES.md:41-47` (harness-file changes are non-trivial unless pure typo/comment) and `PRINCIPLES.md:110-112` (bootstrap review for process-changing harness files). It no longer permits deleting `AGENTS.md` or `CLAUDE.md` as an unreviewed trivial change; both adapters still ship by default and slot unbundling remains out of scope.
+- The generated README rule at `design/003-parametrizable-scaffold.md:136-140` now gates the design-record step on `design: required` and marks it **OpenCode-only**, explicitly stating that Claude has no design stage. The other generated instructions are policy/file-set based: the remote step depends on CI, and plan/roadmap steps depend on those files shipping (`:136-140`). Nothing in that list asks a Claude user to create a design record or otherwise crosses the Claude/OpenCode stage boundary.
+- The v1 light-scoping finding remains resolved by `design/003-parametrizable-scaffold.md:62-68` and `:165-167`: `design: none` maps design-record references to the implementation review, removes the stage in both modes, uses the implementation review for the defect path, and records a would-be bypass amendment in the project slot.
+- The v1 flag contract remains complete: the defaults and `TBD` handling are at `design/003-parametrizable-scaffold.md:87-115`, alias/refusal and newest-tag ordering at `:105-112`, and policy-derived file-set rules at `:121-124`. Both adapters always ship because the slot is in `CLAUDE.md`; removing `--modes` and leaving unbundling out of scope is coherent (`:116-120`).
+- The implementer-performed auto-merge remains explicit and honest at `design/003-parametrizable-scaffold.md:70-77`: clean review plus green PR CI precedes `gh pr merge <n> --squash --delete-branch`, with the completion note written after landing and no implicit GitHub auto-merge or branch-protection requirement. This matches the post-landing evidence in `design/002-harness-release-2.md:191-204` and the competition's owner-gate variable in `docs/05-harness-competition.md:47-50`.
+- The non-trivial E2E plan and honest-green initial gate remain coherent at `design/003-parametrizable-scaffold.md:141-145` and `:185-192`: the default dependency-free Node test glob may report `1..0`/exit 0 before tests exist, as documented by `../Scopetta/.github/workflows/check.yml:26-35`, while the first non-trivial content-and-test change makes the gate meaningful before the two reviews and merge.
+- The three open questions remain explicitly owner decisions (`design/003-parametrizable-scaffold.md:201-207`), and the preset/file-set, GitHub fallback, and CI trigger requirements introduce no new contradiction in the reviewed design.
+
+### Not verified
+
+- No implementation exists at revision `4823705`; prompt behavior, generated file sets and README variants, workflow execution, GitHub fallback, and the end-to-end private-repository run remain implementation-stage verification.
+
+— GPT-5.6 Luna (opencode/gpt-5.6-luna#high), reviewer
+AGREE

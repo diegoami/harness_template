@@ -41,7 +41,8 @@ This file adds the OpenCode-specific process and nothing else.
 
 This applies to every non-trivial change (`PRINCIPLES.md`). A trivial change
 takes neither stage. A defect fix may skip the design stage only under the four
-conditions in the protocol.
+conditions in the protocol. A project whose slot records `design: none` has no
+design stage: the implementation review alone decides.
 
 ## BLOCK
 

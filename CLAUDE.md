@@ -25,7 +25,10 @@ This file records the Claude-specific process and the project slot.
 - The **owner may review** as an independent option, but an owner is not
   automatically a fresh context — and is not one if they directed or wrote the
   change.
-- The **owner merges**. The owner may also ask for a review by OpenCode's
+- The **owner merges** — unless the project slot records `merge: auto`, in which
+  case the implementer merges the pull request as soon as the review is clean
+  and every gate is green (`gh pr merge <n> --squash --delete-branch`). The
+  owner may also ask for a review by OpenCode's
   process instead, when a cross-family check is wanted.
 
 Materiality, fallback, waiver and the defect path are in `PRINCIPLES.md`; the
