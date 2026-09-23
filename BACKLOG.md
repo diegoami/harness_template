@@ -2,16 +2,21 @@
 
 The harness's own next items. A change to a harness file (`PRINCIPLES.md`,
 `AGENTS.md`, `CLAUDE.md`, `PLAN.md`, `ROADMAP.md`, `design/`, `reviews/`,
-`verification/`) or to the tool takes both stages through the bootstrap: a
-design record reviewed to AGREE, then the implementation reviewed to AGREE.
-There is no roadmap mechanism for the harness itself — this file is it.
+`verification/`) or to the tool takes the review its mode requires through the
+bootstrap (`PRINCIPLES.md`). There is no roadmap mechanism for the harness
+itself — this file is it.
 
 ## Release 5 candidates
 
-**Posting to GitHub is not optional — and it was skipped.** Releases 1–3 kept
-their design verdicts and implementation reviews only in the files, although
-this repository has a remote and the protocol says the same text is posted
-there.
+**Posting to GitHub is not optional — and it was done after the fact.** This
+repository has a remote and the protocol says the same text is posted there,
+but releases 1–4 opened no design issue before implementation: the design
+records were backfilled as issues #5–#8 once the releases had merged, with
+their verdicts as comments, and the implementation reviews were posted to PRs
+#1–#4 in the same pass — after merge for #1–#3, just before it for #4. The
+backfilled bodies (issues #5–#8, PR #4) are mis-encoded (`—`
+posted as `ÔÇö`, with a leading byte-order mark), so the posted copy differs
+from the canonical file.
 
 1. **Assume a remote.** Reword the protocol: a remote is assumed; the design
    record is opened as the issue before implementation; each verdict is posted

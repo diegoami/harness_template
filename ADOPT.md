@@ -2,7 +2,7 @@
 
 Open a session **in the project** and paste:
 
-> Adopt harness release `r3` into this project. Read
+> Adopt harness release `r4` into this project. Read
 > `C:\Users\diego\projects\harness_template\ADOPT.md` and execute it as
 > written.
 
@@ -14,7 +14,7 @@ If the session cannot read that path, paste this file's content instead.
 
 You are adopting the harness — the process, not a framework — into an existing
 project. The harness is at `C:\Users\diego\projects\harness_template`
-(release `r3`; the files at the repository root are the canonical text). You
+(release `r4`; the files at the repository root are the canonical text). You
 will write the harness files **adapted to this project**, filling the project
 slot from what the repository actually contains. **Read the harness files and
 adapt them; do not invent rules and do not copy them blind.**
@@ -50,8 +50,9 @@ prompt does not restate them.
 
 - **Files to take**: `PRINCIPLES.md` and the adapters always. `PLAN.md` and
   `ROADMAP.md` only if this project slices work into iterations or grows by
-  feature requests. `verification/README.md` if useful. `design/` and
-  `reviews/` only if you keep the design stage.
+  feature requests. `verification/README.md` if useful. `reviews/` always —
+  both modes write implementation reviews. `design/` only if you keep the
+  design stage (OpenCode mode with `design: required`).
 - **Policy**, recorded in the slot: `merge: owner` or `merge: auto`; `design:
   required` or `design: none` (OpenCode mode).
 - **Modes**: keep both `AGENTS.md` and `CLAUDE.md` if both tools work here. A
@@ -70,20 +71,31 @@ prompt does not restate them.
 
 ## 5. The adoption is itself a non-trivial change
 
-Follow the harness you are adopting:
+Follow the harness you are adopting, in the mode of the tool you are running
+in:
 
-1. Write `design/001-adopt-harness.md` — the problem, findings grounded with
-   `file:line`, the exact file list and the filled slot you propose, open
-   questions. Post it where this project's work happens (the design issue when
-   a remote exists).
-2. Have it reviewed to an explicit **AGREE** — a different model family where
-   the tool can (OpenCode: a subagent with an explicit model id; Claude Code: a
-   fresh-context session). Iterate; **do not write the files before AGREE**.
-3. Implement. The implementation is reviewed the same way
-   (`reviews/001-adopt-harness-impl-01.md`), to an explicit AGREE, and the
-   owner merges.
-4. Record the provenance: adopted from harness `r3` (the commit at the tag),
-   dated, in `PLAN.md` or the slot.
+- **OpenCode** ([`AGENTS.md`](AGENTS.md)) — both stages:
+  1. Write `design/001-adopt-harness.md` — the problem, findings grounded with
+     `file:line`, the exact file list and the filled slot you propose, open
+     questions. Post it where this project's work happens (the design issue
+     when a remote exists).
+  2. Have it reviewed by a subagent from a different model family, with an
+     explicit model id, to an explicit **AGREE**. Iterate; **do not write the
+     files before AGREE**.
+  3. Implement. The implementation is reviewed the same way
+     (`reviews/001-adopt-harness-impl-01.md`), to an explicit AGREE, and the
+     owner merges.
+- **Claude Code** ([`CLAUDE.md`](CLAUDE.md)) — no design stage and no marker:
+  1. Put the open questions to the owner as owner decisions
+     (`PRINCIPLES.md`) before writing the files.
+  2. Implement on a branch; the pull request body (a brief when there is no
+     remote) lists the file list, the filled slot and every collision. A
+     fresh-context session reviews it (`reviews/001-adopt-harness-impl-01.md`),
+     ending on the line that states whether any blocking finding remains; fix
+     and re-review until none does. The owner merges.
+
+Then, in either mode, record the provenance: adopted from harness `r4` (the
+commit at the tag), dated, in `PLAN.md` or the slot.
 
 ## 6. Done when
 
@@ -93,5 +105,6 @@ Follow the harness you are adopting:
 - the adapters carry only their mode-specific text and do not restate the
   principles; nothing contradicts `PRINCIPLES.md`;
 - every collision is reported, with where the displaced knowledge went;
-- the design record, the review records and the provenance exist;
+- the review records and the provenance exist, and the design record too in
+  OpenCode mode;
 - nothing else in the repository changed.
