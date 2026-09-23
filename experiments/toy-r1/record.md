@@ -1,8 +1,9 @@
 # The toy-r1 field test — iteration 0
 
-**Status:** iteration 0 complete (PR #2 merged, PR CI green; the post-merge
-`main` run was still queued when this record was written). The run continues
-with iteration 1.
+**Status:** parked (2026-09-23). Iteration 0 completed; the four friction items
+were folded into harness release 2 (tag `r2`). The run is not continued: the toy
+is not a well-defined project, and the harness's next testbed is a real project
+using the parametrizable scaffold (release 3).
 
 **Question.** Does harness release 1 (`r1`) work end to end on a project that is
 **not** a card game — the scaffold, the project slot, the roadmap and plan
@@ -111,3 +112,10 @@ gh run list --repo diegoami/toy-r1 --limit 5
 
 **Review history.** The verdicts above are the data; this record reads them out
 and does not re-review them.
+
+## Parked
+
+The run stopped here by the owner's decision, not by a failure: the toy was a
+deliberately unspecified project, and the harness's remaining questions — which
+process shape suits a real project — need a real project. `toy-r1` stays on
+release 1; nothing is migrated. The repository is disposable.

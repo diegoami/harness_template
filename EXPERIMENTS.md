@@ -7,7 +7,7 @@ nothing still leaves its result.
 
 | experiment | runs | record | status |
 |---|---|---|---|
-| field test: release 1 on a non-card project | `toy-r1` | [`experiments/toy-r1/record.md`](experiments/toy-r1/record.md) | iteration 0 complete; four release-2 candidates |
+| field test: release 1 on a non-card project | `toy-r1` | [`experiments/toy-r1/record.md`](experiments/toy-r1/record.md) | **parked** — iteration 0 complete; four items folded into `r2` |
 | E1 layout variants | — | — | not started |
 | E2 model pairs | — | — | not started |
 | E3 multi-tool interop | — | — | not started |

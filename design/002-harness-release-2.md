@@ -1,6 +1,6 @@
 # 002 — Harness release 2
 
-**Stage:** design · **Status:** agreed (design revision `f7753e3`) · **Date:** 2026-09-23.
+**Stage:** design · **Status:** landed (tag `r2`, merge `75054f2`) · **Date:** 2026-09-23.
 
 **How this record works** (`design/README.md`): this file is the design
 proposal; the reviewer appends a signed `## Review — design stage` section
@@ -187,6 +187,23 @@ scaffold, so its verification is:
 **Settled by the v1 review:** 2. the completion note's home in Claude mode is
 the final implementation review file — the last round whose final line states
 that no blocking finding remains — not the pull-request body (§3).
+
+## Completion
+
+Written on landing (tag `r2`, merge `75054f2`). This is the first live use of
+the rule this release introduces; the note is non-material and transcribes the
+verification items from §Verification.
+
+- `node --check tools/scaffold.mjs` — clean (implementer).
+- Scaffold smoke, by the implementer and independently by the reviewer: eight
+  harness files plus the generated README, `{{PROJECT}}` replaced, one commit, a
+  non-empty target refused with exit 1.
+- Reviews: design `AGREE` on `f7753e3`; implementation `AGREE` on `4bb496c`
+  ([`reviews/002-harness-release-2-impl-01.md`](../reviews/002-harness-release-2-impl-01.md)).
+- Landed: PR #2 merged at `75054f2`; tag `r2` on the bookkeeping commit that
+  carries this note.
+
+— Implementer (DeepSeek V4.1 Flash)
 
 ---
 

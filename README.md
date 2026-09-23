@@ -28,16 +28,16 @@ its gates and keep the disciplines listed in
 
 ## Status
 
-**Release 1 is merged and tagged
-[`r1`](https://github.com/diegoami/harness_template/tree/r1)** — design
-`061e576` to AGREE, implementation `2cd33db` to AGREE, all five verdicts in
-[`design/001-harness-release-1.md`](design/001-harness-release-1.md) and
-[`reviews/`](reviews/). The field test completed its first iteration:
-`toy-r1` (PR #2 merged, CI green) produced two BLOCK rounds and four real
-findings with no harness edits — record in
-[`experiments/toy-r1/record.md`](experiments/toy-r1/record.md). The comparison
-was phase 1, in [`docs/01`](docs/01-harness-comparison.md); the decisions it
-applies are in [`docs/03`](docs/03-standardization-decisions.md).
+**Release 2 is tagged
+[`r2`](https://github.com/diegoami/harness_template/tree/r2)** — the four fixes
+the `toy-r1` field test named, landed through the bootstrap (design `f7753e3`
+to AGREE, implementation `4bb496c` to AGREE, PR #2; records in
+[`design/002-harness-release-2.md`](design/002-harness-release-2.md) and
+[`reviews/`](reviews/)). The toy run is **parked**: it was not a well-defined
+project, so the harness's next testbed is a real project, using the
+parametrizable scaffold (release 3, in progress). Release 1's record is in
+[`design/001-harness-release-1.md`](design/001-harness-release-1.md); the field
+test's in [`experiments/toy-r1/record.md`](experiments/toy-r1/record.md).
 
 ## The harness, release 1
 
