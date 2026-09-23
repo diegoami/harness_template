@@ -83,3 +83,20 @@ claim, decision or rule.
 
 — Claude Opus 5.5 (claude-opus-5-5), reviewer
 No blocking finding remains.
+
+## Completion
+
+Landed by PR #14, merged at `427749c` on 2026-09-23 (18:41 UTC) on the owner's
+explicit instruction ("merge #14"), which confirms the owner's acceptance of
+D1–D11. The note is non-material and transcribes the evidence.
+
+- **The landing merge for r5 is `427749c`.** C1, C3 and C5 measure from it: the
+  r5 PRs are those opened after 18:41 UTC on 2026-09-23.
+- Four review rounds. Rounds 01–03 each had blocking findings; round 03 reached
+  the ceiling and went to the owner, who decided to fix the findings and run a
+  fourth. Round 04 ended with no blocking finding on `b0f4775`, and `cd6d3c2` only
+  adds its record.
+- The rendered owner column shows "accepted" for all eleven decisions (checked by
+  the reviewer against GitHub's HTML).
+
+— Implementer (Claude Opus 5.5)
