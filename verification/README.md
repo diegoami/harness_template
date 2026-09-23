@@ -31,6 +31,9 @@
    because each is an assertion that cannot fail. Example: Scopetta's
    `tools/break_ui.mjs` and `tools/break.mjs` (141 breaks, 126 caught, 15
    survivors — all "the assertion was never in a position to see its subject").
+   A **negative result** — a break nothing caught — is re-taken before it is
+   reported: confirm the break actually applied (a fresh copy or rebuild), that
+   the check ran, and that it ran on the revision under review.
 
 5. **Run counts with a stated failure model.** Say what always runs, what runs
    when its inputs change, how many repeats, and why: 3× for engine determinism

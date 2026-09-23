@@ -25,8 +25,9 @@ land without an intervening `agreed`.
 ## The verdict
 
 - **The reviewer appends a verdict section.** Its format and signature are in
-  [`reviews/README.md`](../reviews/README.md); the meaning of a verdict is in
-  [`PRINCIPLES.md`](../PRINCIPLES.md).
+  [`reviews/README.md`](../reviews/README.md) — the target proof included — and
+  the meaning of a verdict is in [`PRINCIPLES.md`](../PRINCIPLES.md). Each
+  appended verdict is one round, counted for the ceiling there.
 - **Earlier verdicts stay in place as history**; materiality is in
   `PRINCIPLES.md`.
 
