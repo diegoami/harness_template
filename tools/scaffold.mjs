@@ -165,7 +165,9 @@ function readPreset(sha, name) {
   try {
     raw = gitShow(sha, `presets/${name}.json`);
   } catch {
-    fail(`preset '${name}' does not exist at this ref`);
+    fail(
+      `preset '${name}' does not exist at this ref; the parametrizable scaffold needs r3 or later`,
+    );
   }
   return JSON.parse(raw);
 }
