@@ -86,3 +86,20 @@ None.
 
 — Claude Opus 5.5 (claude-opus-5-5), reviewer
 No blocking finding remains.
+
+## Completion
+
+Landed by PR #13, merged at `f9a4e04` on 2026-09-23 at the owner's instruction.
+The note is non-material and transcribes the evidence.
+
+- Two review rounds. Round 01 had two blocking findings (the false "not committed"
+  claim about the IC2 text, and GitHub stripping the `<…>` placeholders), both
+  fixed; round 02 ended with no blocking finding on `50d3cbe`, and `a74f338` only
+  adds its record.
+- The IC2 text matches IC2's committed `docs/milestone-review.md` (branch
+  `plan/milestone-review`, `5942e22`) apart from the differences the header
+  records; the youtube3 text has no committed original, so its fidelity rests on
+  the owner's paste.
+- The fenced bodies render with their placeholders intact on GitHub.
+
+— Implementer (Claude Opus 5.5)
