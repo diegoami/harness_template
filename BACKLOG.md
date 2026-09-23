@@ -69,19 +69,29 @@ reviewed, whatever the size or number of the PRs in between. To add to
   ordinary PRs, the candidate moves to the new `main` commit, and Claude gives
   a re-review prompt unasked, under the round ceiling. On `AGREE`, the tag
   goes on exactly the reviewed commit, and later work belongs to the next
-  milestone. The owner may tag without a review, and the issue records that;
+  milestone;
 - **when a verdict arrives**, Claude reproduces each finding, replies on the
   milestone issue per finding, and copies the verdict into `reviews/`.
 
-Open for the design: who creates the tag after `AGREE` (default: the
-implementer), and whether scaffolded runs get this and with which tag scheme.
+The decision is the definition and that the tag waits for the review; the
+bullets are the proposal built on it. Open for the design:
+
+- who creates the tag after `AGREE` (default: the implementer);
+- whether the owner may tag without a review, the issue recording it (the
+  youtube3 wording has this; the owner has not decided it here);
+- reconciling the milestone verdict with Claude mode: `CLAUDE.md` and
+  `reviews/README.md` have no `AGREE`/`BLOCK` marker, and the Rounds rule in
+  `PRINCIPLES.md` counts rounds per stage. Scope those to per-change reviews,
+  and say how milestone rounds are counted;
+- whether scaffolded runs get this, and with which tag scheme.
+
 The baseline here is `r4`, reviewed after the fact on
 [#10](https://github.com/diegoami/harness_template/issues/10). The review on
 PR #11 (`r4..756696b`, ending at no tag) was not a milestone under this rule.
 
-**Protocol gaps found by the milestone reviews**
-([#10](https://github.com/diegoami/harness_template/issues/10) and PR #11),
-routed to this design:
+**Protocol gaps found by the r4 milestone review
+([#10](https://github.com/diegoami/harness_template/issues/10)) and the review
+on PR #11**, routed to this design:
 
 - **`design: none` gives a design bypass two homes.** The Waiver bullet in
   `PRINCIPLES.md` records it in the design record, which `design: none`
@@ -117,8 +127,9 @@ routed to this design:
 - **Name milestone reviews.** `reviews/README.md` names only implementation
   rounds; the r4 milestone reviews use `006-r4-milestone-NN.md`, and the
   review on PR #11 `007-milestone-since-r4-01.md`, as a stopgap, where `NN`
-  counts separate reviews, not rounds. Also settle whether a milestone copy and the change
-  that records it share a number: `006` has one slug, `007` has two.
+  counts separate reviews, not rounds. Also settle whether a copied review
+  and the change that records it share a number: `006` has one slug, `007`
+  has two.
 
 ## Notes
 
