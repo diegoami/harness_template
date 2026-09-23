@@ -34,7 +34,12 @@ that changes only a `## Completion` section, or a trivial change as
 `PRINCIPLES.md` defines it.
 
 **In r5:** posting (candidates 1–3 below), milestone reviews, the four
-protocol gaps, and the smaller items except scratch-repository deletion.
+protocol gaps, and the smaller items except scratch-repository deletion and
+the verification pattern from the boar_life report.
+
+**Release step:** before the candidate is frozen, `ADOPT.md` names `r5`,
+so the tag does not repeat `r4`'s stale release name (boar_life report,
+item 2; the owner decided that pinning an exact commit waits for r6).
 
 **Not in r5:**
 - rebuilding `ADOPT.md` from `harness_prompts`: a candidate for r6;
@@ -83,6 +88,11 @@ one itself, at the candidate commit):
   byte-identical to the source (`cmp`), with no byte-order mark; every
   record an r5 PR posted reads back (`gh … --json body`) equal to its file
   as the PR's head holds it, apart from line endings and the final newline.
+  **Extended on 2026-09-24** by the owner's decision (PR #16): the test gaps
+  PR #15's round 03 left are closed, since they belong to r5's own tool.
+  *Proof:* a test posts a review file from a subdirectory of the checkout,
+  and each break named in the "post-record.mjs test gaps" item turns a test
+  red.
 - **C3. The PR mechanics are written down and followed.** The rules state:
   the PR names what it implements and the revision its clean review covers;
   `Closes #N` stands on its own line and is checked with
@@ -190,14 +200,15 @@ handover file; the PR mechanics; dry-run outward tooling).
 **From the first real adoption** (boar_life, a Godot game, adopting r4 in
 Claude mode, its PR #1, 2026-09-23; the report is
 [`docs/sources/boar-life-field-report.md`](docs/sources/boar-life-field-report.md)).
-Four template problems every real product meets, routed to r6 with the ADOPT
+Four template problems a real product meets, routed to r6 with the ADOPT
 rebuild by the owner's decision (Notes):
 
-- **The artistic license assumes a testbed.** `ROADMAP.md` says "the project
+- **The artistic license assumes a testbed.** `ROADMAP.md` says "The project
   exists to exercise the process; its content is not the deliverable" and
-  "the point is the process". That holds for a testbed, not for a product;
-  boar_life's reviewer flagged it against the slot's product line. Ask it at
-  adoption as an owner decision, or move the sentence into the slot.
+  "The point is the process". That holds for a testbed, not for a product;
+  boar_life's reviewer flagged it against the slot's product line. Ask it as
+  an owner decision at adoption and in the scaffold, or move the sentence
+  into the slot.
 - **The conservative floor names web paths.** `PRINCIPLES.md` lists
   `public/**`, `mobile/**`, `netlify.toml` and "the package manifests", which
   is project knowledge in a shared file, so every adopter must edit
@@ -209,6 +220,9 @@ rebuild by the owner's decision (Notes):
   things outside the repository (a sibling clone, a download cache), and the
   never-echo rule forbids one machine's paths. One line: describe them
   relative to the repository.
+- **`ADOPT.md` names only a tag** (item 2): at the `r4` tag it still said
+  `r3`, and the fixes lived only on `main`. The report suggests having
+  `ADOPT.md` name the exact commit to take; considered with the rebuild.
 
 **Planning.** An optional planner layer: a task catalogue (id, scope, `Owns`,
 done-when, dependencies) with a planner session that proposes and maintains
@@ -329,13 +343,14 @@ on PR #11**, routed to this design:
   log, not its exit code: Godot exits 0 after `SCRIPT ERROR`, so boar_life's
   gate greps the log, and it also parses every script with `--check-only`,
   since running the main scene misses scripts no scene loads. For
-  `verification/README.md`. (boar_life field report, item 6.)
+  `verification/README.md`. (boar_life field report, item 6; not in r5 by
+  the owner's decision, for r6.)
 - **`post-record.mjs` test gaps** (PR #15, review round 03; the code is right
   in each case): the fake `git` never places a file in a subdirectory, so the
   `\` to `/` path conversion is untested; three breaks survive (a lone
-  backslash in the quoting set, text after a closing fence, a hard-coded PR
-  number); and the entry point through a symlink is untested (a directory
-  junction needs no admin rights).
+  backslash in the quoting set, an info string on a closing fence line, a
+  hard-coded PR number); and the entry point through a symlink is untested
+  (a directory junction needs no admin rights). In r5, through C2.
 
 ## Notes
 
@@ -371,9 +386,12 @@ on PR #11**, routed to this design:
   problems, and r6 rebuilds adoption. (b) No point release `r4.1`, although
   `ADOPT.md` at the `r4` tag still names `r3` and lacks the Claude-mode steps.
   The recommended default, taken; the reason: a tag is a milestone and waits
-  for an independent review, and `r5` carries the fixes. Until `r5`, an
-  adopter takes `r4` plus `main`'s fixes and records both SHAs, as boar_life
-  did.
+  for an independent review, and `r5` carries the fixes. boar_life took
+  `r4` plus `main`'s fixes and recorded both SHAs. (c) The test gaps join
+  r5 through C2, and item 6 does not; (d) pinning an exact commit in
+  `ADOPT.md` waits for r6, and `ADOPT.md` names `r5` as a release step. Both
+  recommended defaults, taken, on 2026-09-24 (PR #16); the reasons: the gaps
+  belong to r5's own tool, and the pattern and the pin are adoption work.
 - The r4 milestone review (#10) is copied verbatim into `reviews/`:
   `006-r4-milestone-01.md` by DeepSeek V4.1 Flash, r4's implementer — not
   independent, kept as input — and `006-r4-milestone-02.md` by GPT-5.6 Luna,
