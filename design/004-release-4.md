@@ -1,14 +1,15 @@
 # 004 — Harness release 4
 
-**Stage:** design · **Status:** revision 2, awaiting re-review · **Date:** 2026-09-23.
+**Stage:** design · **Status:** in review · **Date:** 2026-09-23.
 
 **How this record works** (`design/README.md`): the reviewer appends a signed
 verdict below; nothing is implemented before an AGREE.
 
-**Revisions.** v1 (`d69c538`) was BLOCKED on three findings: Gate 0 did not
-define the local proof, the round ceiling was not expressible for every mode and
-record kind, and it removed the live "paths to inspect" rule. v2 is this
-revision.
+**Revisions.** v1 (`d69c538`) was BLOCKED on three findings (Gate 0's local
+proof, the round ceiling's scope, the removed "paths to inspect"). v2
+(`6f12a15`) resolved those and was BLOCKED on two: the local Gate 0 proof left
+its base undefined and its equality check implicit, and the record's `Status:`
+used a value the design-record vocabulary does not allow. v3 is this revision.
 
 **Input.** An audit of the live harness against the lessons recorded in the
 archives ([`docs/archive/02-ic2-complex-model.md`](../docs/archive/02-ic2-complex-model.md),
@@ -63,20 +64,22 @@ Each change has one owner (`PRINCIPLES.md`, the ownership map).
 
   > A verdict or review covers **the named revision**, and the reviewer shows
   > the target before judging: the revision, and the files of the change — the
-  > pull request's head and file list where a pull request exists, or the local
-  > diff's file list (`git diff --name-only <base>...<revision>`) where it does
-  > not. **Every finding names a file in that change**; an empty or mismatched
-  > target means the wrong tree, so the review stops and says so rather than
-  > reviewing what it can see.
+  > pull request's head and file list where a pull request exists, otherwise the
+  > diff from the change's base (`git merge-base main <revision>`, then
+  > `git diff --name-only <merge-base>..<revision>`). **The revision the reviewer
+  > holds must equal the named target, and its file list must equal the change's
+  > file list**; every finding names a file in that list. An empty diff or a
+  > mismatched revision is the wrong tree, so the review stops and says so
+  > rather than reviewing what it can see.
 
 - **`reviews/README.md`** — the opening bullet requires the checked target as
   well, and the same format serves an appended design verdict:
 
   > The verdict opens with **the revision it covers** (the commit sha), the file
   > list the reviewer checked and how it was obtained (the pull request's files,
-  > or the local diff), the reviewer's display name and model id, and the mode.
-  > Findings name files from that list; a mismatch or an empty list is a wrong
-  > target, not a finding.
+  > or the local diff from the merge base), the reviewer's display name and model
+  > id, and the mode. Findings name files from that list; a mismatch or an empty
+  > list is a wrong target, not a finding.
 
 - **`design/README.md`** — one line: a design verdict follows
   `reviews/README.md`'s format, target proof included.
@@ -175,6 +178,32 @@ reviewer's to confirm or correct.
 ### Not verified
 
 - The proposed scaffold and document edits do not exist at the reviewed revision, so their generated output and final cross-file consistency cannot yet be executed.
+
+— GPT-5.6 Luna (opencode/gpt-5.6-luna#high), reviewer
+BLOCK
+
+---
+
+## Review — design stage (revision 2, 6f12a15)
+
+**Verdict:** BLOCK — findings 1–2 must be resolved before AGREE.
+
+### Findings
+
+1. **The local Gate 0 proof still has an undefined base and an implicit equality check** — blocking. V2 correctly limits pull-request evidence to cases where a pull request exists and supplies the local command (`design/004-release-4.md:64-70`), and the record-format addition covers both appended design verdicts and implementation reviews (`design/004-release-4.md:72-82`). But `<base>` is not defined: a local reviewer cannot reproduce `git diff --name-only <base>...<revision>` consistently for either record kind, and the text does not explicitly require the PR head (or the local revision) and its file list to equal the named target. “Mismatched target” is the right stop outcome, but define the base and the equality check before relying on it as Gate 0.
+
+2. **The v2 record status contradicts the design-record owner’s vocabulary** — blocking. The record currently says `**Status:** revision 2, awaiting re-review` (`design/004-release-4.md:3`), but the canonical status table permits `proposed`, `in review`, `agreed`, `blocked`, and `landed`, with a re-review request requiring `in review` (`design/README.md:11-23`). This is a live process contradiction in the record being reviewed and must be corrected before the design can reach AGREE.
+
+### Verified
+
+- The Gate 0 design now covers both modes and both record kinds: PR head/files when a PR exists, a local diff otherwise, a required acquisition description in the verdict, and a stop rather than a finding for an empty or mismatched target (`design/004-release-4.md:64-82`; `CLAUDE.md:19-20`; `design/README.md:27-29`). The remaining issue is the undefined local base/equality operation above, not a requirement for a PR in local-first mode.
+- The round ceiling is now per stage and explicitly counts each appended design verdict and each `-NN` implementation review (`design/004-release-4.md:86-97`). Rounds 1 and 2 may rework; a non-clean third round escalates, with AGREE for OpenCode and “no blocking finding remains” for Claude, and waiver permitted only at implementation stage (`design/004-release-4.md:88-93`; `PRINCIPLES.md:88-90`).
+- The slot design retains paths to inspect, adds a canonical source and reason-bearing ignore paths, and preserves the no-delete/no-gitignore rule (`design/004-release-4.md:114-126`; `PRINCIPLES.md:147-149`). Its proposed `CLAUDE.md`/`slotText` wording and `ADOPT.md` reconnaissance requirements are aligned.
+- V1’s other verified items still hold: discipline 3 remains one of six and the negative-result rule does not conflict with the mutation pattern or completion-note boundary (`design/004-release-4.md:99-110`; `verification/README.md:27-33`; `PRINCIPLES.md:102-109`); the ownership touch remains appropriate (`design/004-release-4.md:128-131`); and the stated verification/out-of-scope boundaries remain relevant (`design/004-release-4.md:133-147`).
+
+### Not verified
+
+- The proposed scaffold and document edits are still not implemented, so `node --check`, generated-slot output, and the final cross-file behavior cannot yet be run.
 
 — GPT-5.6 Luna (opencode/gpt-5.6-luna#high), reviewer
 BLOCK
