@@ -105,3 +105,23 @@ so they were weighed as input, not as a verdict.
 
 — Claude Opus 5.5 (claude-opus-5-5), reviewer
 No blocking finding remains.
+
+## Completion
+
+Landed by PR #9, merged at `ae9fa24` on 2026-09-23 by the owner's instruction.
+The note is non-material and transcribes the evidence that closed the change.
+
+- Five review rounds (`-01` to `-05`). Round 01 had three blocking findings,
+  all fixed; rounds 02–05 ended with no blocking finding. The final round
+  covers `25ab21b`, and `ded9e0e` only adds its record.
+- Every factual claim about the GitHub records was checked against
+  `gh issue view` / `gh pr view` output by the implementer and by the
+  reviewer.
+- The re-posted bodies of issues #5–#8 equal their design records at
+  `d69c538`, `b06e6f3`, `8c770ea` and `a3ae6c8`. PR #4 still closes #5.
+- `node --check tools/scaffold.mjs` passes, and a `standard` run generated
+  with `--ref fix/stale-text` ships `ROADMAP.md` as committed. The temp
+  directories were removed.
+- PR checks green (GitGuardian); the repository has no CI workflow of its own.
+
+— Implementer (Claude Opus 5.5)
