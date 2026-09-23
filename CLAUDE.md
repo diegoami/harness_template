@@ -36,19 +36,26 @@ bootstrap applies as written there — one review, not two stages.
 
 ## Project slot
 
-<!-- The scaffold fills the product name; a project fills the rest in its first
-     session. In the harness source repository this slot stays unfilled by
-     design — the harness's own rules are README.md and docs/. -->
+<!-- SLOT:BEGIN -->
 
-- **product:** {{PROJECT}} — one paragraph: what it is and who plays it.
-- **paths to inspect:** the source and documents worth reading by default.
+<!-- The scaffold replaces everything between the markers. In the harness source
+     repository this slot stays unfilled by design: the harness's own rules are
+     README.md and docs/. -->
+
+- **product:** {{PROJECT}} — one paragraph: what it is and who it is for.
+- **paths to inspect:** the source root and the documents worth reading by
+  default.
 - **paths to normally ignore:** generated, vendored or binary paths; read the
   lockfile only when dependencies are the task.
 - **never read or echo:** secrets, signing material, one machine's paths. List
   them explicitly.
+- **merge:** owner
+- **design:** required
 - **the gates table:** one row per gate — the command, what it covers, when it
   runs, how many repeats, and the failure model that justifies the repeats.
 - **conventions:** the player-facing language and the language of comments and
   commits; promises about build steps and dependencies; **decided, and not to be
   re-opened** (with the measured outcome, so a later session does not mistake it
   for a bug); where open work lives.
+
+<!-- SLOT:END -->

@@ -1,6 +1,6 @@
 # 003 — Harness release 3: the parametrizable scaffold
 
-**Stage:** design · **Status:** revision 3, awaiting re-review · **Date:** 2026-09-23.
+**Stage:** design · **Status:** agreed (design revision `4823705`) · **Date:** 2026-09-23.
 
 **How this record works** (`design/README.md`): the reviewer appends a signed
 verdict below; nothing is implemented before an AGREE.
