@@ -53,6 +53,19 @@ is the middle shape; IC2's catalogue is the heavy end.
 - **A review rule: reviews never execute a creation path.** A reviewer's fake
   CLI was bypassed and created a stray public repository.
 - **Scratch-repository deletion** needs the token's `delete_repo` scope.
+- **`design: none` gives a design bypass two homes.** The Waiver bullet in
+  `PRINCIPLES.md` records it in the design record, which `design: none`
+  resolves to the implementation review file, while the `design: none` bullet
+  records it in the project slot; and no file places the completion note of an
+  OpenCode `design: none` run. (r4 milestone review, #10, DeepSeek finding 1.)
+- **The `light` preset links a file it does not ship.** Its `AGENTS.md` stage 1
+  points at `design/README.md`, which `presets/light.json` leaves out.
+  (#10, DeepSeek finding 2.)
+- **Restatements left after PR #9** (its round-05 review): `ROADMAP.md`'s
+  `in design` status assumes a design stage; `README.md` gives OpenCode "the
+  design agreed before code" unconditionally and says the modes differ only in
+  how the reviewer is obtained; this file's preamble lists the harness files
+  itself.
 
 ## Notes
 
@@ -61,6 +74,17 @@ is the middle shape; IC2's catalogue is the heavy end.
   knows the project, and a copy tool cannot reconcile the collisions.
 - The root `PLAN.md` and `ROADMAP.md` are the *templates* a run receives, not
   this repository's own plans.
+- **Owner decision (2026-09-23): the rules apply going forward.** A record is
+  held to the rules in force when it was written, and a later rule is not
+  applied to it: the reviews before r4 carry no Gate 0 target proof and are not
+  backfilled. The recommended default, taken; the reason: a backfill would
+  append to verdicts signed by other models a proof they never made. From the
+  r4 milestone review ([#10](https://github.com/diegoami/harness_template/issues/10),
+  finding 2); for finding 1 the owner chose to complete `design/001` anyway.
 - Releases: `r1` (the consolidation), `r2` (field-test fixes), `r3` (the
   parametrizable scaffold), `r4` (the four lessons). Records in `design/` and
   `reviews/`.
+- The r4 milestone review (#10) is copied verbatim into `reviews/`:
+  `006-r4-milestone-01.md` by DeepSeek V4.1 Flash, r4's implementer — not
+  independent, kept as input — and `006-r4-milestone-02.md` by GPT-5.6 Luna,
+  the milestone verdict.
