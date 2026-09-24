@@ -17,8 +17,11 @@ This file records the Claude-specific process and the project slot.
   **external process** from another family (for example `codex exec`, or
   `opencode run -m <provider>/<model>`); when it is, record the tool and the
   model id in the review.
-- There is **no design stage** and **no AGREE/BLOCK marker**. The review is
-  recorded per [`reviews/README.md`](reviews/README.md).
+- There is **no design stage**, and a change's review carries **no AGREE/BLOCK
+  marker**. The review is recorded per [`reviews/README.md`](reviews/README.md).
+- **At a milestone**, Claude opens the milestone issue and gives the owner the
+  milestone prompt for a model that is not Claude; that verdict does end
+  `AGREE` or `BLOCK`, and the tag waits for it (`PRINCIPLES.md`, *Milestones*).
 - **Fallback:** a new session, or the external process, recorded. The rules are
   in the protocol.
 - The builder fixes findings in the same change; a finding the builder disagrees

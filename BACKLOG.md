@@ -34,8 +34,9 @@ that changes only a `## Completion` section, or a trivial change as
 `PRINCIPLES.md` defines it.
 
 **In r5:** posting (candidates 1–3 below), milestone reviews, the four
-protocol gaps, and the smaller items except scratch-repository deletion and
-the verification pattern from the boar_life report.
+protocol gaps, and the smaller items except scratch-repository deletion, the
+verification pattern from the boar_life report, and the `post-record.mjs`
+follow-ups from PR #18.
 
 **Release step:** before the candidate is frozen, `ADOPT.md` names `r5`,
 so the tag does not repeat `r4`'s stale release name (boar_life report,
@@ -350,7 +351,15 @@ on PR #11**, routed to this design:
   `\` to `/` path conversion is untested; three breaks survive (a lone
   backslash in the quoting set, an info string on a closing fence line, a
   hard-coded PR number); and the entry point through a symlink is untested
-  (a directory junction needs no admin rights). In r5, through C2.
+  (a directory junction needs no admin rights). In r5, through C2; closed by
+  PR #18.
+- **`post-record.mjs` follow-ups** (PR #18, review round 01; not in r5): a
+  checkout reached through a junction or symlink is refused, because `git`
+  reports the physical path while the tool keeps the link path (macOS's
+  `/var` is one), so resolve the real path first and test it with real `git`
+  through a junction; the tests pin `shellQuote` and `repoPath` but not their
+  call sites (assert the printed dry-run line); the junction test links the
+  live `tools/` folder rather than a copy; and two comments are stale.
 
 ## Notes
 
