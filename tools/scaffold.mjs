@@ -99,23 +99,54 @@ function parseArgs(argv) {
   return opts;
 }
 
-// A shell can mangle the --test value on its way in: PowerShell drops inner
-// double quotes, and a stray Enter adds a newline. The scaffold would write
-// the damage into the gates table faithfully, so it refuses it instead.
+const QUOTING_HINT =
+  `In bash, wrap the whole value in single quotes: ` +
+  `--test 'node --test "tools/**/*.test.mjs"'. In Windows PowerShell 5.1, ` +
+  `which silently drops unescaped inner double quotes, escape each one: ` +
+  `--test 'node --test \\"tools/**/*.test.mjs\\"'. Or answer the question ` +
+  `interactively.`;
+
+// True when the value's quotes close, read as bash reads them: nothing is
+// special inside single quotes; a backslash escapes the next character
+// outside them.
+function quotesBalanced(value) {
+  let single = false;
+  let double = false;
+  for (let i = 0; i < value.length; i++) {
+    const c = value[i];
+    if (single) {
+      if (c === "'") single = false;
+    } else if (c === "\\") i++;
+    else if (c === "'" && !double) single = true;
+    else if (c === '"') double = !double;
+  }
+  return !single && !double;
+}
+
+// A shell can mangle the --test value on its way in: a quote can be lost, and
+// a stray Enter adds a line break. The scaffold would write the damage into
+// the gates table faithfully, so it refuses what it can detect and warns about
+// what it cannot.
 function checkTestCommand(test) {
-  const quotes = (test.match(/(?<!\\)"/g) ?? []).length;
-  const problem = /[\r\n]/.test(test)
-    ? "contains a line break"
-    : quotes % 2 === 1
-      ? "has an unbalanced double quote"
-      : null;
+  const problem =
+    test.trim() === ""
+      ? "is empty"
+      : /[\r\n]/.test(test)
+        ? "contains a line break"
+        : !quotesBalanced(test)
+          ? "has an unbalanced quote"
+          : null;
   if (problem)
     fail(
       `the --test value ${problem}: ${JSON.stringify(test)}. Your shell probably ` +
-        `changed it on the way in. Quote the whole value in single quotes in bash ` +
-        `(--test 'node --test "tools/**/*.test.mjs"'); in PowerShell, use the ` +
-        `stop-parsing token (node tools/scaffold.mjs --% --test "…") or answer the ` +
-        `question interactively.`,
+        `changed it on the way in. ${QUOTING_HINT}`,
+    );
+  // Windows PowerShell 5.1 drops every inner quote, leaving balanced text.
+  if (/[*?[]/.test(test) && !/["']/.test(test))
+    console.warn(
+      `scaffold: warning — the --test value has a glob but no quotes: ` +
+        `${JSON.stringify(test)}. If your shell dropped its quotes, rerun. ` +
+        QUOTING_HINT,
     );
 }
 
@@ -146,9 +177,12 @@ Questions and flags (each flag is asked when absent):
 Quoting --test: the value usually holds double quotes, which a shell can
 strip. In bash, wrap the whole value in single quotes:
   --test 'node --test "tools/**/*.test.mjs"'
-PowerShell removes inner double quotes from arguments to native programs;
-use the stop-parsing token (--%) before the flags, or answer interactively.
-A value with an unbalanced double quote or a line break is refused.`);
+Windows PowerShell 5.1 silently drops unescaped inner double quotes; escape
+each with a backslash:
+  --test 'node --test \\"tools/**/*.test.mjs\\"'
+Or answer the question interactively. An empty value, one with an unbalanced
+quote or a line break is refused; a glob with no quotes draws a warning; and
+the command that went into the gates table is printed at the end.`);
 }
 
 let ttyRl = null;
@@ -243,9 +277,9 @@ function slotText({ name, description, merge, design, test, ci, plan, roadmap })
   are known; keep it that way and list them here when that changes.
 - **merge:** ${merge}
 ${mergeConditions}- **design:** ${design}
-- **milestones:** annotated tags \`vX.Y.Z\` on \`main\`, each reviewed before it
-  is created (\`PRINCIPLES.md\`, *Milestones*); the plan that holds each
-  release's claims: ${planFile}.
+- **milestones:** annotated tags \`vX.Y.Z\` on \`main\`, as
+  \`PRINCIPLES.md\` (*Milestones*) says; the plan that holds each release's
+  claims: ${planFile}.
 - **the gates table:**
 
   | gate | command | covers | when | repeats | failure model |
@@ -579,6 +613,7 @@ async function main() {
   );
   if (github !== "none") console.log(`  remote: https://github.com/${owner}/${name}`);
   else console.log("  no remote; see README.md to add one");
+  console.log(`  unit gate: ${test}`);
   console.log("  next: read the generated README.md");
   if (ttyRl) ttyRl.close();
 }

@@ -43,6 +43,8 @@ prompt does not restate them.
 - **Conventions**: the language of player-facing text, comments and commits;
   build-step and dependency promises; anything **decided and not to be
   reopened**, with its reason.
+- **Milestones**: the project's release tag scheme (existing tags, or
+  `vX.Y.Z`) and the one file that will hold each release's claims.
 - **How change happens here today**: is there an `AGENTS.md`, a `CLAUDE.md`, a
   `PLAN.md`, a `ROADMAP.md`, a review process? Those are the collisions.
 
@@ -102,7 +104,8 @@ commit at the tag), dated, in `PLAN.md` or the slot.
 ## 6. Done when
 
 - Every chosen harness file exists; the slot's product, paths, never-echo list,
-  `merge:`, `design:` and gates table are filled **from this repository**;
+  `merge:`, `design:`, `milestones:` and gates table are filled **from this
+  repository**;
 - the gates table names commands that actually run here;
 - the adapters carry only their mode-specific text and do not restate the
   principles; nothing contradicts `PRINCIPLES.md`;
