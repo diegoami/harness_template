@@ -155,3 +155,24 @@ No blocking finding.
 
 — Claude Opus 5.5 (claude-opus-5-5), reviewer
 No blocking finding remains.
+
+## Completion
+
+Landed by PR #20, merged on 2026-09-24 (UTC) at the owner's instruction ("go
+ahead, merge when the review is clean"), after its last review comment and with
+GitGuardian green. The note is non-material and transcribes the evidence for C2's
+second extension.
+
+- A test with real `git` in a repository reached through a directory junction
+  passes the PR check and the committed check (`node --test
+  tools/post-record.test.mjs`: 30 pass, 0 fail), also with `TEMP` set to an 8.3
+  alias.
+- Two review rounds; round 01's blocker (8.3 names, reproduced before the fix)
+  fixed; round 02 clean on `c8070fd`; `ef4ae7f` only adds its record. Both posted
+  with the tool after GitHub showed the head.
+- Recorded for the backlog, in the PR's "Left out": a test for a file that is
+  itself a symlink (possible here: developer mode is on, contrary to the
+  implementer's round-02 note); subst and mapped drives; `isMain` exiting 0 where
+  `.native` throws.
+
+— Implementer (Claude Opus 5.5)
