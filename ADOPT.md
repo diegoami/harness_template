@@ -2,7 +2,7 @@
 
 Open a session **in the project** and paste:
 
-> Adopt harness release `r4` into this project. Read
+> Adopt harness release `r5` into this project. Read
 > `C:\Users\diego\projects\harness_template\ADOPT.md` and execute it as
 > written.
 
@@ -14,7 +14,7 @@ If the session cannot read that path, paste this file's content instead.
 
 You are adopting the harness — the process, not a framework — into an existing
 project. The harness is at `C:\Users\diego\projects\harness_template`
-(release `r4`; the files at the repository root are the canonical text). You
+(release `r5`; the files at the repository root are the canonical text). You
 will write the harness files **adapted to this project**, filling the project
 slot from what the repository actually contains. **Read the harness files and
 adapt them; do not invent rules and do not copy them blind.**
@@ -98,7 +98,7 @@ in:
 
 Rounds are capped by the ceiling in `PRINCIPLES.md` in both modes.
 
-Then, in either mode, record the provenance: adopted from harness `r4` (the
+Then, in either mode, record the provenance: adopted from harness `r5` (the
 commit at the tag), dated, in `PLAN.md` or the slot.
 
 ## 6. Done when

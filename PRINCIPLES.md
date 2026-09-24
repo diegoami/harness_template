@@ -104,7 +104,8 @@ and does not relax CI.
   owner. A review that stops before judging — a wrong target (above), or a
   reviewer who may not review — is no review (*Fallback*) and not a round:
   it gets no `-NN` file, carries no marker, and is recorded only as a stop
-  notice, a comment that says why it stopped. A milestone's rounds are
+  notice, a comment that says why it stopped (without a remote, a line in
+  the change's next review file). A milestone's rounds are
   counted per milestone instead: each verdict on its milestone issue is one
   round (a stop notice is not a verdict), and a third that is not `AGREE`
   goes to the owner (*Milestones*).
@@ -121,7 +122,22 @@ and does not relax CI.
   recorded; it may not reject it merely for differing from its own preference.
   If the owner rejects the proposal rather than deciding a value, the change is
   withdrawn or re-scoped, recorded; it receives no approval and is not merged
-  around.
+  around. A decision the owner gives in conversation leaves evidence on
+  GitHub, and its record names where. For a decision a pull request records,
+  the evidence is that pull request's merge where the owner merges (*Merge
+  policy*; a merge the owner orders counts as the owner's), or else a
+  comment the owner signs on it, which `merge: auto` and a decision that
+  must hold before the merge both need. For a decision recorded on a
+  milestone issue, such as the override to tag without a review
+  (*Milestones*), it is a comment the owner signs on that issue. The owner
+  and the agents may post from one GitHub account, so the account tells
+  nobody apart: the act named here is the owner's confirmation. So no agent
+  signs as the owner, and where the owner merges, no agent merges without
+  the owner's order. A reviewer checks that evidence where the record says
+  and does not re-raise the decision as unverifiable; before the merge, a
+  decision whose evidence is the merge is pending, not a finding. Without a
+  remote, the evidence is the owner's merge commit of the change that
+  records it.
 - **Defect path.** A defect found after a change landed is recorded and fixed by
   a change that lands the assertion that would have caught it. In OpenCode mode
   the fix takes the design stage unless all four hold: limited to the recorded
