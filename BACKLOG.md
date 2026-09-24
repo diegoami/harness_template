@@ -34,8 +34,9 @@ that changes only a `## Completion` section, or a trivial change as
 **In r5:** posting (candidates 1–3 below), milestone reviews, the four
 protocol gaps, and the smaller items except scratch-repository deletion, the
 verification pattern from the boar_life report, the `post-record.mjs`
-follow-ups from PR #18 other than the linked-checkout defect, and the dry run
-for the scaffold's `--github`.
+follow-ups from PR #18 other than the linked-checkout defect, the dry run
+for the scaffold's `--github`, and the pgn-postmortem report's items other
+than item 4 (C12).
 
 **Release step:** before the candidate is frozen, `ADOPT.md` names `r5`,
 so the tag does not repeat `r4`'s stale release name (boar_life report,
@@ -51,7 +52,9 @@ item 2; the owner decided that pinning an exact commit waits for r6).
 - the `post-record.mjs` follow-ups from PR #18 other than the linked-checkout
   defect: pinning the call sites of `shellQuote` and `repoPath`, the
   junction test's live `tools/` link, and two stale comments;
-- a dry run for the scaffold's `--github` (PR #23).
+- a dry run for the scaffold's `--github` (PR #23);
+- the pgn-postmortem report's items 1, 2, 3 and 5 (r6, the owner's decision,
+  PR #24).
 
 **Owner decisions** (🧑 each with its recommended default and the owner's
 answer):
@@ -196,6 +199,17 @@ one itself, at the candidate commit):
   verdict arrives, so that the range under review holds only pull requests
   (C1); reproducing each finding and replying per finding still happen when
   it arrives.
+- **C12. A decision made in conversation leaves checkable evidence.**
+  `PRINCIPLES.md`'s *Owner decisions* says where the evidence of an owner
+  decision given in conversation lives — for example the owner's merge of the
+  change that records it, or a comment the owner signs on its pull request —
+  so a reviewer checks that evidence instead of re-raising the decision as
+  unverifiable. *Proof:* the text; for each owner decision recorded in r5,
+  the milestone reviewer finds its evidence where the rule says. **Added on
+  2026-09-24** by the owner's decision (PR #24), a scope change: every
+  fresh-context reviewer of r5 so far, and of pgn-postmortem's PRs #1, #3, #4
+  and #5, flagged some owner decision as resting only on the implementer's
+  report (pgn-postmortem report, item 4).
 
 ## Candidates
 
@@ -240,12 +254,14 @@ rebuild by the owner's decision (Notes):
   "The point is the process". That holds for a testbed, not for a product;
   boar_life's reviewer flagged it against the slot's product line. Ask it as
   an owner decision at adoption and in the scaffold, or move the sentence
-  into the slot.
+  into the slot. (Also pgn-postmortem, item 6: it narrowed the premise in its
+  adopted `ROADMAP.md`.)
 - **The conservative floor names web paths.** `PRINCIPLES.md` lists
   `public/**`, `mobile/**`, `netlify.toml` and "the package manifests", which
   is project knowledge in a shared file, so every adopter must edit
   `PRINCIPLES.md` and diverge. Keep the rule there; the slot owns the path
-  list.
+  list. (Also pgn-postmortem, item 6: it replaced the web paths with its own
+  in its `PRINCIPLES.md`.)
 - **"A comparison run copies a frozen subset"** in `ROADMAP.md` applies only
   to projects that test the harness.
 - **Never-echo versus paths outside the repository.** "Paths to ignore" names
@@ -255,6 +271,40 @@ rebuild by the owner's decision (Notes):
 - **`ADOPT.md` names only a tag** (item 2): at the `r4` tag it still said
   `r3`, and the fixes lived only on `main`. The report suggests having
   `ADOPT.md` name the exact commit to take; considered with the rebuild.
+  Also pgn-postmortem, items 3 and 6: at `r4`, `ADOPT.md` still said `r3`
+  and asked for a design record in every mode (fixed on `main` by PR #9).
+  The adopted `r4` also lacked the owner's own practice, milestone reviews,
+  which existed only on untagged `main`. That project recorded an intention
+  to adopt `r5`, and had to fix a release's claims after the fact. Its
+  suggestion: `ADOPT.md` tells the adopter to list what `main` holds beyond
+  the tag, and to ask the owner whether the project needs any of it now.
+
+**From the second adoption** (pgn-postmortem, a Python chess tool, adopting
+r4 in Claude mode, its PRs #1–#5, 2026-09-24; the report is
+[`docs/sources/pgn-postmortem-field-report.md`](docs/sources/pgn-postmortem-field-report.md)).
+Routed to r6 with the ADOPT rebuild by the owner's decision (Notes):
+
+- **Roles before modes** (item 1). The adopting agent chose OpenCode mode for
+  the one feature it wanted, a design stage, which by `AGENTS.md`'s
+  assignment table made DeepSeek the implementer (its PR #4). The owner
+  corrected it, and PR #5 went back to Claude mode. `ADOPT.md` presents the
+  modes as symmetric ("keep both … if both tools work here") and never asks
+  who implements, who reviews each change, and who reviews releases. Ask
+  those three as owner decisions, in `ADOPT.md` §3 and the scaffold, and
+  record them in the slot before any mode is chosen.
+- **Name Claude mode's planning gate** (item 2). In Claude mode, shaping (a
+  request is not a request to implement, the block's runnable done-when, owner
+  decisions asked first) plus a fresh-context review of the shaping is the
+  plan-before-build gate. Its PR #3 took three rounds and caught a re-opened
+  decided item. No harness text names this gate, so an adopter reaches for
+  OpenCode's design stage. Say it in one line in `CLAUDE.md`. Also,
+  `design: required` in a Claude-mode slot does nothing but reads like that
+  gate: explain it at adoption and in the scaffold, or apply the field only
+  with OpenCode.
+- **Planning is not building** (item 5, minor). Before any request exists,
+  the agent twice started building during a design discussion; the owner
+  stopped it. `ROADMAP.md` guards a request once one exists. Consider a line
+  among the habits; pgn-postmortem put the convention in its slot.
 
 **Planning.** An optional planner layer: a task catalogue (id, scope, `Owns`,
 done-when, dependencies) with a planner session that proposes and maintains
@@ -452,6 +502,14 @@ on PR #11**, routed to this design:
   on GitHub. The recommended default, taken; the reason: the rule's first
   sentence forbids creating a GitHub repository only to test, and an earlier
   test created a stray public one.
+- **Owner decisions (2026-09-24), on the pgn-postmortem field report**
+  (PR #24). (a) Item 4 joins r5 as claim C12. The reason: it is review-loop
+  work, and every r5 reviewer so far has met it. (b) Item 2 goes to r6. The
+  reason: it concerns how an adopter picks a mode and reads the slot, which
+  r6 rebuilds with item 1. (c) Item 5 goes to r6. The reason: a small habit
+  line, taken with r6's adoption work. Each is the recommended default,
+  taken. Items 1 and 3 go to r6 with the ADOPT rebuild, and item 6 adds a
+  second source to boar_life items that are already routed.
 - The r4 milestone review (#10) is copied verbatim into `reviews/`:
   `006-r4-milestone-01.md` by DeepSeek V4.1 Flash, r4's implementer — not
   independent, kept as input — and `006-r4-milestone-02.md` by GPT-5.6 Luna,
