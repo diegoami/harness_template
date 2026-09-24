@@ -15,8 +15,8 @@
 `requested` → `accepted` → `in design` → `in review` → `landed`; plus `parked`
 and `refused`. `in design` applies only where the project has a design stage;
 without one, a request goes from `accepted` to `in review`. The agent sets the
-middle states. **Only the owner parks or
-refuses**, and the reason is recorded.
+middle states. **Only the owner parks or refuses**, and the reason is
+recorded.
 
 ## How to request
 

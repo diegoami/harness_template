@@ -162,11 +162,14 @@ and does not relax CI.
 - **Creation paths.** Nobody exercises a path that creates something outside
   a temporary directory — a repository, an issue, a comment, a push — only to
   test it. A reviewer never runs the code or tools under review on such a
-  path (no `--github`, no creating command inside the code under review); its
-  own finding issues and verdict are its output, not a test, and are exempt.
-  A builder tests a posting or creating path only against fakes, a scratch
-  repository or a dry run, and runs it for real (`--confirm`, `--github`)
-  only to post or create the real record.
+  path (for example the scaffold's `--github`, or any creating command inside
+  the code under review); its own output — finding issues, comments on them,
+  its verdict or stop notice — is not a test and is exempt. A builder tests
+  a posting or creating path only against fakes, a throwaway git repository
+  in a temporary directory (never one on GitHub), or a dry run, and runs it
+  for real (for example `post-record.mjs --confirm`) only to post or create
+  the real thing: a record, or a project's own repository. A path with no
+  dry run and no fake goes untested by builders until it has one.
 - **Posting.** A remote is assumed, and a record is posted when it is
   written, not after the fact; the file stays canonical. Where the project
   has a design stage (OpenCode mode, `design: required`), the design record
