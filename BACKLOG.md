@@ -603,9 +603,9 @@ on PR #11**, routed to this design:
   recommended default, taken. Two points in the rule that carries (b) are
   the implementer's, added on review round 01 within (b)'s reason, and not
   an owner decision: at the design stage the line goes in the design
-  record, and the next reviewer writes it, quoting the notice. They are the first decisions held to C12's
-  rule, which lands in the same pull request: their evidence is the owner's
-  merge of PR #27.
+  record, and the next reviewer writes it, quoting the notice. Decisions (a)
+  and (b) are the first held to C12's rule, which lands in the same pull
+  request: their evidence is the owner's merge of PR #27.
 - The r4 milestone review (#10) is copied verbatim into `reviews/`:
   `006-r4-milestone-01.md` by DeepSeek V4.1 Flash, r4's implementer — not
   independent, kept as input — and `006-r4-milestone-02.md` by GPT-5.6 Luna,

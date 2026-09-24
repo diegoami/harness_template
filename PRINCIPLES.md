@@ -134,13 +134,14 @@ and does not relax CI.
   without a review (*Milestones*), it is a comment the owner signs on that
   issue. Without a remote, the owner's merge commit of the change stands for
   the merge, and a line the owner signs under the decision's record stands
-  for the comment. The owner and the agents may post from one GitHub account, so the
-  account tells nobody apart: the act named here is the owner's
-  confirmation. So no agent signs as the owner, and where the owner merges,
-  no agent merges without the owner's order. The owner's signature is the
-  form `reviews/README.md` gives. A reviewer checks that evidence where the
-  record says and does not re-raise the decision as unverifiable; before the
-  merge, a decision whose evidence is the merge is pending, not a finding.
+  for the comment. The owner and the agents may post from one GitHub
+  account, so the account tells nobody apart: the act named here is the
+  owner's confirmation. So no agent signs as the owner, and where the owner
+  merges, no agent merges without the owner's order. The owner's signature
+  is the form `reviews/README.md` gives. A reviewer checks that evidence
+  where the record says and does not re-raise the decision as unverifiable;
+  before the merge, a decision whose evidence is the merge is pending, not a
+  finding.
 - **Defect path.** A defect found after a change landed is recorded and fixed by
   a change that lands the assertion that would have caught it. In OpenCode mode
   the fix takes the design stage unless all four hold: limited to the recorded
