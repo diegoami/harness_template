@@ -1,17 +1,18 @@
 # The milestone review prompt
 
 The fixed prompt for a milestone review (`PRINCIPLES.md`, *Milestones*). The
-implementer fills in every `{{…}}` placeholder and changes nothing else, so the
-builder does not decide what its reviewer looks for. The same prompt serves a
-re-review after `BLOCK`, with `{{ROUND}}` and `{{PREVIOUS_VERDICT}}` filled
-in. If the template itself is wrong, it is changed in a pull request of its
-own.
+implementer fills in every placeholder listed below and changes nothing else,
+so the builder does not decide what its reviewer looks for. The same prompt
+serves a re-review after `BLOCK`, with `{{ROUND}}` and `{{PREVIOUS_VERDICT}}`
+filled in. If the template itself is wrong, it is changed in a pull request
+of its own.
 
 - `{{REPO}}` — `owner/name`; `{{ISSUE}}` — the milestone issue's URL.
 - `{{TAG}}`, `{{PREVIOUS_TAG}}`, `{{CANDIDATE}}` — the proposed tag, the
   previous one, and the candidate commit's full SHA.
-- `{{PLAN}}` — the plan file's path in the repository (this harness:
-  `BACKLOG.md`).
+- `{{PLAN}}` — the plan file's path in the repository (in the harness
+  repository itself, `BACKLOG.md`); `{{CLAIMS_FIXED}}` — the commit whose
+  landing fixed the claims (the merge of the change that recorded them).
 - `{{PROMISE}}`, `{{CLAIMS}}`, `{{NOT_IN_RELEASE}}` — copied from the plan, as
   written before the work; the claims keep their numbers and proofs. The
   reviewer checks them against `{{PLAN}}`.
@@ -36,15 +37,19 @@ messages and records are claims, not evidence.
 You must not be of these model families, which implemented part of the
 range: {{EXCLUDED}}. Check that list yourself: the authors and the
 Co-Authored-By trailers of git log {{PREVIOUS_TAG}}..{{CANDIDATE}} name who
-built the range. If you are of one of them, stop, and make your one verdict
-comment say so.
+built the range. If you are of one of them, stop and post a stop notice
+(below).
+
+STOPPING: if you must stop before judging, post one comment on {{ISSUE}}
+that begins "STOP NOTICE:" and says why. It is not a verdict: no verdict
+table, no findings, no marker line. It counts as no review and no round.
 
 MILESTONE: {{TAG}} — issue {{ISSUE}}. Round {{ROUND}}; previous verdict:
 {{PREVIOUS_VERDICT}}. In a re-review, re-check the claims the fixes touched
 and the findings the previous verdict raised, and say which you re-checked.
 
-TARGET PROOF (first; if any step fails, stop, and make your one verdict
-comment say which step failed):
+TARGET PROOF (first; if any step fails, stop and post a stop notice naming
+the step):
 - Clone https://github.com/{{REPO}} if you have no clone, then git fetch
   --tags origin.
 - git merge-base --is-ancestor {{CANDIDATE}} origin/main must succeed: the
@@ -66,7 +71,9 @@ THE CLAIMS (written before the work; test every one yourself):
 
 THE PLAN: {{PLAN}} holds the promise, the claims and the list below. Check
 that what this prompt gives you matches it at the candidate, and read
-git -C <temp-dir> log -p {{PREVIOUS_TAG}}..HEAD -- {{PLAN}}: every change
+git -C <temp-dir> log -p {{CLAIMS_FIXED}}..HEAD -- {{PLAN}} (the claims
+were drafted before {{CLAIMS_FIXED}}, and fixed when it landed; check that
+it is the merge that recorded them, from the plan's own history): every change
 to a claim must be visible, dated and carry its reason in the same commit,
 and none may weaken a claim except as a "the claim was wrong" correction.
 A mismatch, or a claim weakened, is a finding.
@@ -97,8 +104,8 @@ HOW TO REVIEW:
 
 LIMITS:
 - Read-only. Your only writes are the finding issues, a comment on an
-  existing issue for the same finding, and the one verdict comment below.
-  Do not edit, commit, push, merge or tag.
+  existing issue for the same finding, and either the one verdict comment
+  below or a stop notice. Do not edit, commit, push, merge or tag.
 - Do not run any path of the code under review that creates something
   outside a temporary directory (no --github, no creating command inside the
   code under review). Delete your temporary directories.
@@ -110,7 +117,7 @@ OUTPUT:
    reproduction, the smallest fix, and "Found by: milestone review of {{TAG}},
    round {{ROUND}}, at {{CANDIDATE}}". Search open issues first and comment on
    an existing one instead of duplicating it.
-2. Then, always, one verdict comment on {{ISSUE}}:
+2. Then, unless you stopped, one verdict comment on {{ISSUE}}:
    - Where I reviewed: the commit, how the file list was obtained, your
      display name, exact model id, the tool that ran you, and the mode:
      "milestone review".
@@ -125,7 +132,7 @@ OUTPUT:
      otherwise BLOCK.
 3. Write every body to a file as UTF-8 without a byte-order mark and post it
    with --body-file (gh issue create --body-file, gh issue comment
-   --body-file). Read the verdict back and check the text survived; do not
-   post a second copy.
-4. Reply with the verdict comment's URL and a three-line summary.
+   --body-file). Read the verdict (or the stop notice) back and check the
+   text survived; do not post a second copy.
+4. Reply with its URL and a three-line summary.
 ```

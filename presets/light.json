@@ -5,6 +5,7 @@
     "AGENTS.md",
     "CLAUDE.md",
     "reviews/README.md",
+    "reviews/milestone-prompt.md",
     "verification/README.md"
   ],
   "policy": {

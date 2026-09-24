@@ -101,7 +101,10 @@ one itself, at the candidate commit):
   checkout reached through a directory link is no longer refused, since that
   is a defect in r5's own tool and blocks posting where the temp directory
   is a link (macOS). *Proof:* a test with real `git` in a repository reached
-  through a directory junction or symlink passes the PR check.
+  through a directory junction or symlink passes the PR check. **Worded more
+  exactly on 2026-09-24** (PR #21, meaning unchanged): "the PR check" is the
+  tool's `checkPrHolds`, and the test runs in
+  `node --test tools/post-record.test.mjs`; the repository has no CI.
 - **C3. The PR mechanics are written down and followed.** The rules state:
   the PR names what it implements and the revision its clean review covers;
   `Closes #N` stands on its own line and is checked with
@@ -148,8 +151,12 @@ one itself, at the candidate commit):
   names posted reviews. `node --check` passes on every `tools/*.mjs`.
   *Proof:* the commands. **Corrected on 2026-09-24** (PR #19), as "the claim
   was wrong": the milestone prompt ships with its placeholders by design, so
-  "no `{{…}}`" now excepts it; shipping the prompt and naming posted reviews
-  in the `auto` line are added, from PRs #19 and #17.
+  "no `{{…}}`" now excepts it. Shipping the prompt and naming posted reviews
+  in the `auto` line are an extension, not a correction, added in the same
+  change, from PRs #19 and #17. **Narrowed on
+  2026-09-24** (PR #21): the exception covers only the placeholders the
+  prompt documents, so any other `{{…}}` in it, such as an unfilled
+  `{{PROJECT}}`, still fails.
 - **C9. The scaffold guards its input.** A `--test` value with an unbalanced
   double quote or an embedded newline exits non-zero with a hint about shell
   quoting, and `--help` carries a quoting note. *Proof:* run both, showing the
@@ -414,6 +421,11 @@ on PR #11**, routed to this design:
   `ADOPT.md` waits for r6, and `ADOPT.md` names `r5` as a release step. Both
   recommended defaults, taken, on 2026-09-24 (PR #16); the reasons: the gaps
   belong to r5's own tool, and the pattern and the pin are adoption work.
+- **Owner decision (2026-09-24), on PR #18's `post-record.mjs` follow-ups.**
+  The linked-checkout defect joins r5, extending C2 again; the other three
+  follow-ups do not. The recommended default, taken (PR #19); the reason: the
+  defect is in r5's own tool and blocks posting where the temp directory is
+  a link, while the rest are test and comment polish.
 - The r4 milestone review (#10) is copied verbatim into `reviews/`:
   `006-r4-milestone-01.md` by DeepSeek V4.1 Flash, r4's implementer — not
   independent, kept as input — and `006-r4-milestone-02.md` by GPT-5.6 Luna,
