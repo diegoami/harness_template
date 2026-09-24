@@ -167,3 +167,22 @@ No blocking finding.
 
 — Claude Opus 5.5 (claude-opus-5-5), reviewer
 No blocking finding remains.
+
+## Completion
+
+Landed by PR #18, merged on 2026-09-24 (UTC) at the owner's instruction ("merge
+#18 when the review is clean"), after its review comment and with GitGuardian
+green. The note is non-material and transcribes the evidence for C2's extension.
+
+- A test posts a review file from `reviews/` with `--confirm`; the path
+  conversion is tested with `path.win32` and `path.posix`.
+- Each break named in the gaps item turns its test red (the builder's set and the
+  reviewer's own, each confirmed applied); `node --test`: 29 pass, 0 fail.
+- One review round, clean on `4eb9982`; `39c76f0` only adds its record, posted
+  with the tool after GitHub showed the new head.
+- Non-blocking findings, listed in the PR's "Left out" for the backlog: the call
+  sites of the extracted functions are unpinned; a checkout reached through a link
+  is refused (pre-existing); the junction test links the live `tools/`; two stale
+  comments.
+
+— Implementer (Claude Opus 5.5)
