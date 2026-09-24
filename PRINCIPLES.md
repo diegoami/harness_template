@@ -12,7 +12,7 @@
 | the principles and habits on this page | `PRINCIPLES.md` |
 | the non-trivial test, the conservative floor, the pure-typo exception | `PRINCIPLES.md` |
 | the six gates disciplines | `PRINCIPLES.md` |
-| the verdict protocol: revision scope and target proof, rounds, materiality, reviewer sessions, fallback, waiver, owner decisions, defect path, completion note, merge policy, `design: none` scoping, rules going forward, bootstrap, comment-not-approval, posting, pull requests | `PRINCIPLES.md` |
+| the verdict protocol: revision scope and target proof, rounds, materiality, reviewer sessions, fallback, waiver, owner decisions, defect path, completion note, merge policy, `design: none` scoping, rules going forward, bootstrap, comment-not-approval, creation paths, posting, pull requests | `PRINCIPLES.md` |
 | milestones: the definition, claims before work, the milestone issue, the reviewer and its verdict, the tag, triage | `PRINCIPLES.md` |
 | the milestone review prompt | `reviews/milestone-prompt.md` |
 | the OpenCode process: roles, assignment table, reviewer acquisition, the two stages, BLOCK scope, withdraw/re-scope | `AGENTS.md` |
@@ -159,6 +159,17 @@ and does not relax CI.
   the file locally); it is never an approval action. Under the single GitHub
   account an approval is impossible, and the signature is the only marker of
   authorship.
+- **Creation paths.** Nobody exercises a path that creates something outside
+  a temporary directory — a repository, an issue, a comment, a push — only to
+  test it. A reviewer never runs the code or tools under review on such a
+  path (for example the scaffold's `--github`, or any creating command inside
+  the code under review); its own output — finding issues, comments on them,
+  its verdict or stop notice — is not a test and is exempt. A builder tests
+  a posting or creating path only against fakes, a throwaway git repository
+  in a temporary directory (never one on GitHub), or a dry run, and runs it
+  for real (for example `post-record.mjs --confirm`) only to post or create
+  the real thing: a record, or a project's own repository. A path with no
+  dry run and no fake goes untested by builders until it has one.
 - **Posting.** A remote is assumed, and a record is posted when it is
   written, not after the fact; the file stays canonical. Where the project
   has a design stage (OpenCode mode, `design: required`), the design record

@@ -1,10 +1,8 @@
 # Backlog
 
-The harness's own next items. A change to a harness file (`PRINCIPLES.md`,
-`AGENTS.md`, `CLAUDE.md`, `PLAN.md`, `ROADMAP.md`, `design/`, `reviews/`,
-`verification/`) or to the tool takes the review its mode requires through the
-bootstrap (`PRINCIPLES.md`). There is no roadmap mechanism for the harness
-itself — this file is it.
+The harness's own next items. Which changes take which review is the
+bootstrap's and the non-trivial test's to say (`PRINCIPLES.md`). There is no
+roadmap mechanism for the harness itself — this file is it.
 
 ## Release 5: scope and claims
 
@@ -15,8 +13,8 @@ did not end clean; the owner decided to fix the findings and run a fourth.
 
 The claims are written before the work, as
 [Imperial Conquest 2's process](docs/sources/ic2-milestone-review.md) does. A
-claim changes only here, visibly and with its reason, and is never weakened
-to pass.
+claim changes only here, visibly, dated and with its reason in the same
+commit, and is never weakened to pass (`PRINCIPLES.md`, *Milestones*).
 
 **The promise.** After r5, the review loop happens on GitHub as it happens:
 every record the implementer posts is posted when it is written, by a tool
@@ -35,8 +33,9 @@ that changes only a `## Completion` section, or a trivial change as
 
 **In r5:** posting (candidates 1–3 below), milestone reviews, the four
 protocol gaps, and the smaller items except scratch-repository deletion, the
-verification pattern from the boar_life report, and the `post-record.mjs`
-follow-ups from PR #18 other than the linked-checkout defect.
+verification pattern from the boar_life report, the `post-record.mjs`
+follow-ups from PR #18 other than the linked-checkout defect, and the dry run
+for the scaffold's `--github`.
 
 **Release step:** before the candidate is frozen, `ADOPT.md` names `r5`,
 so the tag does not repeat `r4`'s stale release name (boar_life report,
@@ -51,7 +50,8 @@ item 2; the owner decided that pinning an exact commit waits for r6).
 - the verification pattern from the boar_life report (r6);
 - the `post-record.mjs` follow-ups from PR #18 other than the linked-checkout
   defect: pinning the call sites of `shellQuote` and `repoPath`, the
-  junction test's live `tools/` link, and two stale comments.
+  junction test's live `tools/` link, and two stale comments;
+- a dry run for the scaffold's `--github` (PR #23).
 
 **Owner decisions** (🧑 each with its recommended default and the owner's
 answer):
@@ -153,10 +153,11 @@ one itself, at the candidate commit):
   was wrong": the milestone prompt ships with its placeholders by design, so
   "no `{{…}}`" now excepts it. Shipping the prompt and naming posted reviews
   in the `auto` line are an extension, not a correction, added in the same
-  change, from PRs #19 and #17. **Narrowed on
-  2026-09-24** (PR #21): the exception covers only the placeholders the
-  prompt documents, so any other `{{…}}` in it, such as an unfilled
-  `{{PROJECT}}`, still fails.
+  change, from PRs #19 and #17 (this sentence's labels were reworded on
+  2026-09-24 in PR #21, which gave no date; the date is added in PR #23).
+  **Narrowed on 2026-09-24** (PR #21): the exception covers only the
+  placeholders the prompt documents, so any other `{{…}}` in it, such as an
+  unfilled `{{PROJECT}}`, still fails.
 - **C9. The scaffold guards its input.** A `--test` value with an unbalanced
   double quote or an embedded newline exits non-zero with a hint about shell
   quoting, and `--help` carries a quoting note. *Proof:* run both, showing the
@@ -170,7 +171,13 @@ one itself, at the candidate commit):
   assuming a design stage, `README.md` giving OpenCode "the design agreed
   before code" unconditionally and saying the modes differ only in how the
   reviewer is obtained, and this file's preamble listing the harness files
-  itself. *Proof:* the text.
+  itself. *Proof:* the text. **Extended on 2026-09-24** by the owner's
+  decision (PR #23): the rule covers builders too — a builder tests a
+  posting or creating path only against fakes, a throwaway git repository in
+  a temporary directory (never one on GitHub, the owner's decision on round
+  01), or a dry run, and runs it for real only to post or create the real
+  thing. The reason: a builder's `--confirm` test against PR #15 posted a
+  stray comment.
 - **C11. The milestone loop is complete and independent.** The rule has a
   fixed milestone review prompt, kept as a file, that the implementer only
   fills in. It holds the target proof on the candidate SHA, the range
@@ -183,7 +190,12 @@ one itself, at the candidate commit):
   finding, and copies the verdict into `reviews/` (D9). *Proof:* the text
   and the template file; `r5`'s milestone prompt differs from the template
   only in its filled placeholders, and its verdict is signed with a model id
-  of a family that implemented none of the range (D2).
+  of a family that implemented none of the range (D2). **Corrected on
+  2026-09-24** (PR #23), as "the claim was wrong" about timing: since PR #21
+  every verdict's copy lands in `reviews/` after the tag, not when the
+  verdict arrives, so that the range under review holds only pull requests
+  (C1); reproducing each finding and replying per finding still happen when
+  it arrives.
 
 ## Candidates
 
@@ -348,6 +360,9 @@ on PR #11**, routed to this design:
 - **A review rule: reviews never execute a creation path.** A reviewer's fake
   CLI was bypassed and created a stray public repository.
 - **Scratch-repository deletion** needs the token's `delete_repo` scope.
+- **A dry run for the scaffold's `--github`.** It has no dry run and no fake,
+  so under the creation-path rule builders cannot test it; a dry run that
+  prints the `gh repo create` and push commands would let them (not in r5).
 - **Restatements left after PR #9** (its round-05 review): `ROADMAP.md`'s
   `in design` status assumes a design stage; `README.md` gives OpenCode "the
   design agreed before code" unconditionally and says the modes differ only in
@@ -426,6 +441,17 @@ on PR #11**, routed to this design:
   follow-ups do not. The recommended default, taken (PR #19); the reason: the
   defect is in r5's own tool and blocks posting where the temp directory is
   a link, while the rest are test and comment polish.
+- **Owner decision (2026-09-24): the creation-path rule covers builders
+  too.** A builder tests a posting or creating path only against fakes, a
+  scratch repository or a dry run, and runs it for real only for the real
+  record; C10 is extended to say so (PR #23). The recommended default, taken;
+  the reason: the tool's own checks cannot stop a reply or a milestone issue
+  from being posted in error, as the stray comment on PR #15 showed. On PR
+  #23's round 01 the owner decided that a builder's scratch repository is
+  local only: a throwaway git repository in a temporary directory, never one
+  on GitHub. The recommended default, taken; the reason: the rule's first
+  sentence forbids creating a GitHub repository only to test, and an earlier
+  test created a stray public one.
 - The r4 milestone review (#10) is copied verbatim into `reviews/`:
   `006-r4-milestone-01.md` by DeepSeek V4.1 Flash, r4's implementer — not
   independent, kept as input — and `006-r4-milestone-02.md` by GPT-5.6 Luna,
