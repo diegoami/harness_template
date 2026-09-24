@@ -14,18 +14,17 @@ end clean, and the owner decided to fix the findings and run a fourth.
 **Progress (2026-09-24):** C1–C11 have landed, each through its pull request
 and the completion note in its last review file: C2 (PR #15, and its two
 extensions by #18 and #20), C1 and C3 (#17), C4, C5, C6 and C11 (#19), C7
-(#21), C8 and C9 (#22), and C10 (#23). C12 was added by PR #24 and is not
-yet implemented. Before the candidate is frozen, these remain:
+(#21), C8 and C9 (#22), and C10 (#23). C12 was added by PR #24. PR #27
+takes what remained before the candidate is frozen:
 - C12's rule in `PRINCIPLES.md` (*Owner decisions*);
 - the release step below;
-- two owner questions that earlier pull requests left open. First, whether
-  C5's proof, which names C1–C11, extends to C12 (PR #24's *Left out*).
-  Second, where a stop notice goes in a project without a remote: a line in
-  the change's next review file, or the gap accepted (PR #21, round 02,
-  finding 4, listed "to settle before the r5 milestone").
+- the owner's answers to two questions that earlier pull requests left open
+  (Notes): C5's proof extends to C12 (PR #24's *Left out*), and without a
+  remote a stop notice is a line in the change's next review file (PR #21,
+  round 02, finding 4, listed "to settle before the r5 milestone").
 
-Then the milestone review follows `PRINCIPLES.md` (*Milestones*), with the
-prompt filled in from `reviews/milestone-prompt.md`.
+When PR #27 has landed, the milestone review follows `PRINCIPLES.md`
+(*Milestones*), with the prompt filled in from `reviews/milestone-prompt.md`.
 
 The claims are written before the work, as
 [Imperial Conquest 2's process](docs/sources/ic2-milestone-review.md) does. A
@@ -152,6 +151,10 @@ one itself, at the candidate commit):
   text; `git log -p <landing merge>..<candidate> -- BACKLOG.md` shows every
   change to C1–C11 with its reason written here in the same commit, and none
   weakens a claim except as a visible "the claim was wrong" correction.
+  **Extended on 2026-09-24** by the owner's decision (PR #27): the proof
+  covers C12 as well: read "C1–C11" above as "C1–C12". The reason: C12 was
+  added after C5 was written (PR #24), and a claim outside C5's proof could
+  change without its reason.
 - **C6. Milestone verdicts fit Claude mode.** `CLAUDE.md` and
   `reviews/README.md` scope "no marker" to per-change reviews, and the
   Rounds rule in `PRINCIPLES.md` names milestone rounds as D10 sets them.
@@ -591,6 +594,18 @@ on PR #11**, routed to this design:
   recommended default, taken. The second version's other items restate the
   first's, and the sentence it adds to item 2 is a second source on that
   item.
+- **Owner decisions (2026-09-24), on the two questions left open before the
+  r5 candidate** (PR #27). (a) C5's proof extends to C12. The reason: C12
+  was added after C5 was written, and a claim outside C5's proof could
+  change without its reason. (b) Without a remote, a stop notice is a line
+  in the change's next review file. The reason: records are files, and
+  without a remote a stop would otherwise leave no record. Each is the
+  recommended default, taken. Two points in the rule that carries (b) are
+  the implementer's, added on review round 01 within (b)'s reason, and not
+  an owner decision: at the design stage the line goes in the design
+  record, and the next reviewer writes it, quoting the notice. Decisions (a)
+  and (b) are the first held to C12's rule, which lands in the same pull
+  request: their evidence is the owner's merge of PR #27.
 - The r4 milestone review (#10) is copied verbatim into `reviews/`:
   `006-r4-milestone-01.md` by DeepSeek V4.1 Flash, r4's implementer — not
   independent, kept as input — and `006-r4-milestone-02.md` by GPT-5.6 Luna,
