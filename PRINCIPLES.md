@@ -102,10 +102,12 @@ and does not relax CI.
   after a clean round: a change extended after one is reviewed in the next
   round, and any round from the third on that does not end clean goes to the
   owner. A review that stops before judging — a wrong target (above), or a
-  reviewer who may not review — is no review (*Fallback*) and not a round. A
-  milestone's rounds are counted per milestone instead: each verdict on its
-  milestone issue is one round, and a third that is not `AGREE` goes to the
-  owner (*Milestones*).
+  reviewer who may not review — is no review (*Fallback*) and not a round:
+  it gets no `-NN` file, carries no marker, and is recorded only as a stop
+  notice, a comment that says why it stopped. A milestone's rounds are
+  counted per milestone instead: each verdict on its milestone issue is one
+  round (a stop notice is not a verdict), and a third that is not `AGREE`
+  goes to the owner (*Milestones*).
 - **Fallback.** A failed, cancelled or unavailable review is no review and no
   approval. Retry, or select another reviewer; record its model id and who
   selected it; the fallback becomes the designated reviewer for its stage. Each
@@ -147,8 +149,9 @@ and does not relax CI.
   record resolves to the implementation review file.
 - **Rules apply going forward.** A record is held to the rules in force when
   it was written. A later rule is not applied to it, and it is not
-  backfilled; a record that is corrected after the fact says so, keeps its
-  original text, and is signed by whoever corrects it.
+  backfilled unless the owner decides so on the record; a record that is
+  corrected after the fact says so, keeps its original text, and is signed
+  by whoever corrects it.
 - **Bootstrap.** A change to a harness file that changes what a builder must do
   or how the process works takes the review its mode requires — both stages in
   OpenCode, the review in Claude; a pure typo takes neither.
@@ -206,17 +209,16 @@ the last one.
   implementer opens an issue holding the proposed tag, the candidate commit
   on `main` (its full SHA), the previous tag, the plan file and the commit
   that fixed the claims, the pull requests merged since, and the gate
-  results on the candidate, and gives
-  the owner the milestone review prompt
+  results on the candidate, and gives the owner the milestone review prompt
   ([`reviews/milestone-prompt.md`](reviews/milestone-prompt.md)), filled in
   and otherwise unchanged, to run in a fresh session.
 - **The reviewer** is of a family that implemented none of the range — in a
   Claude-mode range, any model that is not Claude — and reviews
   `git diff <previous tag>..<candidate>`. It checks the claims it was given
-  against the plan at the candidate, and the plan's history since the
-  previous tag for a claim weakened or changed without its reason. It gives
-  every claim a verdict —
-  MET, NOT MET, PARTLY MET or COULD NOT TEST, each with its evidence — opens
+  against the plan at the candidate, and the plan's history since the commit
+  that fixed the claims for a claim weakened or changed without its reason.
+  It gives every claim a verdict — MET, NOT MET, PARTLY MET or COULD NOT
+  TEST, each with its evidence — opens
   one issue per reproduced finding, and posts one verdict comment on the
   milestone issue, ending `AGREE` or `BLOCK`. `AGREE` only when no claim is
   NOT MET and no finding blocks; a PARTLY MET or COULD NOT TEST is a finding
@@ -241,12 +243,12 @@ the last one.
   `reviews/` (`reviews/README.md`); from then on the file is canonical. After
   tagging, the implementer appends a `## Completion` section to the last
   verdict's copy, showing that the tag is annotated (`git cat-file -t`) and
-  that `git rev-parse <tag>^{commit}` equals the SHA the `AGREE` names. A
-  `BLOCK` verdict's copy lands with the first pull request that fixes one of
-  its findings, so the range under review holds only pull requests; the
-  `AGREE` verdict's copy lands after the tag, with its completion note, as a
-  completion note does. The implementer posts the milestone issue and its
-  replies as *Posting* says.
+  that `git rev-parse <tag>^{commit}` equals the SHA the `AGREE` names.
+  Every verdict's copy — each `BLOCK` as well as the `AGREE` — lands after
+  the tag, together with that completion note, as a completion note does;
+  until then the comments on the milestone issue are the record, and the
+  range under review holds only pull requests. The implementer posts the
+  milestone issue and its replies as *Posting* says.
 
 ## The habits
 

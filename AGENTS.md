@@ -30,11 +30,10 @@ This file adds the OpenCode-specific process and nothing else.
 
 1. **Design.** Before any implementation, write the design record
    (`design/NNN-<slug>.md`; its format is in `design/README.md`, which a
-   project with a design stage has):
-   the problem, findings grounded in the code with `file:line`, the design, and
-   explicit open questions. The reviewer appends a signed verdict. Iterate —
-   reply, the reviewer re-reviews — until an explicit **AGREE**. Do not
-   implement before that.
+   project with a design stage has): the problem, findings grounded in the
+   code with `file:line`, the design, and explicit open questions. The
+   reviewer appends a signed verdict. Iterate — reply, the reviewer
+   re-reviews — until an explicit **AGREE**. Do not implement before that.
 2. **Implementation.** Implement the agreed design on a branch and open a pull
    request. The reviewer writes `reviews/NNN-<slug>-impl-NN.md` naming the
    revision it covers. Fix and iterate until an explicit **AGREE**. The owner
