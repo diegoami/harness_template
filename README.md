@@ -30,16 +30,15 @@ the six disciplines in [`PRINCIPLES.md`](PRINCIPLES.md).
 
 **Release 5 is tagged
 [`r5`](https://github.com/diegoami/harness_template/tree/r5)** — the review
-loop on GitHub: records posted when they are written, by
+loop on GitHub: the implementer's records posted when they are written, by
 `tools/post-record.mjs`, and a release tagged only after a review by a model
-independent of its implementer, against claims written before the work
-(PRs #9 and #11–#27; milestone
+independent of its implementer, against claims written before the work,
+unless the owner overrides that on the record (PRs #9 and #11–#27; milestone
 [issue #28](https://github.com/diegoami/harness_template/issues/28), `AGREE`
 at `f22685d`, claims in [`BACKLOG.md`](BACKLOG.md)). Earlier: `r4` (the four
 lessons), `r3` (the parametrizable scaffold), `r2` (field-test fixes), `r1`
-(the consolidation).
-Records in [`design/`](design/) with [`reviews/`](reviews/); next items in
-[`BACKLOG.md`](BACKLOG.md).
+(the consolidation). Records in [`design/`](design/) with
+[`reviews/`](reviews/); next items in [`BACKLOG.md`](BACKLOG.md).
 
 ## The harness
 

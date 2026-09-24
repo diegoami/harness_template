@@ -27,8 +27,9 @@ When PR #27 has landed, the milestone review follows `PRINCIPLES.md`
 (*Milestones*), with the prompt filled in from `reviews/milestone-prompt.md`.
 
 **Tagged (2026-09-24):** `r5` is on `f22685d`, after round 1's `AGREE` on
-milestone issue #28 by Codex (`gpt-5`): every claim MET and no finding. The
-verdict and its completion note are in `reviews/r5-milestone-01.md`.
+milestone issue #28 by Codex (`gpt-5`, Codex desktop): every claim MET and
+no finding. The verdict and its completion note are in
+`reviews/r5-milestone-01.md`.
 
 The claims are written before the work, as
 [Imperial Conquest 2's process](docs/sources/ic2-milestone-review.md) does. A
