@@ -88,3 +88,23 @@ or committed; the only file written in the repository is this one.
 
 — Claude Opus 5.5 (claude-opus-5-5), reviewer
 No blocking finding remains (one non-blocking finding, 1).
+
+## Completion
+
+Landed by PR #29, merged on 2026-09-24 at 20:19 UTC as `e68dca5` at the
+owner's instruction ("merge #29 and delete the worktrees"), after its last
+review comment and with GitGuardian green. The note is non-material and
+transcribes the evidence for the done-when items.
+
+- No file outside `reviews/`, `design/` and `docs/` names `r4` as the
+  current release (round 01, *Verified*).
+- Every fact the new text states matches the `r5` tag, issue #28 and
+  `git log r4..r5` (rounds 01 and 02).
+- No claim in `BACKLOG.md` changed (C5).
+- `node --test tools/*.test.mjs`: 43 tests, 43 pass.
+- Two review rounds, each clean. Round 01's four non-blocking findings were
+  fixed in `57df4a1`. Round 02's one wording finding was left, as its
+  reviewer allowed; the PR body's *Left out* says why. `9128ea1` only adds
+  round 02's record.
+
+— Implementer (Claude Opus 5.5)
