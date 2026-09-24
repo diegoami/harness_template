@@ -54,6 +54,8 @@ bootstrap applies as written there — one review, not two stages.
   them explicitly.
 - **merge:** owner
 - **design:** required
+- **milestones:** the release tag scheme (`vX.Y.Z` by default) and the one
+  file that holds each release's claims (`PRINCIPLES.md`, *Milestones*).
 - **the gates table:** one row per gate — the command, what it covers, when it
   runs, how many repeats, and the failure model that justifies the repeats.
 - **conventions:** the player-facing language and the language of comments and

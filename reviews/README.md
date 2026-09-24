@@ -4,7 +4,9 @@
   increments per review round of the same implementation stage; the third round
   that does not end clean goes to the owner ([`PRINCIPLES.md`](../PRINCIPLES.md)).
   A milestone verdict is copied verbatim to `reviews/<tag>-milestone-NN.md`,
-  `NN` counting the verdicts on that milestone in order; its prompt is
+  `NN` counting the verdicts on that milestone in order — for a project's
+  `vX.Y.Z` tags, `reviews/v1.2.0-milestone-01.md` (the harness repository's
+  own `rN` tags give `reviews/r5-milestone-01.md`); its prompt is
   [`milestone-prompt.md`](milestone-prompt.md).
 - The verdict opens with **the revision it covers** (the commit sha), the file
   list the reviewer checked and how it was obtained (the pull request's files,

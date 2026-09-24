@@ -99,6 +99,57 @@ function parseArgs(argv) {
   return opts;
 }
 
+const QUOTING_HINT =
+  `In bash, wrap the whole value in single quotes: ` +
+  `--test 'node --test "tools/**/*.test.mjs"'. In Windows PowerShell 5.1, ` +
+  `which silently drops unescaped inner double quotes, escape each one: ` +
+  `--test 'node --test \\"tools/**/*.test.mjs\\"'. Or answer the question ` +
+  `interactively.`;
+
+// True when the value's quotes close, read as bash reads them: nothing is
+// special inside single quotes; a backslash escapes the next character
+// outside them.
+function quotesBalanced(value) {
+  let single = false;
+  let double = false;
+  for (let i = 0; i < value.length; i++) {
+    const c = value[i];
+    if (single) {
+      if (c === "'") single = false;
+    } else if (c === "\\") i++;
+    else if (c === "'" && !double) single = true;
+    else if (c === '"') double = !double;
+  }
+  return !single && !double;
+}
+
+// A shell can mangle the --test value on its way in: a quote can be lost, and
+// a stray Enter adds a line break. The scaffold would write the damage into
+// the gates table faithfully, so it refuses what it can detect and warns about
+// what it cannot.
+function checkTestCommand(test) {
+  const problem =
+    test.trim() === ""
+      ? "is empty"
+      : /[\r\n]/.test(test)
+        ? "contains a line break"
+        : !quotesBalanced(test)
+          ? "has an unbalanced quote"
+          : null;
+  if (problem)
+    fail(
+      `the --test value ${problem}: ${JSON.stringify(test)}. Your shell probably ` +
+        `changed it on the way in. ${QUOTING_HINT}`,
+    );
+  // Windows PowerShell 5.1 drops every inner quote, leaving balanced text.
+  if (/[*?[]/.test(test) && !/["']/.test(test))
+    console.warn(
+      `scaffold: warning — the --test value has a glob but no quotes: ` +
+        `${JSON.stringify(test)}. If your shell dropped its quotes, rerun. ` +
+        QUOTING_HINT,
+    );
+}
+
 function printHelp() {
   console.log(`Create a project from a tagged harness release.
 
@@ -121,7 +172,17 @@ Questions and flags (each flag is asked when absent):
   --ci <yes|no>          write .github/workflows/check.yml          (yes with a remote)
   --owner <login>        the GitHub owner                          (gh login)
   --interactive          ask every question (default without --yes)
-  --yes                  accept every default`);
+  --yes                  accept every default
+
+Quoting --test: the value usually holds double quotes, which a shell can
+strip. In bash, wrap the whole value in single quotes:
+  --test 'node --test "tools/**/*.test.mjs"'
+Windows PowerShell 5.1 silently drops unescaped inner double quotes; escape
+each with a backslash:
+  --test 'node --test \\"tools/**/*.test.mjs\\"'
+Or answer the question interactively. An empty value, one with an unbalanced
+quote or a line break is refused; a glob with no quotes draws a warning; and
+the command that went into the gates table is printed at the end.`);
 }
 
 let ttyRl = null;
@@ -186,7 +247,12 @@ function readPreset(sha, name) {
   return JSON.parse(raw);
 }
 
-function slotText({ name, description, merge, design, test, ci }) {
+function slotText({ name, description, merge, design, test, ci, plan, roadmap }) {
+  const planFile = plan
+    ? "`PLAN.md`"
+    : roadmap
+      ? "`ROADMAP.md`"
+      : "TBD — name the one file that will hold each release's claims";
   const ciRow = ci
     ? `
   | CI | \`.github/workflows/check.yml\` | the unit gate | pull requests and \`main\` pushes | as CI runs | a red CI blocks the merge |`
@@ -194,7 +260,8 @@ function slotText({ name, description, merge, design, test, ci }) {
   const mergeConditions =
     merge === "auto"
       ? `- **merge conditions:** a clean review (\`AGREE\` in OpenCode mode, no
-  blocking finding in Claude mode) and every gate green; the implementer merges
+  blocking finding in Claude mode), its reviews posted on the pull request
+  (\`PRINCIPLES.md\`, *Posting*), and every gate green; the implementer merges
   with \`gh pr merge --squash --delete-branch\`, and the pull request records it.
 `
       : "";
@@ -210,6 +277,9 @@ function slotText({ name, description, merge, design, test, ci }) {
   are known; keep it that way and list them here when that changes.
 - **merge:** ${merge}
 ${mergeConditions}- **design:** ${design}
+- **milestones:** annotated tags \`vX.Y.Z\` on \`main\`, as
+  \`PRINCIPLES.md\` (*Milestones*) says; the plan that holds each release's
+  claims: ${planFile}.
 - **the gates table:**
 
   | gate | command | covers | when | repeats | failure model |
@@ -289,7 +359,7 @@ Read [\`AGENTS.md\`](AGENTS.md) if you work with OpenCode, or
 
 ## Policy
 
-- **merge:** \`${merge}\` — ${merge === "auto" ? "the implementer merges on a clean review plus green gates" : "the owner merges"}.
+- **merge:** \`${merge}\` — ${merge === "auto" ? "the implementer merges on a clean review, its reviews posted, and green gates" : "the owner merges"}.
 - **design:** \`${design}\` — ${design === "required" ? "OpenCode mode writes a design record before implementation" : "no design stage; the implementation review alone decides"}.
 
 ## First session
@@ -404,6 +474,7 @@ async function main() {
   const test =
     args.test ??
     (interactive ? await ask("Test command", DEFAULT_TEST) : DEFAULT_TEST);
+  checkTestCommand(test);
   const ci =
     (args.ci ??
       (interactive
@@ -450,7 +521,7 @@ async function main() {
   }
 
   const tbd = description === TBD;
-  const slot = slotText({ name, description, merge, design, test, ci });
+  const slot = slotText({ name, description, merge, design, test, ci, plan, roadmap });
   contents.set("CLAUDE.md", fillSlot(contents.get("CLAUDE.md"), slot));
   for (const [file, content] of contents) {
     contents.set(file, content.replaceAll("{{PROJECT}}", name));
@@ -542,6 +613,7 @@ async function main() {
   );
   if (github !== "none") console.log(`  remote: https://github.com/${owner}/${name}`);
   else console.log("  no remote; see README.md to add one");
+  console.log(`  unit gate: ${test}`);
   console.log("  next: read the generated README.md");
   if (ttyRl) ttyRl.close();
 }
