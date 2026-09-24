@@ -53,8 +53,9 @@ item 2; the owner decided that pinning an exact commit waits for r6).
   defect: pinning the call sites of `shellQuote` and `repoPath`, the
   junction test's live `tools/` link, and two stale comments;
 - a dry run for the scaffold's `--github` (PR #23);
-- the pgn-postmortem report's items 1, 2, 3 and 5 (r6, the owner's decision,
-  PR #24).
+- the pgn-postmortem report's items 1, 2, 3 and 5 (r6, PR #24: items 2 and
+  5 by the owner's decision, items 1 and 3 by the implementer's routing;
+  Notes).
 
 **Owner decisions** (🧑 each with its recommended default and the owner's
 answer):
@@ -523,8 +524,8 @@ on PR #11**, routed to this design:
   adoption). The owner's merge of PR #24 confirms it. The report marks
   item 3 NEW; it is kept as a second source on boar_life's "`ADOPT.md`
   names only a tag", because both concern what an adopted tag holds, and
-  its suggestion is recorded there. Item 6 adds a second source to boar_life items that are
-  already routed.
+  its suggestion is recorded there. Item 6 adds a second source to
+  boar_life items that are already routed.
 - The r4 milestone review (#10) is copied verbatim into `reviews/`:
   `006-r4-milestone-01.md` by DeepSeek V4.1 Flash, r4's implementer — not
   independent, kept as input — and `006-r4-milestone-02.md` by GPT-5.6 Luna,
