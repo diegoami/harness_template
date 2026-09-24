@@ -129,3 +129,24 @@ written is this one.
 
 — Claude Opus 5.5 (claude-opus-5-5), reviewer
 No blocking finding remains.
+
+## Completion
+
+Landed by PR #25, merged on 2026-09-24 (UTC) at the owner's instruction
+("merge #25 and #26"), after its last review comment and with GitGuardian
+green. The note is non-material and transcribes the evidence for the
+done-when items.
+
+- `docs/sources/pgn-postmortem-field-report.md` carries a dated *Addendum*
+  with the second version's new parts, verbatim (each of the five fences an
+  exact substring of the report as shared); the restated items are named,
+  not copied.
+- Items 6 and 8 are routed to r6 where the owner decided, item 8 leading
+  r6's Claude-mode work; item 2's addition is a second source on its item.
+- No claim changed (C5).
+- Opened on PR #24's branch and retargeted to `main` after PR #24 merged.
+  Two review rounds, both without a blocking finding; round 01's
+  non-blocking findings fixed; round 02 clean on `ac985ca`; `777661e` only
+  adds its record.
+
+— Implementer (Claude Opus 5.5)

@@ -88,3 +88,23 @@ None.
 
 — Claude Opus 5.5 (claude-opus-5-5), reviewer
 No blocking finding remains.
+
+## Completion
+
+Landed by PR #26, merged on 2026-09-24 (UTC) at the owner's instruction
+("merge #25 and #26"), after its last review comment and with GitGuardian
+green, and after PR #25. The note is non-material and transcribes the
+evidence for the done-when items.
+
+- r5's *Status* no longer describes PR #14's review rounds as current.
+- *Progress (2026-09-24)* names the pull request of each landed claim, C1–C11,
+  matching the PR titles and completion notes; C12 is added and not yet
+  implemented; what remains before the candidate is C12's rule, the release
+  step, and two open owner questions (C5's reach to C12, and a stop notice
+  without a remote).
+- No claim changed (C5).
+- Two review rounds; round 01's blocking finding (the two open questions
+  missing) fixed; round 02 clean on `e3236ca`; `9fb7dd6` only adds its
+  record.
+
+— Implementer (Claude Opus 5.5)
