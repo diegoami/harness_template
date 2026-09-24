@@ -186,19 +186,24 @@ the last one.
   proposes one when a release is due.
 - **Claims come before the work.** When a release is scoped, before its work
   starts, the project's plan records its promise, numbered claims (C1…Cn),
-  each naming the check that proves it, and a "not in this release" list. A
-  claim changes only in the plan, visibly, dated and with its reason in the
-  same commit; it is never weakened to pass, and a claim found wrong is
-  corrected there as such.
+  each naming the check that proves it, and a "not in this release" list.
+  The plan is one file in the repository, which the milestone issue names
+  (this harness: `BACKLOG.md`). A claim changes only there, visibly, dated
+  and with its reason in the same commit; it is never weakened to pass, and a
+  claim found wrong is corrected there as such.
 - **The milestone issue.** When the release's work has landed, the
   implementer opens an issue holding the proposed tag, the candidate commit
-  on `main` (its full SHA), the previous tag, the pull requests merged since,
-  and the gate results on the candidate, and gives the owner the milestone
-  review prompt ([`reviews/milestone-prompt.md`](reviews/milestone-prompt.md)),
-  filled in and otherwise unchanged, to run in a fresh session.
+  on `main` (its full SHA), the previous tag, the plan file, the pull
+  requests merged since, and the gate results on the candidate, and gives
+  the owner the milestone review prompt
+  ([`reviews/milestone-prompt.md`](reviews/milestone-prompt.md)), filled in
+  and otherwise unchanged, to run in a fresh session.
 - **The reviewer** is of a family that implemented none of the range — in a
   Claude-mode range, any model that is not Claude — and reviews
-  `git diff <previous tag>..<candidate>`. It gives every claim a verdict —
+  `git diff <previous tag>..<candidate>`. It checks the claims it was given
+  against the plan at the candidate, and the plan's history since the
+  previous tag for a claim weakened or changed without its reason. It gives
+  every claim a verdict —
   MET, NOT MET, PARTLY MET or COULD NOT TEST, each with its evidence — opens
   one issue per reproduced finding, and posts one verdict comment on the
   milestone issue, ending `AGREE` or `BLOCK`. `AGREE` only when no claim is
@@ -218,10 +223,16 @@ the last one.
   way: a **defect**, fixed in a pull request (this milestone's if it
   blocks); **the claim was wrong**, corrected in the plan as above; an
   **accepted gap**, recorded in the tag message with its issue; or **not a
-  defect**, with the reason. The verdict is copied verbatim into
-  `reviews/` (`reviews/README.md`).
-- Every body — the milestone issue, the verdict, the replies — is posted as
-  *Posting* says, from a file through `--body-file`.
+  defect**, with the reason.
+- **The record.** The reviewer posts its verdict with `gh … --body-file`, and
+  the comment is the record until the implementer copies it verbatim into
+  `reviews/` (`reviews/README.md`); from then on the file is canonical. After
+  tagging, the implementer appends a `## Completion` section to the last
+  verdict's copy, showing that the tag is annotated (`git cat-file -t`) and
+  that `git rev-parse <tag>^{commit}` equals the SHA the `AGREE` names. The
+  copy and its completion note transcribe records and change no rule, so
+  they are committed as a completion note is. The implementer posts the
+  milestone issue and its replies as *Posting* says.
 
 ## The habits
 
