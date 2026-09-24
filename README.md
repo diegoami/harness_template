@@ -11,14 +11,16 @@ The harness runs the same project either:
 
 - **with OpenCode** — the implementer and reviewer in `AGENTS.md`'s assignment
   table: a different model family, fresh context, an explicit model id, the
-  design agreed before code, signed verdicts, and a BLOCK that is not
-  overridden; or
+  design agreed before code (unless the slot records `design: none`), signed
+  verdicts, and a BLOCK that is not overridden; or
 - **with Claude Code** — Claude implements, and a fresh-context Claude session
   reviews; no design stage, and no cross-family reviewer required (the
   options are in `CLAUDE.md`).
 
-The two modes share the principles, the owner-decision convention, the records
-and the gates discipline; they differ in how the reviewer is obtained.
+The two modes share the principles, the owner-decision convention, the records,
+the gates discipline and the milestone review; they differ in how a change's
+reviewer is obtained, in the design stage, and in whether a change's verdict
+carries an `AGREE`/`BLOCK` marker.
 
 **Verification is not the harness.** Unit tests, UI checks, mutation harnesses
 and CI belong to each project; the harness requires a declared gates table and

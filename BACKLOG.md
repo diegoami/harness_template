@@ -1,10 +1,8 @@
 # Backlog
 
-The harness's own next items. A change to a harness file (`PRINCIPLES.md`,
-`AGENTS.md`, `CLAUDE.md`, `PLAN.md`, `ROADMAP.md`, `design/`, `reviews/`,
-`verification/`) or to the tool takes the review its mode requires through the
-bootstrap (`PRINCIPLES.md`). There is no roadmap mechanism for the harness
-itself — this file is it.
+The harness's own next items. Which changes take which review is the
+bootstrap's and the non-trivial test's to say (`PRINCIPLES.md`). There is no
+roadmap mechanism for the harness itself — this file is it.
 
 ## Release 5: scope and claims
 
@@ -153,10 +151,11 @@ one itself, at the candidate commit):
   was wrong": the milestone prompt ships with its placeholders by design, so
   "no `{{…}}`" now excepts it. Shipping the prompt and naming posted reviews
   in the `auto` line are an extension, not a correction, added in the same
-  change, from PRs #19 and #17. **Narrowed on
-  2026-09-24** (PR #21): the exception covers only the placeholders the
-  prompt documents, so any other `{{…}}` in it, such as an unfilled
-  `{{PROJECT}}`, still fails.
+  change, from PRs #19 and #17 (this sentence's labels were reworded on
+  2026-09-24 in PR #21, which gave no date; the date is added in PR #23).
+  **Narrowed on 2026-09-24** (PR #21): the exception covers only the
+  placeholders the prompt documents, so any other `{{…}}` in it, such as an
+  unfilled `{{PROJECT}}`, still fails.
 - **C9. The scaffold guards its input.** A `--test` value with an unbalanced
   double quote or an embedded newline exits non-zero with a hint about shell
   quoting, and `--help` carries a quoting note. *Proof:* run both, showing the
@@ -170,7 +169,11 @@ one itself, at the candidate commit):
   assuming a design stage, `README.md` giving OpenCode "the design agreed
   before code" unconditionally and saying the modes differ only in how the
   reviewer is obtained, and this file's preamble listing the harness files
-  itself. *Proof:* the text.
+  itself. *Proof:* the text. **Extended on 2026-09-24** by the owner's
+  decision (PR #23): the rule covers builders too — a builder tests a
+  posting or creating path only against fakes, a scratch repository or a dry
+  run, and runs it for real only to post or create the real record. The
+  reason: a builder's `--confirm` test against PR #15 posted a stray comment.
 - **C11. The milestone loop is complete and independent.** The rule has a
   fixed milestone review prompt, kept as a file, that the implementer only
   fills in. It holds the target proof on the candidate SHA, the range
@@ -183,7 +186,12 @@ one itself, at the candidate commit):
   finding, and copies the verdict into `reviews/` (D9). *Proof:* the text
   and the template file; `r5`'s milestone prompt differs from the template
   only in its filled placeholders, and its verdict is signed with a model id
-  of a family that implemented none of the range (D2).
+  of a family that implemented none of the range (D2). **Corrected on
+  2026-09-24** (PR #23), as "the claim was wrong" about timing: since PR #21
+  every verdict's copy lands in `reviews/` after the tag, not when the
+  verdict arrives, so that the range under review holds only pull requests
+  (C1); reproducing each finding and replying per finding still happen when
+  it arrives.
 
 ## Candidates
 
@@ -426,6 +434,12 @@ on PR #11**, routed to this design:
   follow-ups do not. The recommended default, taken (PR #19); the reason: the
   defect is in r5's own tool and blocks posting where the temp directory is
   a link, while the rest are test and comment polish.
+- **Owner decision (2026-09-24): the creation-path rule covers builders
+  too.** A builder tests a posting or creating path only against fakes, a
+  scratch repository or a dry run, and runs it for real only for the real
+  record; C10 is extended to say so (PR #23). The recommended default, taken;
+  the reason: the tool's own checks cannot stop a reply or a milestone issue
+  from being posted in error, as the stray comment on PR #15 showed.
 - The r4 milestone review (#10) is copied verbatim into `reviews/`:
   `006-r4-milestone-01.md` by DeepSeek V4.1 Flash, r4's implementer — not
   independent, kept as input — and `006-r4-milestone-02.md` by GPT-5.6 Luna,
