@@ -37,7 +37,8 @@ for (const [what, value] of [
     try {
       assert.notEqual(r.status, 0, "the scaffold accepted it");
       assert.match(r.stderr, /--test/);
-      assert.match(r.stderr, /quot/i, "no hint about shell quoting");
+      assert.match(r.stderr, /single quotes/, "no hint about shell quoting");
+      assert.match(r.stderr, /PowerShell/, "no hint for PowerShell");
       assert.equal(existsSync(r.target), false, "the target was written");
     } finally {
       r.done();
@@ -51,6 +52,16 @@ test("a well-quoted --test value is accepted and lands in the gates table", () =
     assert.equal(r.status, 0, r.stderr);
     const claude = readFileSync(path.join(r.target, "CLAUDE.md"), "utf8");
     assert.ok(claude.includes('`node --test "tools/**/*.test.mjs"`'));
+  } finally {
+    r.done();
+  }
+});
+
+test("an escaped double quote does not count toward the balance", () => {
+  // Three double quotes in the raw text, one of them escaped: balanced.
+  const r = scaffold(["--test", 'node -e "a\\"b"']);
+  try {
+    assert.equal(r.status, 0, r.stderr);
   } finally {
     r.done();
   }

@@ -99,6 +99,26 @@ function parseArgs(argv) {
   return opts;
 }
 
+// A shell can mangle the --test value on its way in: PowerShell drops inner
+// double quotes, and a stray Enter adds a newline. The scaffold would write
+// the damage into the gates table faithfully, so it refuses it instead.
+function checkTestCommand(test) {
+  const quotes = (test.match(/(?<!\\)"/g) ?? []).length;
+  const problem = /[\r\n]/.test(test)
+    ? "contains a line break"
+    : quotes % 2 === 1
+      ? "has an unbalanced double quote"
+      : null;
+  if (problem)
+    fail(
+      `the --test value ${problem}: ${JSON.stringify(test)}. Your shell probably ` +
+        `changed it on the way in. Quote the whole value in single quotes in bash ` +
+        `(--test 'node --test "tools/**/*.test.mjs"'); in PowerShell, use the ` +
+        `stop-parsing token (node tools/scaffold.mjs --% --test "…") or answer the ` +
+        `question interactively.`,
+    );
+}
+
 function printHelp() {
   console.log(`Create a project from a tagged harness release.
 
@@ -121,7 +141,14 @@ Questions and flags (each flag is asked when absent):
   --ci <yes|no>          write .github/workflows/check.yml          (yes with a remote)
   --owner <login>        the GitHub owner                          (gh login)
   --interactive          ask every question (default without --yes)
-  --yes                  accept every default`);
+  --yes                  accept every default
+
+Quoting --test: the value usually holds double quotes, which a shell can
+strip. In bash, wrap the whole value in single quotes:
+  --test 'node --test "tools/**/*.test.mjs"'
+PowerShell removes inner double quotes from arguments to native programs;
+use the stop-parsing token (--%) before the flags, or answer interactively.
+A value with an unbalanced double quote or a line break is refused.`);
 }
 
 let ttyRl = null;
@@ -186,7 +213,12 @@ function readPreset(sha, name) {
   return JSON.parse(raw);
 }
 
-function slotText({ name, description, merge, design, test, ci }) {
+function slotText({ name, description, merge, design, test, ci, plan, roadmap }) {
+  const planFile = plan
+    ? "`PLAN.md`"
+    : roadmap
+      ? "`ROADMAP.md`"
+      : "TBD — name the one file that will hold each release's claims";
   const ciRow = ci
     ? `
   | CI | \`.github/workflows/check.yml\` | the unit gate | pull requests and \`main\` pushes | as CI runs | a red CI blocks the merge |`
@@ -194,7 +226,8 @@ function slotText({ name, description, merge, design, test, ci }) {
   const mergeConditions =
     merge === "auto"
       ? `- **merge conditions:** a clean review (\`AGREE\` in OpenCode mode, no
-  blocking finding in Claude mode) and every gate green; the implementer merges
+  blocking finding in Claude mode), its reviews posted on the pull request
+  (\`PRINCIPLES.md\`, *Posting*), and every gate green; the implementer merges
   with \`gh pr merge --squash --delete-branch\`, and the pull request records it.
 `
       : "";
@@ -210,6 +243,9 @@ function slotText({ name, description, merge, design, test, ci }) {
   are known; keep it that way and list them here when that changes.
 - **merge:** ${merge}
 ${mergeConditions}- **design:** ${design}
+- **milestones:** annotated tags \`vX.Y.Z\` on \`main\`, each reviewed before it
+  is created (\`PRINCIPLES.md\`, *Milestones*); the plan that holds each
+  release's claims: ${planFile}.
 - **the gates table:**
 
   | gate | command | covers | when | repeats | failure model |
@@ -289,7 +325,7 @@ Read [\`AGENTS.md\`](AGENTS.md) if you work with OpenCode, or
 
 ## Policy
 
-- **merge:** \`${merge}\` — ${merge === "auto" ? "the implementer merges on a clean review plus green gates" : "the owner merges"}.
+- **merge:** \`${merge}\` — ${merge === "auto" ? "the implementer merges on a clean review, its reviews posted, and green gates" : "the owner merges"}.
 - **design:** \`${design}\` — ${design === "required" ? "OpenCode mode writes a design record before implementation" : "no design stage; the implementation review alone decides"}.
 
 ## First session
@@ -404,6 +440,7 @@ async function main() {
   const test =
     args.test ??
     (interactive ? await ask("Test command", DEFAULT_TEST) : DEFAULT_TEST);
+  checkTestCommand(test);
   const ci =
     (args.ci ??
       (interactive
@@ -450,7 +487,7 @@ async function main() {
   }
 
   const tbd = description === TBD;
-  const slot = slotText({ name, description, merge, design, test, ci });
+  const slot = slotText({ name, description, merge, design, test, ci, plan, roadmap });
   contents.set("CLAUDE.md", fillSlot(contents.get("CLAUDE.md"), slot));
   for (const [file, content] of contents) {
     contents.set(file, content.replaceAll("{{PROJECT}}", name));
