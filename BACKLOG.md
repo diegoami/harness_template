@@ -55,7 +55,8 @@ item 2; the owner decided that pinning an exact commit waits for r6).
 - a dry run for the scaffold's `--github` (PR #23);
 - the pgn-postmortem report's items 1, 2, 3 and 5 (r6, PR #24: items 2 and
   5 by the owner's decision, items 1 and 3 by the implementer's routing;
-  Notes).
+  Notes), and its second version's items 6 and 8 (r6, the owner's decision,
+  PR #25).
 
 **Owner decisions** (🧑 each with its recommended default and the owner's
 answer):
@@ -287,11 +288,42 @@ rebuild by the owner's decision (Notes):
   the tag, and to ask the owner whether the project needs any of it now.
 
 **From the second adoption** (pgn-postmortem, a Python chess tool, adopting
-r4 in Claude mode, its PRs #1–#5, 2026-09-24; the report is
-[`docs/sources/pgn-postmortem-field-report.md`](docs/sources/pgn-postmortem-field-report.md)).
-Routed to r6 (Notes): items 2 and 5 by the owner's decision, and item 1
-with the ADOPT rebuild, by the reason of boar_life decision (a).
+r4 in Claude mode, its PRs #1–#6, 2026-09-24; the report is
+[`docs/sources/pgn-postmortem-field-report.md`](docs/sources/pgn-postmortem-field-report.md),
+with a second version's new parts in its *Addendum*). Routed to r6 (Notes):
+items 2 and 5, and the second version's items 6 and 8, by the owner's
+decision, and item 1 with the ADOPT rebuild, by the reason of boar_life
+decision (a). Item 8 leads r6's Claude-mode work.
 
+- **An orchestrated Claude mode** (second version, item 8, the report's main
+  proposal). The main session orchestrates: it talks to the owner, asks the
+  owner decisions, commits and posts the review files, asks for the merge
+  and writes the completion notes, and holds only reports. The implementer
+  is a forked subagent in its own git worktree, briefed from what the
+  repository records. The reviewer is a separate fresh subagent in its own
+  worktree; it writes its review file and neither commits nor posts it.
+  Re-reviews resume the same reviewer, and the round ceiling and the
+  owner's merge apply unchanged. The owner's main reason is context
+  economy: the main session never needs clearing across an iteration.
+  pgn-postmortem's PR #6 shows 53 assertions failing first, among them a
+  real defect (the output depended on the worker without a per-game
+  `ucinewgame`). Its review applied nine breaks of its own (R1–R9) and found
+  a blocking defect. This repository's r5 PRs already use the reviewer half:
+  the review subagent writes the file, and the implementer commits and posts
+  it. The suggestions: `CLAUDE.md` names the shape and who commits and posts
+  review files; every forked brief begins with a repository identity check
+  (the first fork there landed in the wrong repository, which the report
+  says the check caught); the scaffold ignores `.claude/worktrees/`, although
+  it writes no `.gitignore` today; and the Sessions habit names subagents as
+  the default way to start a fresh session.
+- **Who opens the fresh session** (second version, item 6). `PLAN.md`'s *The
+  owner's part* says "Start each iteration and stop the session at its end"
+  (at `r4` and on `main`), and the Sessions habit says to start a fresh
+  session. The adopting agent read both as the owner's job, and twice ended
+  a unit with a prompt for the owner to paste; the owner corrected it. The
+  suggestion: the owner's part is the go-ahead and the merge, the
+  implementer opens the fresh session (item 8), and the handoff becomes that
+  session's brief. Paste prompts remain for work in another repository.
 - **Roles before modes** (item 1). The adopting agent chose OpenCode mode for
   the one feature it wanted, a design stage, which by `AGENTS.md`'s
   assignment table made DeepSeek the implementer (its PR #4). The owner
@@ -308,7 +340,9 @@ with the ADOPT rebuild, by the reason of boar_life decision (a).
   OpenCode's design stage. Say it in one line in `CLAUDE.md`. Also,
   `design: required` in a Claude-mode slot does nothing but reads like that
   gate: explain it at adoption and in the scaffold, or apply the field only
-  with OpenCode.
+  with OpenCode. The second version adds that the F-1.1 implementer flagged
+  the same inconsistency independently; neither PR #6's body nor its review
+  file shows it.
 - **Planning is not building** (item 5, minor). Before any request exists,
   the agent twice started building during a design discussion; the owner
   stopped it. `ROADMAP.md` guards a request once one exists. Consider a line
@@ -526,6 +560,17 @@ on PR #11**, routed to this design:
   names only a tag", because both concern what an adopted tag holds, and
   its suggestion is recorded there. Item 6 adds a second source to
   boar_life items that are already routed.
+- **Owner decisions (2026-09-24), on the report's second version** (PR
+  #25). (a) Its item 8, the orchestrated Claude mode, goes to r6 as the lead
+  of r6's Claude-mode work. The reason: it is a new shape for Claude mode
+  that needs its own claims, and its evidence so far is one pull request
+  (PR #6) still in review. (b) Its item 6 goes to r6 with item 8. The
+  reason: who opens the fresh session depends on item 8's shape, and r5's
+  claims are fixed. (c) The new parts go into a second pull request based
+  on PR #24's branch, so PR #24's clean review stands. Each is the
+  recommended default, taken. The second version's other items restate the
+  first's, and the sentence it adds to item 2 is a second source on that
+  item.
 - The r4 milestone review (#10) is copied verbatim into `reviews/`:
   `006-r4-milestone-01.md` by DeepSeek V4.1 Flash, r4's implementer — not
   independent, kept as input — and `006-r4-milestone-02.md` by GPT-5.6 Luna,
