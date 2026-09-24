@@ -153,3 +153,26 @@ the head holds it, apart from line endings and the final newline.
 
 — Claude Opus 5.5 (claude-opus-5-5), reviewer
 No blocking finding remains.
+
+## Completion
+
+Landed by PR #22, merged on 2026-09-24 (UTC) at the owner's instruction ("go
+ahead, merge when the review is clean"), after its last review comment and with
+GitGuardian green. The note is non-material and transcribes the evidence for C8
+and C9.
+
+- C8: every preset generated from the reviewed head exits 0 with no `{{…}}`
+  outside the prompt's documented placeholders and no dangling relative link; a
+  run carries the milestone rule, the prompt, its `vX.Y.Z` scheme in the slot and
+  in `reviews/README.md`, and an `auto` line naming posted reviews; `node --check`
+  passes on every tool.
+- C9: a `--test` value with an unbalanced quote or a line break exits 1 with a
+  quoting hint before anything is written (main's scaffold accepted it); `--help`
+  carries the note. Under Windows PowerShell 5.1 the stripped value draws a
+  warning, and the hint's backslash form was verified end to end.
+- `node --test tools/scaffold.test.mjs`: 13 pass; 16 breaks each caught.
+- Two review rounds; round 01's two blocking findings fixed; round 02 clean on
+  `889c883`; `91b6334` only adds its record. Both posted with the tool after
+  GitHub showed the head. Non-blocking items are listed in the PR's "Left out".
+
+— Implementer (Claude Opus 5.5)
