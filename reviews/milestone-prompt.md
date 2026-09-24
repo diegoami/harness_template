@@ -10,8 +10,9 @@ own.
 - `{{REPO}}` — `owner/name`; `{{ISSUE}}` — the milestone issue's URL.
 - `{{TAG}}`, `{{PREVIOUS_TAG}}`, `{{CANDIDATE}}` — the proposed tag, the
   previous one, and the candidate commit's full SHA.
-- `{{PLAN}}` — the plan file's path in the repository (this harness:
-  `BACKLOG.md`).
+- `{{PLAN}}` — the plan file's path in the repository (in the harness
+  repository itself, `BACKLOG.md`); `{{CLAIMS_FIXED}}` — the commit whose
+  landing fixed the claims (the merge of the change that recorded them).
 - `{{PROMISE}}`, `{{CLAIMS}}`, `{{NOT_IN_RELEASE}}` — copied from the plan, as
   written before the work; the claims keep their numbers and proofs. The
   reviewer checks them against `{{PLAN}}`.
@@ -66,7 +67,9 @@ THE CLAIMS (written before the work; test every one yourself):
 
 THE PLAN: {{PLAN}} holds the promise, the claims and the list below. Check
 that what this prompt gives you matches it at the candidate, and read
-git -C <temp-dir> log -p {{PREVIOUS_TAG}}..HEAD -- {{PLAN}}: every change
+git -C <temp-dir> log -p {{CLAIMS_FIXED}}..HEAD -- {{PLAN}} (the claims
+were drafted before {{CLAIMS_FIXED}}, and fixed when it landed; check that
+it is the merge that recorded them, from the plan's own history): every change
 to a claim must be visible, dated and carry its reason in the same commit,
 and none may weaken a claim except as a "the claim was wrong" correction.
 A mismatch, or a claim weakened, is a finding.

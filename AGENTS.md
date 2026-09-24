@@ -29,7 +29,8 @@ This file adds the OpenCode-specific process and nothing else.
 ## The two stages
 
 1. **Design.** Before any implementation, write the design record
-   (`design/NNN-<slug>.md`; format in [`design/README.md`](design/README.md)):
+   (`design/NNN-<slug>.md`; its format is in `design/README.md`, which a
+   project with a design stage has):
    the problem, findings grounded in the code with `file:line`, the design, and
    explicit open questions. The reviewer appends a signed verdict. Iterate —
    reply, the reviewer re-reviews — until an explicit **AGREE**. Do not

@@ -12,7 +12,7 @@
 | the principles and habits on this page | `PRINCIPLES.md` |
 | the non-trivial test, the conservative floor, the pure-typo exception | `PRINCIPLES.md` |
 | the six gates disciplines | `PRINCIPLES.md` |
-| the verdict protocol: revision scope and target proof, rounds, materiality, reviewer sessions, fallback, waiver, owner decisions, defect path, completion note, merge policy, `design: none` scoping, bootstrap, comment-not-approval, posting, pull requests | `PRINCIPLES.md` |
+| the verdict protocol: revision scope and target proof, rounds, materiality, reviewer sessions, fallback, waiver, owner decisions, defect path, completion note, merge policy, `design: none` scoping, rules going forward, bootstrap, comment-not-approval, posting, pull requests | `PRINCIPLES.md` |
 | milestones: the definition, claims before work, the milestone issue, the reviewer and its verdict, the tag, triage | `PRINCIPLES.md` |
 | the milestone review prompt | `reviews/milestone-prompt.md` |
 | the OpenCode process: roles, assignment table, reviewer acquisition, the two stages, BLOCK scope, withdraw/re-scope | `AGENTS.md` |
@@ -98,9 +98,14 @@ and does not relax CI.
   rework; a third round that does not end clean — `AGREE` in OpenCode mode, the
   statement that no blocking finding remains in Claude mode — stops and goes to
   the owner, who decides: re-scope, record a decision, or, at the implementation
-  stage only, waive. It does not loop. A milestone's rounds are counted per
-  milestone instead: each verdict on its milestone issue is one round, and a
-  third that is not `AGREE` goes to the owner (*Milestones*).
+  stage only, waive. It does not loop. Rounds keep counting through a stage
+  after a clean round: a change extended after one is reviewed in the next
+  round, and any round from the third on that does not end clean goes to the
+  owner. A review that stops before judging — a wrong target (above), or a
+  reviewer who may not review — is no review (*Fallback*) and not a round. A
+  milestone's rounds are counted per milestone instead: each verdict on its
+  milestone issue is one round, and a third that is not `AGREE` goes to the
+  owner (*Milestones*).
 - **Fallback.** A failed, cancelled or unavailable review is no review and no
   approval. Retry, or select another reviewer; record its model id and who
   selected it; the fallback becomes the designated reviewer for its stage. Each
@@ -108,7 +113,7 @@ and does not relax CI.
   `CLAUDE.md`).
 - **Waiver.** An implementation-stage exception only, recorded, and never called
   AGREE. Bypassing the design stage is an owner amendment, recorded in the
-  design record.
+  design record (under `design: none`, in the project slot).
 - **Owner decisions.** Recorded with a recommended default, the reason, and an
   owner-decision mark. The reviewer may require that a decision be made and
   recorded; it may not reject it merely for differing from its own preference.
@@ -131,14 +136,19 @@ and does not relax CI.
 - **Merge policy.** The owner merges, unless the project slot records
   `merge: auto`; then a change merges when its review is clean — `AGREE` in
   OpenCode mode, no blocking finding in Claude mode — its reviews are posted
-  (*Posting*), and every gate is green.
-  A project that takes `auto` states its merge conditions in its slot, and the
-  pull request records the merge.
-- **`design: none`.** Where a project's slot records `design: none`, every
-  reference to a design record in this file resolves to the implementation
-  review file; the design stage does not exist in either mode; the defect path
-  is the implementation review; and an owner amendment that would otherwise
-  bypass a design stage is recorded in the project slot.
+  (*Posting*), and every gate is green. A project that takes `auto` states its
+  merge conditions in its slot, and the pull request records the merge.
+- **`design: none`.** Where a project's slot records `design: none`, the
+  design stage does not exist in either mode, and each thing this file puts
+  in a design record has one home: the completion note goes in the last
+  implementation review file (as in Claude mode); an owner amendment that
+  would otherwise bypass a design stage goes in the project slot; the defect
+  path is the implementation review; and any other reference to a design
+  record resolves to the implementation review file.
+- **Rules apply going forward.** A record is held to the rules in force when
+  it was written. A later rule is not applied to it, and it is not
+  backfilled; a record that is corrected after the fact says so, keeps its
+  original text, and is signed by whoever corrects it.
 - **Bootstrap.** A change to a harness file that changes what a builder must do
   or how the process works takes the review its mode requires — both stages in
   OpenCode, the review in Claude; a pure typo takes neither.
@@ -181,20 +191,22 @@ the last one.
 
 - **A milestone is a release**: an annotated tag on `main`, on the exact
   commit the release is built from (`vX.Y.Z`, or the project's own scheme;
-  this harness uses `rN`). It is not a pull request, a proposal, a count of
-  pull requests or a process change. The owner calls one, or the implementer
-  proposes one when a release is due.
+  the harness repository itself uses `rN`). It is not a pull request, a
+  proposal, a count of pull requests or a process change. The owner calls
+  one, or the implementer proposes one when a release is due.
 - **Claims come before the work.** When a release is scoped, before its work
   starts, the project's plan records its promise, numbered claims (C1…Cn),
   each naming the check that proves it, and a "not in this release" list.
   The plan is one file in the repository, which the milestone issue names
-  (this harness: `BACKLOG.md`). A claim changes only there, visibly, dated
-  and with its reason in the same commit; it is never weakened to pass, and a
-  claim found wrong is corrected there as such.
+  (in the harness repository itself, `BACKLOG.md`). The claims are fixed
+  when the change that records them lands; from then on a claim changes only
+  there, visibly, dated and with its reason in the same commit; it is never
+  weakened to pass, and a claim found wrong is corrected there as such.
 - **The milestone issue.** When the release's work has landed, the
   implementer opens an issue holding the proposed tag, the candidate commit
-  on `main` (its full SHA), the previous tag, the plan file, the pull
-  requests merged since, and the gate results on the candidate, and gives
+  on `main` (its full SHA), the previous tag, the plan file and the commit
+  that fixed the claims, the pull requests merged since, and the gate
+  results on the candidate, and gives
   the owner the milestone review prompt
   ([`reviews/milestone-prompt.md`](reviews/milestone-prompt.md)), filled in
   and otherwise unchanged, to run in a fresh session.
@@ -229,10 +241,12 @@ the last one.
   `reviews/` (`reviews/README.md`); from then on the file is canonical. After
   tagging, the implementer appends a `## Completion` section to the last
   verdict's copy, showing that the tag is annotated (`git cat-file -t`) and
-  that `git rev-parse <tag>^{commit}` equals the SHA the `AGREE` names. The
-  copy and its completion note transcribe records and change no rule, so
-  they are committed as a completion note is. The implementer posts the
-  milestone issue and its replies as *Posting* says.
+  that `git rev-parse <tag>^{commit}` equals the SHA the `AGREE` names. A
+  `BLOCK` verdict's copy lands with the first pull request that fixes one of
+  its findings, so the range under review holds only pull requests; the
+  `AGREE` verdict's copy lands after the tag, with its completion note, as a
+  completion note does. The implementer posts the milestone issue and its
+  replies as *Posting* says.
 
 ## The habits
 
