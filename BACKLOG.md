@@ -288,8 +288,8 @@ rebuild by the owner's decision (Notes):
 **From the second adoption** (pgn-postmortem, a Python chess tool, adopting
 r4 in Claude mode, its PRs #1–#5, 2026-09-24; the report is
 [`docs/sources/pgn-postmortem-field-report.md`](docs/sources/pgn-postmortem-field-report.md)).
-Routed to r6 (Notes): item 1 with the ADOPT rebuild, items 2 and 5 by the
-owner's decision.
+Routed to r6 (Notes): items 2 and 5 by the owner's decision, and item 1
+with the ADOPT rebuild, by the reason of boar_life decision (a).
 
 - **Roles before modes** (item 1). The adopting agent chose OpenCode mode for
   the one feature it wanted, a design stage, which by `AGENTS.md`'s
@@ -516,12 +516,14 @@ on PR #11**, routed to this design:
   reason: it concerns how an adopter picks a mode and reads the slot, which
   r6 rebuilds with item 1. (c) Item 5 goes to r6. The reason: a small habit
   line, taken with r6's adoption work. Each is the recommended default,
-  taken. Items 1 and 3 go to r6 with the ADOPT rebuild, under the owner's
-  decision (a) of 2026-09-23 on the boar_life report: they are adoption
-  problems, and r6 rebuilds adoption. The report marks item 3 NEW; it is
-  kept as a second source on boar_life's "`ADOPT.md` names only a tag",
-  because both concern what an adopted tag holds, and its suggestion is
-  recorded there. Item 6 adds a second source to boar_life items that are
+  taken. Items 1 and 3 go to r6 with the ADOPT rebuild. This is the
+  implementer's routing, not an owner decision: the owner was asked only
+  where placement was unclear, and these take the reason of boar_life
+  decision (a) of 2026-09-23 (they are adoption problems, and r6 rebuilds
+  adoption). The owner's merge of PR #24 confirms it. The report marks
+  item 3 NEW; it is kept as a second source on boar_life's "`ADOPT.md`
+  names only a tag", because both concern what an adopted tag holds, and
+  its suggestion is recorded there. Item 6 adds a second source to boar_life items that are
   already routed.
 - The r4 milestone review (#10) is copied verbatim into `reviews/`:
   `006-r4-milestone-01.md` by DeepSeek V4.1 Flash, r4's implementer — not
