@@ -19,6 +19,7 @@ import {
   splitDesign,
   sameBody,
   defaultCommitted,
+  checkPrHolds,
   repoPath,
   shellQuote,
 } from "./post-record.mjs";
@@ -595,6 +596,37 @@ test("run through a directory link, the tool still runs as a program", () => {
     });
     assert.equal(r.status, 0, r.stderr);
     assert.match(r.stdout, /post-record — post a record/);
+  } finally {
+    s.done();
+  }
+});
+
+// --- a checkout reached through a directory link (C2, extended again) -----
+
+test("a checkout reached through a directory link passes the PR check, with real git", () => {
+  const s = scratch();
+  try {
+    const real = path.join(s.dir, "real");
+    mkdirSync(path.join(real, "reviews"), { recursive: true });
+    const git = (dir, args) =>
+      execFileSync("git", ["-C", dir, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+    git(real, ["init", "-q"]);
+    git(real, ["config", "user.email", "t@example.com"]);
+    git(real, ["config", "user.name", "t"]);
+    writeFileSync(path.join(real, "reviews", "r.md"), TRICKY);
+    git(real, ["add", "reviews/r.md"]);
+    git(real, ["commit", "-q", "-m", "t"]);
+    const head = git(real, ["rev-parse", "HEAD"]).trim();
+    // The same checkout, reached through a junction (a symlink elsewhere).
+    const link = path.join(s.dir, "link");
+    symlinkSync(real, link, "junction");
+    const viaLink = path.join(link, "reviews", "r.md");
+    const gh = (args) => {
+      assert.deepEqual(args.slice(0, 3), ["pr", "view", "15"]);
+      return JSON.stringify({ headRefOid: head, files: [{ path: "reviews/r.md" }] });
+    };
+    checkPrHolds({ gh, git, pr: "15", file: viaLink, text: TRICKY });
+    assert.equal(defaultCommitted(viaLink), true, "the committed check refused the link");
   } finally {
     s.done();
   }
