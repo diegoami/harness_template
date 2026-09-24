@@ -8,11 +8,20 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, writeFileSync, rmSync } from "node:fs";
+import { execFileSync, spawnSync } from "node:child_process";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync, rmSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { plan, run, splitDesign, sameBody, defaultCommitted } from "./post-record.mjs";
+import { fileURLToPath } from "node:url";
+import {
+  plan,
+  run,
+  splitDesign,
+  sameBody,
+  defaultCommitted,
+  repoPath,
+  shellQuote,
+} from "./post-record.mjs";
 
 const NEVER = () => {
   throw new Error("gh was called");
@@ -506,6 +515,86 @@ test("the committed check: tracked and unmodified only (a local scratch repo)", 
     git("add", "tracked.md");
     assert.equal(defaultCommitted(tracked), false, "a staged, uncommitted edit passed");
     assert.equal(defaultCommitted(write(s.dir, "new.md", TRICKY)), false, "an untracked file passed");
+  } finally {
+    s.done();
+  }
+});
+
+// --- the gaps PR #15's review round 03 left (C2, extended) ----------------
+
+test("a file in a subdirectory gets a forward-slash repository path, on any platform", () => {
+  // Windows and POSIX rules explicitly, so the conversion is tested everywhere.
+  assert.equal(
+    repoPath("C:\\repo", "C:\\repo\\reviews\\010-x-impl-01.md", path.win32),
+    "reviews/010-x-impl-01.md",
+  );
+  assert.equal(
+    repoPath("/repo", "/repo/reviews/010-x-impl-01.md", path.posix),
+    "reviews/010-x-impl-01.md",
+  );
+});
+
+test("--confirm posts a review from a subdirectory the PR holds", () => {
+  const s = scratch();
+  try {
+    mkdirSync(path.join(s.dir, "reviews"));
+    const src = write(path.join(s.dir, "reviews"), "010-x-impl-01.md", TRICKY);
+    const gh = new FakeGitHub();
+    gh.top = s.dir;
+    gh.prs.get("15").tree.set("reviews/010-x-impl-01.md", TRICKY);
+    confirm(["review", src, "--pr", "15", "--out", s.dir], gh);
+    assert.equal(gh.posts().length, 1);
+    // The same name at the top level is not the file the PR holds.
+    const gh2 = new FakeGitHub();
+    gh2.top = s.dir;
+    gh2.prs.get("15").tree.set("010-x-impl-01.md", TRICKY);
+    assert.throws(
+      () => confirm(["review", src, "--pr", "15", "--out", s.dir], gh2),
+      /not one of PR #15's files/,
+    );
+  } finally {
+    s.done();
+  }
+});
+
+test("the PR check asks about the PR it was given, not a fixed one", () => {
+  const s = scratch();
+  try {
+    const src = write(s.dir, "r.md", TRICKY);
+    const gh = new FakeGitHub();
+    gh.top = s.dir;
+    gh.prs.set("23", { comments: [], head: "abc2323", tree: new Map([["r.md", TRICKY]]) });
+    confirm(["review", src, "--pr", "23", "--out", s.dir], gh);
+    assert.equal(gh.prs.get("23").comments.length, 1);
+    assert.equal(gh.prs.get("15").comments.length, 0);
+  } finally {
+    s.done();
+  }
+});
+
+test("shellQuote quotes a Windows path even without a space", () => {
+  assert.equal(shellQuote("C:\\Users\\x\\r.body.md"), "'C:\\Users\\x\\r.body.md'");
+  assert.equal(shellQuote("it's"), `'it'\\''s'`);
+  assert.equal(shellQuote("reviews/r.md"), "reviews/r.md");
+});
+
+test("a closing-fence line with an info string does not close the fence", () => {
+  const v = "\n---\n\n## Review — design stage\n\nAGREE\n";
+  assert.equal(splitDesign("# R\n\n```\n```js\n" + v + "```\n").verdicts.length, 0);
+});
+
+test("run through a directory link, the tool still runs as a program", () => {
+  const s = scratch();
+  try {
+    const tools = path.dirname(fileURLToPath(import.meta.url));
+    const link = path.join(s.dir, "linked-tools");
+    // A junction on Windows (no admin rights needed), a symlink elsewhere.
+    symlinkSync(tools, link, "junction");
+    const r = spawnSync(process.execPath, [path.join(link, "post-record.mjs"), "--help"], {
+      encoding: "utf8",
+    });
+    assert.equal(r.status, 0, r.stderr);
+    assert.match(r.stdout, /post-record — post a record/);
   } finally {
     s.done();
   }
