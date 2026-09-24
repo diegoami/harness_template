@@ -108,3 +108,22 @@ as the head holds it, apart from line endings and the final newline.
 
 — Claude Opus 5.5 (claude-opus-5-5), reviewer
 No blocking finding remains.
+
+## Completion
+
+Landed by PR #23, merged on 2026-09-24 (UTC) at the owner's instruction ("yes,
+cover builders too; go ahead, merge when clean"), after its last review comment
+and with GitGuardian green. The note is non-material and transcribes the
+evidence for C10.
+
+- `PRINCIPLES.md` carries *Creation paths*: a reviewer never runs the code under
+  review on a creating path, its own output exempt; a builder tests creating
+  paths only against fakes, a throwaway local repository (never one on GitHub, the
+  owner's decision on round 01) or a dry run.
+- `reviews/README.md` names milestone reviews (D9); the three restatements are
+  gone.
+- C10 extended, C11 corrected and C8's relabel dated, each with its reason (C5).
+- Two review rounds; round 01's blocking finding decided by the owner and fixed;
+  round 02 clean on `dba82fd`; `4b39d1d` only adds its record.
+
+— Implementer (Claude Opus 5.5)
