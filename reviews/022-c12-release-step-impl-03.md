@@ -127,3 +127,33 @@ repository is this one.
 
 — Claude Opus 5.5 (claude-opus-5-5), reviewer
 No blocking finding remains (one non-blocking finding, 1).
+
+## Completion
+
+Landed by PR #27, merged on 2026-09-24 at 17:11 UTC as `255b407` at the
+owner's instruction ("merge #27 once round 03 is clean"), after its last
+review comment and with GitGuardian green. The note is non-material and
+transcribes the evidence for the done-when items.
+
+- `PRINCIPLES.md` *Owner decisions* covers what C12's text requires: where
+  the evidence of a decision given in conversation lives (the owner's merge,
+  or a comment the owner signs), that the act counts although one GitHub
+  account posts for everyone, a milestone issue as well as a pull request,
+  and that a reviewer checks the evidence and does not re-raise the
+  decision (rounds 01–03, *Verified*).
+- *Rounds* gives a stop notice a home without a remote, and
+  `reviews/README.md` places its line.
+- C5's extension to C12 is dated, gives its reason in the same commit, and
+  weakens nothing (round 01, *Verified*).
+- `ADOPT.md` names `r5` in its three places, and none names `r4` as the
+  release to adopt.
+- `node --test tools/*.test.mjs`: 43 tests, 43 pass. `node --check` passes
+  on every `tools/*.mjs`. `light`, `standard` and `auto` generate cleanly
+  from `bdb361a` (round 03, *Verified*).
+- Three review rounds, each clean. Their findings (five, four and one, none
+  blocking) were all fixed. Round 03 was clean on `bdb361a`; `2c997b9` only
+  adds its record.
+- Owner decisions (a) and (b) in `BACKLOG.md` *Notes* are the first held to
+  C12's rule. Their evidence is this merge.
+
+— Implementer (Claude Opus 5.5)
