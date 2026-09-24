@@ -3,8 +3,10 @@
 // The tests never run `gh`. Dry runs use a runner that throws if called; the
 // --confirm cases use FakeGitHub, which keeps issues and comments by id like
 // GitHub does, reads each body from the file the command names, and returns
-// only what was stored under the id asked for. One test runs `git` in a
-// throwaway repository under the temp directory, to check the committed check.
+// only what was stored under the id asked for. Two tests run real `git` in
+// throwaway repositories under the temp directory (the committed check, and
+// a checkout reached through a directory link), and one runs `node` on the
+// tool through a directory link.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -627,6 +629,18 @@ test("a checkout reached through a directory link passes the PR check, with real
     };
     checkPrHolds({ gh, git, pr: "15", file: viaLink, text: TRICKY });
     assert.equal(defaultCommitted(viaLink), true, "the committed check refused the link");
+    // A git that reports the link path as its top level (as git can on some
+    // platforms): the top level is resolved too.
+    const linkTop = (dir, args) =>
+      args[0] === "rev-parse" && args[1] === "--show-toplevel" ? link + "\n" : git(dir, args);
+    checkPrHolds({ gh, git: linkTop, pr: "15", file: viaLink, text: TRICKY });
+    // Another letter case (Windows paths are case-insensitive).
+    if (process.platform === "win32") {
+      const shouted = viaLink.toUpperCase();
+      checkPrHolds({ gh, git, pr: "15", file: shouted, text: TRICKY });
+    }
+    // A missing file is simply not committed.
+    assert.equal(defaultCommitted(path.join(link, "reviews", "missing.md")), false);
   } finally {
     s.done();
   }

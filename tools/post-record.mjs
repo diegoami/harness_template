@@ -18,6 +18,7 @@
 
 import { execFileSync } from "node:child_process";
 import {
+  lstatSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -249,17 +250,25 @@ function defaultGh(args) {
 }
 
 // The file's physical path: git reports a checkout's real location, so a
-// path through a directory link (a junction, a symlink, macOS's /var) must be
-// resolved before it is compared with what git says.
+// path through a directory link (a junction, a symlink, macOS's /var), an
+// 8.3 short name or another letter case must be resolved before it is
+// compared with what git says. A file that is itself a link keeps its own
+// name; any other file's name is resolved too, for its letter case.
 function physical(file) {
-  return realpathSync(path.resolve(file));
+  const abs = path.resolve(file);
+  const inDir = path.join(realpathSync.native(path.dirname(abs)), path.basename(abs));
+  try {
+    return lstatSync(inDir).isSymbolicLink() ? inDir : realpathSync.native(inDir);
+  } catch {
+    return inDir; // missing: the checks below refuse it
+  }
 }
 
 // True when the file is tracked and matches HEAD, so the PR head holds it.
 export function defaultCommitted(file) {
-  const real = physical(file);
-  const dir = path.dirname(real);
   try {
+    const real = physical(file);
+    const dir = path.dirname(real);
     execFileSync("git", ["-C", dir, "ls-files", "--error-unmatch", "--", real], {
       stdio: "ignore",
     });
@@ -292,7 +301,7 @@ export function repoPath(top, file, p = path) {
 export function checkPrHolds({ gh, git, pr, file, text }) {
   const real = physical(file);
   const dir = path.dirname(real);
-  const top = realpathSync(git(dir, ["rev-parse", "--show-toplevel"]).trim());
+  const top = realpathSync.native(git(dir, ["rev-parse", "--show-toplevel"]).trim());
   const rel = repoPath(top, real);
   const info = JSON.parse(gh(["pr", "view", String(pr), "--json", "headRefOid,files"]));
   if (!info.files.some((f) => f.path === rel))
@@ -394,7 +403,10 @@ export function run(
 function isMain() {
   if (!process.argv[1]) return false;
   try {
-    return realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
+    return (
+      realpathSync.native(process.argv[1]) ===
+      realpathSync.native(fileURLToPath(import.meta.url))
+    );
   } catch {
     return false;
   }
