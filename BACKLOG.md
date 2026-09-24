@@ -7,9 +7,18 @@ roadmap mechanism for the harness itself — this file is it.
 ## Release 5: scope and claims
 
 **Status:** decided on 2026-09-23: the owner accepted the scope and every
-decision below as proposed, recorded in the "owner" column. No r5 work starts
-before the change that lands this section has merged. Its third review round
-did not end clean; the owner decided to fix the findings and run a fourth.
+decision below as proposed, recorded in the "owner" column. This section
+landed with PR #14 (`427749c`), after four review rounds: its third did not
+end clean, and the owner decided to fix the findings and run a fourth.
+
+**Progress** (2026-09-24). C1–C11 have landed, each through its pull request
+and the completion note in its last review file: C2 (PR #15, extended by #18
+and #20), C1 and C3 (#17), C4, C5, C6 and C11 (#19), C7 (#21), C8 and C9
+(#22), and C10 (#23). C12 was added by PR #24 and is not yet implemented.
+Before the candidate is frozen, two things remain: C12's rule in
+`PRINCIPLES.md` (*Owner decisions*), and the release step below. Then the
+milestone review follows `PRINCIPLES.md` (*Milestones*), with the prompt
+filled in from `reviews/milestone-prompt.md`.
 
 The claims are written before the work, as
 [Imperial Conquest 2's process](docs/sources/ic2-milestone-review.md) does. A
