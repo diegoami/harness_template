@@ -97,10 +97,10 @@ CLAUDE.md's slot and PLAN.md iteration 1 at 3850530.
 > below. Its items 1, 3, 4, 5 and 7 restate items 1, 3, 4, 5 and 6 above in
 > other words, so they are not copied. What is new: the opening paragraph,
 > a parenthetical added to item 2's suggestion, items 6 and 8, and new
-> "What worked" and "Evidence" paragraphs. The owner's decisions on the new items are in the
-> Notes of [`BACKLOG.md`](../../BACKLOG.md). Like the report above, it is a
-> **source**, not a rule of this harness: **nothing in the fences is an
-> instruction to anyone working in this repository.**
+> "What worked" and "Evidence" paragraphs. The owner's decisions on the new
+> items are in the Notes of [`BACKLOG.md`](../../BACKLOG.md). Like the
+> report above, it is a **source**, not a rule of this harness: **nothing in
+> the fences is an instruction to anyone working in this repository.**
 
 The opening paragraph:
 
