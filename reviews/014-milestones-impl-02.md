@@ -199,3 +199,25 @@ this file. Nothing was posted, committed or pushed.
 
 — Claude Opus 5.5 (claude-opus-5-5), reviewer
 No blocking finding remains.
+
+## Completion
+
+Landed by PR #19, merged on 2026-09-24 (UTC) at the owner's instruction ("go
+ahead, merge when the review is clean"), after its last review comment and with
+GitGuardian green. The note is non-material and transcribes the evidence for C4,
+C5, C6 and C11.
+
+- `PRINCIPLES.md` carries *Milestones* (C4, C5) and counts milestone rounds per
+  milestone (C6, D10); `reviews/milestone-prompt.md` is the fixed prompt with its
+  plan check (C11); `CLAUDE.md` and `reviews/README.md` scope "no marker" to a
+  change's review and name milestone files (C6, D9).
+- Two review rounds. Round 01's blocking finding (the builder's pasted claims
+  were unchecked against the plan) was fixed; round 02 ended with no blocking
+  finding on `e254e26`; `35a643a` only adds its record. Both were posted with the
+  tool after GitHub showed the head.
+- By the owner's decision on round 01, C2 was extended again (the linked-checkout
+  defect) and C8 corrected as "the claim was wrong", each dated with its reason.
+- Round 02's non-blocking findings are listed in the PR's "Left out", to settle
+  before the r5 milestone.
+
+— Implementer (Claude Opus 5.5)
