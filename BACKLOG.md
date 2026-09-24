@@ -73,7 +73,7 @@ answer):
 | D2 | the orchestrated shape in `CLAUDE.md` | the default way Claude mode works; one session is the fallback where subagents are unavailable, recorded | it is how the owner's projects already work (pgn-postmortem PR #6, this repository's r5 reviews) | accepted |
 | D3 | does adoption end with a real change | yes: the first real change after the adoption PR goes through the loop, and the adoption report names it | "the documents are downstream of the practice" (the Scopetta prompt); boar_life and pgn-postmortem did it unasked | accepted |
 | D4 | smaller items not yet routed | none offered: the owner chose which of two to take, the scaffold's `--github` dry run and the `post-record.mjs` follow-ups | without a dry run nobody may test `--github` (*Creation paths*); the follow-ups are polish | the dry run joins r6; the follow-ups do not |
-| D5 | `design:` in Claude mode | OpenCode-only: `CLAUDE.md`'s slot drops it, the scaffold asks it only for OpenCode, and `CLAUDE.md` names shaping plus its review as Claude mode's planning gate | in a Claude-mode slot it does nothing yet reads like that gate (pgn-postmortem item 2) | accepted. Clarified on 2026-09-25 (PR #30, round 01), since the one slot, in `CLAUDE.md`, also serves OpenCode: the slot's `design:` line is written only when the roles give OpenCode mode, and it says it is OpenCode-only; a Claude-mode project's slot has none |
+| D5 | `design:` in Claude mode | OpenCode-only: `CLAUDE.md`'s slot drops it, the scaffold asks it only for OpenCode, and `CLAUDE.md` names shaping plus its review as Claude mode's planning gate | in a Claude-mode slot it does nothing yet reads like that gate (pgn-postmortem item 2) | accepted. Clarified on 2026-09-25 (PR #30, round 01), since the one slot, in `CLAUDE.md`, also serves OpenCode: the slot's `design:` line is written only when the roles give OpenCode mode, and it says it is OpenCode-only; a Claude-mode project's slot has none. The recommended reading, taken; the alternative was the line always present, labelled OpenCode-only |
 | D6 | what an adopter takes | the tag, plus a check of `main`: record the tag's commit, list what `main` holds beyond it, and ask the owner whether the project needs any of it now | both adoptions needed fixes that lived only on `main`; a pinned commit goes stale at every release | accepted |
 | D7 | where the roles are asked | in `ADOPT.md` and in the scaffold: who implements, who reviews each change, who reviews releases, recorded in the slot before a mode is chosen; the scaffold picks the mode from the answers | the mode follows the roles, not one wanted feature (pgn-postmortem item 1) | accepted |
 | D8 | the testbed premise | a `premise:` slot field, `testbed` or `product`, asked at adoption and in the scaffold; `ROADMAP.md`'s "the project exists to exercise the process" holds only under `testbed` | a product's content is the deliverable (boar_life item 1) | accepted |
@@ -137,13 +137,17 @@ one itself, at the candidate commit):
   described relative to it (D10). *Proof:* the text.
 - **C7. The scaffold asks the roles and the premise.** `tools/scaffold.mjs`
   asks the three roles and the premise, as flags and interactively, and
-  writes them into the slot. It picks the mode from the roles (D7): Claude
-  mode when Claude implements, OpenCode mode otherwise. It asks `design`,
+  writes them into the slot. It picks the mode from the roles (D7). How it
+  does so is the implementer's reading, not an owner decision: the
+  implementer role is asked as a tool, Claude Code or OpenCode, with its
+  model id, and the mode is that tool's, since the harness has one mode per
+  tool. It asks `design`,
   and writes the slot's `design:` line, only in OpenCode mode (D5). A
   generated run's `.gitignore` lists `.claude/worktrees/`. *Proof:*
   `node --test tools/scaffold.test.mjs` has a test for each: the role and
-  premise flags land in the slot, a Claude-implementer run has no `design:`
-  line and is not asked for one, an OpenCode-implementer run has both, and
+  premise flags land in the slot, a run whose implementer's tool is Claude
+  Code has no `design:` line and is not asked for one, an OpenCode one has
+  both, and
   the `.gitignore` line. A run generated with `--ref <candidate>` shows
   them.
 - **C8. `--github` has a dry run.** The scaffold's `--github` has a dry run
