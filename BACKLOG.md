@@ -8,9 +8,9 @@ roadmap mechanism for the harness itself — this file is it.
 
 **Status:** proposed on 2026-09-25. The owner decisions below were given in
 conversation on 2026-09-24: each is the recommended default, taken, except
-D4 and D10, where none was offered and the owner chose. Under *Owner decisions* (`PRINCIPLES.md`), their evidence is the
-owner's merge of the pull request that lands this section. The claims are
-fixed when it lands.
+D4 and D10, where none was offered and the owner chose. Under *Owner
+decisions* (`PRINCIPLES.md`), their evidence is the owner's merge of the
+pull request that lands this section. The claims are fixed when it lands.
 
 **The promise.** After r6, Claude mode runs without the owner opening
 sessions: the main session orchestrates a forked implementer and a fresh
