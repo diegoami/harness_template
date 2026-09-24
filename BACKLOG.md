@@ -34,9 +34,9 @@ that changes only a `## Completion` section, or a trivial change as
 **In r5:** posting (candidates 1–3 below), milestone reviews, the four
 protocol gaps, and the smaller items except scratch-repository deletion, the
 verification pattern from the boar_life report, the `post-record.mjs`
-follow-ups from PR #18 other than the linked-checkout defect, the dry run
-for the scaffold's `--github`, and the pgn-postmortem report's items other
-than item 4 (C12).
+follow-ups from PR #18 other than the linked-checkout defect, and the dry
+run for the scaffold's `--github`; and, from the pgn-postmortem report,
+item 4 (C12).
 
 **Release step:** before the candidate is frozen, `ADOPT.md` names `r5`,
 so the tag does not repeat `r4`'s stale release name (boar_life report,
@@ -204,12 +204,18 @@ one itself, at the candidate commit):
   decision given in conversation lives — for example the owner's merge of the
   change that records it, or a comment the owner signs on its pull request —
   so a reviewer checks that evidence instead of re-raising the decision as
-  unverifiable. *Proof:* the text; for each owner decision recorded in r5,
-  the milestone reviewer finds its evidence where the rule says. **Added on
-  2026-09-24** by the owner's decision (PR #24), a scope change: every
-  fresh-context reviewer of r5 so far, and of pgn-postmortem's PRs #1, #3, #4
-  and #5, flagged some owner decision as resting only on the implementer's
-  report (pgn-postmortem report, item 4).
+  unverifiable. The rule says that the act it names counts as the owner's
+  confirmation, although the owner and the agents post from one GitHub
+  account, and it covers a decision recorded on a milestone issue (D4's
+  override) as well as one on a pull request. *Proof:* the text; for each
+  owner decision recorded after the rule lands, the milestone reviewer finds
+  its evidence where the rule says. Decisions recorded before it are not
+  held to it (*Rules apply going forward*, D11). **Added on 2026-09-24** by
+  the owner's decision (PR #24), a scope change: every fresh-context
+  reviewer of pgn-postmortem's PRs #1, #3, #4 and #5 flagged some owner
+  decision as resting only on the implementer's report, and the reviews of
+  r5's PRs #16, #19 and #23 took an owner decision as given
+  (pgn-postmortem report, item 4).
 
 ## Candidates
 
@@ -282,7 +288,8 @@ rebuild by the owner's decision (Notes):
 **From the second adoption** (pgn-postmortem, a Python chess tool, adopting
 r4 in Claude mode, its PRs #1–#5, 2026-09-24; the report is
 [`docs/sources/pgn-postmortem-field-report.md`](docs/sources/pgn-postmortem-field-report.md)).
-Routed to r6 with the ADOPT rebuild by the owner's decision (Notes):
+Routed to r6 (Notes): item 1 with the ADOPT rebuild, items 2 and 5 by the
+owner's decision.
 
 - **Roles before modes** (item 1). The adopting agent chose OpenCode mode for
   the one feature it wanted, a design stage, which by `AGENTS.md`'s
@@ -504,12 +511,18 @@ on PR #11**, routed to this design:
   test created a stray public one.
 - **Owner decisions (2026-09-24), on the pgn-postmortem field report**
   (PR #24). (a) Item 4 joins r5 as claim C12. The reason: it is review-loop
-  work, and every r5 reviewer so far has met it. (b) Item 2 goes to r6. The
+  work, and three r5 reviews so far (PRs #16, #19, #23) took an owner
+  decision as given. (b) Item 2 goes to r6. The
   reason: it concerns how an adopter picks a mode and reads the slot, which
   r6 rebuilds with item 1. (c) Item 5 goes to r6. The reason: a small habit
   line, taken with r6's adoption work. Each is the recommended default,
-  taken. Items 1 and 3 go to r6 with the ADOPT rebuild, and item 6 adds a
-  second source to boar_life items that are already routed.
+  taken. Items 1 and 3 go to r6 with the ADOPT rebuild, under the owner's
+  decision (a) of 2026-09-23 on the boar_life report: they are adoption
+  problems, and r6 rebuilds adoption. The report marks item 3 NEW; it is
+  kept as a second source on boar_life's "`ADOPT.md` names only a tag",
+  because both concern what an adopted tag holds, and its suggestion is
+  recorded there. Item 6 adds a second source to boar_life items that are
+  already routed.
 - The r4 milestone review (#10) is copied verbatim into `reviews/`:
   `006-r4-milestone-01.md` by DeepSeek V4.1 Flash, r4's implementer — not
   independent, kept as input — and `006-r4-milestone-02.md` by GPT-5.6 Luna,
