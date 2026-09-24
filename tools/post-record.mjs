@@ -18,6 +18,7 @@
 
 import { execFileSync } from "node:child_process";
 import {
+  lstatSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -248,14 +249,30 @@ function defaultGh(args) {
   });
 }
 
+// The file's physical path: git reports a checkout's real location, so a
+// path through a directory link (a junction, a symlink, macOS's /var), an
+// 8.3 short name or another letter case must be resolved before it is
+// compared with what git says. A file that is itself a link keeps its own
+// name; any other file's name is resolved too, for its letter case.
+function physical(file) {
+  const abs = path.resolve(file);
+  const inDir = path.join(realpathSync.native(path.dirname(abs)), path.basename(abs));
+  try {
+    return lstatSync(inDir).isSymbolicLink() ? inDir : realpathSync.native(inDir);
+  } catch {
+    return inDir; // missing: the checks below refuse it
+  }
+}
+
 // True when the file is tracked and matches HEAD, so the PR head holds it.
 export function defaultCommitted(file) {
-  const dir = path.dirname(path.resolve(file));
   try {
-    execFileSync("git", ["-C", dir, "ls-files", "--error-unmatch", "--", path.resolve(file)], {
+    const real = physical(file);
+    const dir = path.dirname(real);
+    execFileSync("git", ["-C", dir, "ls-files", "--error-unmatch", "--", real], {
       stdio: "ignore",
     });
-    execFileSync("git", ["-C", dir, "diff", "--quiet", "HEAD", "--", path.resolve(file)], {
+    execFileSync("git", ["-C", dir, "diff", "--quiet", "HEAD", "--", real], {
       stdio: "ignore",
     });
     return true;
@@ -272,19 +289,20 @@ function defaultGit(dir, args) {
   });
 }
 
-// A review is posted only when the PR holds it: the file is one of PR N's
-// files and equals the file at the PR's head (line endings aside). This is
-// what C1 compares, so a file the PR does not hold is never posted to it.
 // The file's path inside the checkout, with forward slashes, as GitHub lists
 // a pull request's files. `p` is node:path's platform flavour, for tests.
 export function repoPath(top, file, p = path) {
   return p.relative(top, file).split(p.sep).join("/");
 }
 
+// A review is posted only when the PR holds it: the file is one of PR N's
+// files and equals the file at the PR's head (line endings aside). This is
+// what C1 compares, so a file the PR does not hold is never posted to it.
 export function checkPrHolds({ gh, git, pr, file, text }) {
-  const dir = path.dirname(path.resolve(file));
-  const top = git(dir, ["rev-parse", "--show-toplevel"]).trim();
-  const rel = repoPath(top, path.resolve(file));
+  const real = physical(file);
+  const dir = path.dirname(real);
+  const top = realpathSync.native(git(dir, ["rev-parse", "--show-toplevel"]).trim());
+  const rel = repoPath(top, real);
   const info = JSON.parse(gh(["pr", "view", String(pr), "--json", "headRefOid,files"]));
   if (!info.files.some((f) => f.path === rel))
     throw new UsageError(`${rel} is not one of PR #${pr}'s files; post only what the PR holds`);
@@ -385,7 +403,10 @@ export function run(
 function isMain() {
   if (!process.argv[1]) return false;
   try {
-    return realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
+    return (
+      realpathSync.native(process.argv[1]) ===
+      realpathSync.native(fileURLToPath(import.meta.url))
+    );
   } catch {
     return false;
   }
