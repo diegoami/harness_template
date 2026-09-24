@@ -26,6 +26,11 @@ takes what remained before the candidate is frozen:
 When PR #27 has landed, the milestone review follows `PRINCIPLES.md`
 (*Milestones*), with the prompt filled in from `reviews/milestone-prompt.md`.
 
+**Tagged (2026-09-24):** `r5` is on `f22685d`, after round 1's `AGREE` on
+milestone issue #28 by Codex (`gpt-5`, Codex desktop): every claim MET and
+no finding. The verdict and its completion note are in
+`reviews/r5-milestone-01.md`.
+
 The claims are written before the work, as
 [Imperial Conquest 2's process](docs/sources/ic2-milestone-review.md) does. A
 claim changes only here, visibly, dated and with its reason in the same
@@ -537,8 +542,8 @@ on PR #11**, routed to this design:
   The original line is kept, and the additions are signed as not the
   implementer's. From #10, finding 1.
 - Releases: `r1` (the consolidation), `r2` (field-test fixes), `r3` (the
-  parametrizable scaffold), `r4` (the four lessons). Records in `design/` and
-  `reviews/`.
+  parametrizable scaffold), `r4` (the four lessons), `r5` (the review loop on
+  GitHub). Records in `design/` and `reviews/`.
 - **Owner decisions (2026-09-23), on the boar_life field report.** (a) Its
   items 1, 3, 4 and 5 go to r6 with the ADOPT rebuild, and r5's claims stay as
   decided. The recommended default, taken; the reason: they are adoption
