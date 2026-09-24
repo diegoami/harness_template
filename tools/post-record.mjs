@@ -275,10 +275,16 @@ function defaultGit(dir, args) {
 // A review is posted only when the PR holds it: the file is one of PR N's
 // files and equals the file at the PR's head (line endings aside). This is
 // what C1 compares, so a file the PR does not hold is never posted to it.
+// The file's path inside the checkout, with forward slashes, as GitHub lists
+// a pull request's files. `p` is node:path's platform flavour, for tests.
+export function repoPath(top, file, p = path) {
+  return p.relative(top, file).split(p.sep).join("/");
+}
+
 export function checkPrHolds({ gh, git, pr, file, text }) {
   const dir = path.dirname(path.resolve(file));
   const top = git(dir, ["rev-parse", "--show-toplevel"]).trim();
-  const rel = path.relative(top, path.resolve(file)).split(path.sep).join("/");
+  const rel = repoPath(top, path.resolve(file));
   const info = JSON.parse(gh(["pr", "view", String(pr), "--json", "headRefOid,files"]));
   if (!info.files.some((f) => f.path === rel))
     throw new UsageError(`${rel} is not one of PR #${pr}'s files; post only what the PR holds`);
@@ -296,11 +302,13 @@ export function checkPrHolds({ gh, git, pr, file, text }) {
     );
 }
 
-// Quote for a POSIX shell, so the printed command can be pasted as it is.
+// Quote one argument for a POSIX shell, so a printed command pastes as it is.
+export function shellQuote(a) {
+  return /^[A-Za-z0-9_@%+=:,./-]+$/.test(a) ? a : `'${a.replace(/'/g, `'\\''`)}'`;
+}
+
 function show(args) {
-  const q = (a) =>
-    /^[A-Za-z0-9_@%+=:,./-]+$/.test(a) ? a : `'${a.replace(/'/g, `'\\''`)}'`;
-  return "gh " + args.map(q).join(" ");
+  return "gh " + args.map(shellQuote).join(" ");
 }
 
 function existingBodies(gh, where, number) {
