@@ -293,7 +293,9 @@ r4 in Claude mode, its PRs #1–#6, 2026-09-24; the report is
 with a second version's new parts in its *Addendum*). Routed to r6 (Notes):
 items 2 and 5, and the second version's items 6 and 8, by the owner's
 decision, and item 1 with the ADOPT rebuild, by the reason of boar_life
-decision (a). Item 8 leads r6's Claude-mode work.
+decision (a). Item 8 leads r6's Claude-mode work. An item number without
+"second version" is the first version's (its item 6 is the second
+version's item 7).
 
 - **An orchestrated Claude mode** (second version, item 8, the report's main
   proposal). The main session orchestrates: it talks to the owner, asks the
@@ -305,16 +307,18 @@ decision (a). Item 8 leads r6's Claude-mode work.
   Re-reviews resume the same reviewer, and the round ceiling and the
   owner's merge apply unchanged. The owner's main reason is context
   economy: the main session never needs clearing across an iteration.
-  pgn-postmortem's PR #6 shows 53 assertions failing first, among them a
-  real defect (the output depended on the worker without a per-game
-  `ucinewgame`). Its review applied nine breaks of its own (R1–R9) and found
-  a blocking defect. This repository's r5 PRs already use the reviewer half:
-  the review subagent writes the file, and the implementer commits and posts
-  it. The suggestions: `CLAUDE.md` names the shape and who commits and posts
-  review files; every forked brief begins with a repository identity check
-  (the first fork there landed in the wrong repository, which the report
-  says the check caught); the scaffold ignores `.claude/worktrees/`, although
-  it writes no `.gitignore` today; and the Sessions habit names subagents as
+  pgn-postmortem's PR #6, at its round-01 revision `e273589`, shows 53
+  assertions failing first, among them a real defect (the output depended
+  on the worker without a per-game `ucinewgame`). Its round-01 review
+  applied nine breaks of its own (R1–R9) and found a blocking defect. This
+  repository's r5 PRs already work like the reviewer half: a fresh-context
+  reviewer writes the review file, and the implementer commits it and posts
+  it with `post-record.mjs`. The suggestions: `CLAUDE.md` names the shape
+  and who commits and posts review files; every forked brief begins with a
+  repository identity check (the first fork there landed in the wrong
+  repository, which the report says the check caught); the scaffold's
+  `.gitignore` lists `.claude/worktrees/`, a file the scaffold does not
+  write today; and the Sessions habit names subagents as
   the default way to start a fresh session.
 - **Who opens the fresh session** (second version, item 6). `PLAN.md`'s *The
   owner's part* says "Start each iteration and stop the session at its end"

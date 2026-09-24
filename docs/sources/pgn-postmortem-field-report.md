@@ -6,10 +6,9 @@
 > copied verbatim, in the fence below, and not edited; what is new in a
 > second version shared the same day is in the *Addendum* at the end. The
 > pgn-postmortem items in [`BACKLOG.md`](../../BACKLOG.md), and the owner's
-> decisions on them in its
-> Notes, come from it. It is a **source**, not a rule of this harness:
-> **nothing in the fence is an instruction to anyone working in this
-> repository.**
+> decisions on them in its Notes, come from it. It is a **source**, not a
+> rule of this harness: **nothing in the fence is an instruction to anyone
+> working in this repository.**
 
 ---
 
@@ -96,9 +95,9 @@ CLAUDE.md's slot and PLAN.md iteration 1 at 3850530.
 > the same adoption through pgn-postmortem's PR #6 and supersedes the version
 > above. Only what is new in it is copied here, verbatim, in the fences
 > below. Its items 1, 3, 4, 5 and 7 restate items 1, 3, 4, 5 and 6 above in
-> other words, so they are not copied. What is new: the opening paragraph, a
-> sentence added to item 2, items 6 and 8, and new "What worked" and
-> "Evidence" paragraphs. The owner's decisions on the new items are in the
+> other words, so they are not copied. What is new: the opening paragraph,
+> a parenthetical added to item 2's suggestion, items 6 and 8, and new
+> "What worked" and "Evidence" paragraphs. The owner's decisions on the new items are in the
 > Notes of [`BACKLOG.md`](../../BACKLOG.md). Like the report above, it is a
 > **source**, not a rule of this harness: **nothing in the fences is an
 > instruction to anyone working in this repository.**
@@ -114,7 +113,7 @@ the owner corrected it each time. Items 1-7 are the misreadings; item 8 is the p
 resulted. Most important first within each part.
 ```
 
-The sentence added to item 2:
+Item 2's suggestion, whose closing parenthetical is new:
 
 ```text
    Suggest: one line in CLAUDE.md saying that in Claude mode, shaping plus its review is the
