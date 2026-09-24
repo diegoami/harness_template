@@ -3,6 +3,9 @@
 - **Naming:** `reviews/NNN-<slug>-impl-NN.md`. `NN` starts at `01` and
   increments per review round of the same implementation stage; the third round
   that does not end clean goes to the owner ([`PRINCIPLES.md`](../PRINCIPLES.md)).
+  A milestone verdict is copied verbatim to `reviews/<tag>-milestone-NN.md`,
+  `NN` counting the verdicts on that milestone in order; its prompt is
+  [`milestone-prompt.md`](milestone-prompt.md).
 - The verdict opens with **the revision it covers** (the commit sha), the file
   list the reviewer checked and how it was obtained (the pull request's files,
   or the local diff from the merge base), the reviewer's display name and model
@@ -19,8 +22,10 @@
   ```
 
   in OpenCode mode — the marker line contains only `AGREE` or only `BLOCK`. In
-  Claude mode, replace the marker with one line stating whether any blocking
-  finding remains; there is no marker and no design stage.
+  Claude mode, a change's review replaces the marker with one line stating
+  whether any blocking finding remains; there is no marker and no design
+  stage. A milestone verdict ends with the marker in both modes
+  (`PRINCIPLES.md`, *Milestones*).
 - **A comment, not an approval:** the verdict is written here and posted as the
   pull-request or issue comment when and how `PRINCIPLES.md` (*Posting*) says;
   it is never an approval action. The file stays canonical.

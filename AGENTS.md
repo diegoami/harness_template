@@ -63,6 +63,7 @@ design stage: the implementation review alone decides.
 - **Records and signature:** [`reviews/README.md`](reviews/README.md). The
   verdict's *meaning* and materiality: `PRINCIPLES.md`.
 - **Project rules and the gates table:** the project slot in `CLAUDE.md`.
+- **Milestones:** `PRINCIPLES.md` (*Milestones*).
 
 ## Bootstrap
 

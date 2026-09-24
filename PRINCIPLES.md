@@ -13,6 +13,8 @@
 | the non-trivial test, the conservative floor, the pure-typo exception | `PRINCIPLES.md` |
 | the six gates disciplines | `PRINCIPLES.md` |
 | the verdict protocol: revision scope and target proof, rounds, materiality, reviewer sessions, fallback, waiver, owner decisions, defect path, completion note, merge policy, `design: none` scoping, bootstrap, comment-not-approval, posting, pull requests | `PRINCIPLES.md` |
+| milestones: the definition, claims before work, the milestone issue, the reviewer and its verdict, the tag, triage | `PRINCIPLES.md` |
+| the milestone review prompt | `reviews/milestone-prompt.md` |
 | the OpenCode process: roles, assignment table, reviewer acquisition, the two stages, BLOCK scope, withdraw/re-scope | `AGENTS.md` |
 | the Claude Code process: fresh-context review, same-family default, no design stage, the external-process option | `CLAUDE.md` |
 | the project rules: product, paths, never-echo, the gates table, conventions, one source of truth, decided-not-to-reopen, open work | `CLAUDE.md`, the project slot |
@@ -96,7 +98,9 @@ and does not relax CI.
   rework; a third round that does not end clean — `AGREE` in OpenCode mode, the
   statement that no blocking finding remains in Claude mode — stops and goes to
   the owner, who decides: re-scope, record a decision, or, at the implementation
-  stage only, waive. It does not loop.
+  stage only, waive. It does not loop. A milestone's rounds are counted per
+  milestone instead: each verdict on its milestone issue is one round, and a
+  third that is not `AGREE` goes to the owner (*Milestones*).
 - **Fallback.** A failed, cancelled or unavailable review is no review and no
   approval. Retry, or select another reviewer; record its model id and who
   selected it; the fallback becomes the designated reviewer for its stage. Each
@@ -168,6 +172,67 @@ and does not relax CI.
 
 The **record format** — naming, the exact signature line, the marker rules — is
 owned by [`reviews/README.md`](reviews/README.md).
+
+## Milestones
+
+The same in both modes. Each change keeps its own review and the project's
+merge setting; a milestone adds one independent review of everything since
+the last one.
+
+- **A milestone is a release**: an annotated tag on `main`, on the exact
+  commit the release is built from (`vX.Y.Z`, or the project's own scheme;
+  this harness uses `rN`). It is not a pull request, a proposal, a count of
+  pull requests or a process change. The owner calls one, or the implementer
+  proposes one when a release is due.
+- **Claims come before the work.** When a release is scoped, before its work
+  starts, the project's plan records its promise, numbered claims (C1…Cn),
+  each naming the check that proves it, and a "not in this release" list.
+  The plan is one file in the repository, which the milestone issue names
+  (this harness: `BACKLOG.md`). A claim changes only there, visibly, dated
+  and with its reason in the same commit; it is never weakened to pass, and a
+  claim found wrong is corrected there as such.
+- **The milestone issue.** When the release's work has landed, the
+  implementer opens an issue holding the proposed tag, the candidate commit
+  on `main` (its full SHA), the previous tag, the plan file, the pull
+  requests merged since, and the gate results on the candidate, and gives
+  the owner the milestone review prompt
+  ([`reviews/milestone-prompt.md`](reviews/milestone-prompt.md)), filled in
+  and otherwise unchanged, to run in a fresh session.
+- **The reviewer** is of a family that implemented none of the range — in a
+  Claude-mode range, any model that is not Claude — and reviews
+  `git diff <previous tag>..<candidate>`. It checks the claims it was given
+  against the plan at the candidate, and the plan's history since the
+  previous tag for a claim weakened or changed without its reason. It gives
+  every claim a verdict —
+  MET, NOT MET, PARTLY MET or COULD NOT TEST, each with its evidence — opens
+  one issue per reproduced finding, and posts one verdict comment on the
+  milestone issue, ending `AGREE` or `BLOCK`. `AGREE` only when no claim is
+  NOT MET and no finding blocks; a PARTLY MET or COULD NOT TEST is a finding
+  the reviewer grades as blocking or not.
+- **The tag waits for the verdict.** On `BLOCK` the findings are fixed in
+  ordinary pull requests, the candidate moves to the new `main` commit, and
+  the implementer gives a re-review prompt unasked. A milestone's rounds are
+  counted per milestone (*Rounds*). On `AGREE` the implementer creates the
+  tag on exactly the reviewed commit, its message naming the milestone
+  issue, the reviewer and its model id, and any accepted gap; work merged
+  after the candidate belongs to the next milestone. Only the owner may tag
+  without a review, as an override recorded on the milestone issue — never
+  the implementer's call.
+- **When a verdict arrives**, the implementer reproduces each finding,
+  replies on the milestone issue per finding, and sends each one exactly one
+  way: a **defect**, fixed in a pull request (this milestone's if it
+  blocks); **the claim was wrong**, corrected in the plan as above; an
+  **accepted gap**, recorded in the tag message with its issue; or **not a
+  defect**, with the reason.
+- **The record.** The reviewer posts its verdict with `gh … --body-file`, and
+  the comment is the record until the implementer copies it verbatim into
+  `reviews/` (`reviews/README.md`); from then on the file is canonical. After
+  tagging, the implementer appends a `## Completion` section to the last
+  verdict's copy, showing that the tag is annotated (`git cat-file -t`) and
+  that `git rev-parse <tag>^{commit}` equals the SHA the `AGREE` names. The
+  copy and its completion note transcribe records and change no rule, so
+  they are committed as a completion note is. The implementer posts the
+  milestone issue and its replies as *Posting* says.
 
 ## The habits
 

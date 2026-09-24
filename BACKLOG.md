@@ -34,8 +34,9 @@ that changes only a `## Completion` section, or a trivial change as
 `PRINCIPLES.md` defines it.
 
 **In r5:** posting (candidates 1–3 below), milestone reviews, the four
-protocol gaps, and the smaller items except scratch-repository deletion and
-the verification pattern from the boar_life report.
+protocol gaps, and the smaller items except scratch-repository deletion, the
+verification pattern from the boar_life report, and the `post-record.mjs`
+follow-ups from PR #18 other than the linked-checkout defect.
 
 **Release step:** before the candidate is frozen, `ADOPT.md` names `r5`,
 so the tag does not repeat `r4`'s stale release name (boar_life report,
@@ -46,7 +47,11 @@ item 2; the owner decided that pinning an exact commit waits for r6).
 - the planner layer;
 - scratch-repository deletion, which is a token scope, not a harness change;
 - from Imperial Conquest 2: the never-merged review PR, the `review/` and
-  `review-base/` branches, GitHub milestone objects, and a second reviewer.
+  `review-base/` branches, GitHub milestone objects, and a second reviewer;
+- the verification pattern from the boar_life report (r6);
+- the `post-record.mjs` follow-ups from PR #18 other than the linked-checkout
+  defect: pinning the call sites of `shellQuote` and `repoPath`, the
+  junction test's live `tools/` link, and two stale comments.
 
 **Owner decisions** (🧑 each with its recommended default and the owner's
 answer):
@@ -92,7 +97,11 @@ one itself, at the candidate commit):
   PR #15's round 03 left are closed, since they belong to r5's own tool.
   *Proof:* a test posts a review file from a subdirectory of the checkout,
   and each break named in the "post-record.mjs test gaps" item turns a test
-  red.
+  red. **Extended again on 2026-09-24** by the owner's decision (PR #19): a
+  checkout reached through a directory link is no longer refused, since that
+  is a defect in r5's own tool and blocks posting where the temp directory
+  is a link (macOS). *Proof:* a test with real `git` in a repository reached
+  through a directory junction or symlink passes the PR check.
 - **C3. The PR mechanics are written down and followed.** The rules state:
   the PR names what it implements and the revision its clean review covers;
   `Closes #N` stands on its own line and is checked with
@@ -132,11 +141,15 @@ one itself, at the candidate commit):
 - **C8. Every preset generates cleanly from the candidate.** `light`,
   `standard` and `auto`, each generated with `--ref <candidate>` into a
   temporary directory and without `--github`, exit 0 and leave no `{{…}}`
-  placeholder and no dangling relative link, and a generated run carries the
-  milestone rule, with its own `vX.Y.Z` scheme in the rule and in its
-  `reviews/README.md` (D5, D9). `node --check` passes on every
-  `tools/*.mjs`.
-  *Proof:* the commands.
+  placeholder outside `reviews/milestone-prompt.md` and no dangling relative
+  link, and a generated run carries the milestone rule and
+  `reviews/milestone-prompt.md`, with its own `vX.Y.Z` scheme in the rule
+  and in its `reviews/README.md` (D5, D9), and its `merge: auto` slot line
+  names posted reviews. `node --check` passes on every `tools/*.mjs`.
+  *Proof:* the commands. **Corrected on 2026-09-24** (PR #19), as "the claim
+  was wrong": the milestone prompt ships with its placeholders by design, so
+  "no `{{…}}`" now excepts it; shipping the prompt and naming posted reviews
+  in the `auto` line are added, from PRs #19 and #17.
 - **C9. The scaffold guards its input.** A `--test` value with an unbalanced
   double quote or an embedded newline exits non-zero with a hint about shell
   quoting, and `--help` carries a quoting note. *Proof:* run both, showing the
@@ -350,7 +363,16 @@ on PR #11**, routed to this design:
   `\` to `/` path conversion is untested; three breaks survive (a lone
   backslash in the quoting set, an info string on a closing fence line, a
   hard-coded PR number); and the entry point through a symlink is untested
-  (a directory junction needs no admin rights). In r5, through C2.
+  (a directory junction needs no admin rights). In r5, through C2; closed by
+  PR #18.
+- **`post-record.mjs` follow-ups** (PR #18, review round 01). In r5, through
+  C2 (the owner's decision, PR #19): a checkout reached through a junction or
+  symlink is refused, because `git` reports the physical path while the tool
+  keeps the link path (macOS's `/var` is one), so resolve the real path first
+  and test it with real `git` through a junction. Not in r5: the tests pin
+  `shellQuote` and `repoPath` but not their call sites (assert the printed
+  dry-run line); the junction test links the live `tools/` folder rather than
+  a copy; and two comments are stale.
 
 ## Notes
 
