@@ -104,3 +104,23 @@ covers it, and the Notes govern.
 
 — Claude Opus 5.5 (claude-opus-5-5), reviewer
 No blocking finding remains.
+
+## Completion
+
+Landed by PR #24, merged on 2026-09-24 (UTC) at the owner's instruction
+("merge #24"), after its last review comment and with GitGuardian green. The
+note is non-material and transcribes the evidence for the done-when items.
+
+- `docs/sources/pgn-postmortem-field-report.md` holds the report verbatim
+  under a source header.
+- Items 2, 4 and 5 are routed where the owner decided (item 4 as C12 in r5;
+  items 2 and 5 to r6); items 1 and 3 to r6 as the implementer's routing,
+  which this merge confirms; the repeats are second sources on boar_life
+  items.
+- C12 is added visibly, dated and with its reason (C5); it was reworded
+  within the PR, before it landed, on round 01. No other claim changed.
+- Four review rounds; round 03 did not end clean, and the owner chose to fix
+  and run round 04; round 04 clean on `cd4e379`; `a2ef546` only adds its
+  record.
+
+— Implementer (Claude Opus 5.5)
