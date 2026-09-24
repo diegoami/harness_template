@@ -4,6 +4,152 @@ The harness's own next items. Which changes take which review is the
 bootstrap's and the non-trivial test's to say (`PRINCIPLES.md`). There is no
 roadmap mechanism for the harness itself — this file is it.
 
+## Release 6: scope and claims
+
+**Status:** proposed on 2026-09-25. The owner decisions below were given in
+conversation on 2026-09-24: each is the recommended default, taken, except
+D4 and D10, where none was offered and the owner chose. Under *Owner decisions* (`PRINCIPLES.md`), their evidence is the
+owner's merge of the pull request that lands this section. The claims are
+fixed when it lands.
+
+**The promise.** After r6, Claude mode runs without the owner opening
+sessions: the main session orchestrates a forked implementer and a fresh
+reviewer. A project adopts the harness by being asked, not guessed at:
+adoption asks the owner the roles and the premise before it writes a file,
+takes a tag knowing what `main` holds beyond it, and ends with one real
+change through the loop. As in r5, a release is tagged only after a model
+independent of its implementer has checked it against claims written before
+the work, unless the owner overrides that on the record.
+
+**Where r6 starts.** The milestone range is `r5..<candidate>`, and the
+milestone reviewer reviews all of it. It opens with PR #29 (`README.md`
+names `r5`) and the change that lands this section. The claims about how
+work is done (C12) hold only for the **r6 PRs**: those opened after that
+change has merged. After that merge, every first-parent commit on `main` is
+an r6 PR's merge, a completion-note commit that changes only a
+`## Completion` section, or a trivial change as `PRINCIPLES.md` defines it.
+
+**In r6:** the orchestrated Claude mode (pgn-postmortem, second version,
+items 8 and 6); the `ADOPT.md` rebuild, mined from the six bootstrap prompts
+in `harness_prompts`, with boar_life items 1, 2 and 5 and pgn-postmortem
+items 1, 2, 3 and 5; the verification pattern from the boar_life report
+(item 6); and a dry run for the scaffold's `--github`.
+
+**Release step:** before the candidate is frozen, `ADOPT.md` names `r6`.
+
+**Not in r6:**
+- the planner layer, a release of its own (r5's D1);
+- moving the conservative floor's path list into the slot (boar_life item
+  3), and making `ROADMAP.md`'s "a comparison run copies a frozen subset"
+  conditional (boar_life item 4): the owner declined both for r6 (D10);
+- a handover file (D9);
+- pinning an exact commit in `ADOPT.md` (D6);
+- the `post-record.mjs` follow-ups from PR #18: pinning the call sites of
+  `shellQuote` and `repoPath`, the junction test's live `tools/` link, and
+  two stale comments (D4);
+- scratch-repository deletion, which is a token scope, not a harness change;
+- from Imperial Conquest 2: the never-merged review PR, the `review/` and
+  `review-base/` branches, GitHub milestone objects, and a second reviewer;
+- from the bootstrap prompts: a design stage on every change, a
+  cross-family reviewer on every change, agents merging, milestones as
+  phases, and verdicts kept only as comments. Each contradicts a current
+  rule of `PRINCIPLES.md`, so the rebuild does not take it.
+
+**Owner decisions** (🧑 each with its recommended default and the owner's
+answer):
+
+| # | decision | default | reason | owner |
+|---|---|---|---|---|
+| D1 | r6's scope | both themes, the orchestrated Claude mode and the `ADOPT.md` rebuild, with the verification pattern | the orchestrated mode changes who opens sessions, and adoption is where a project learns it | accepted |
+| D2 | the orchestrated shape in `CLAUDE.md` | the default way Claude mode works; one session is the fallback where subagents are unavailable, recorded | it is how the owner's projects already work (pgn-postmortem PR #6, this repository's r5 reviews) | accepted |
+| D3 | does adoption end with a real change | yes: the first real change after the adoption PR goes through the loop, and the adoption report names it | "the documents are downstream of the practice" (the Scopetta prompt); boar_life and pgn-postmortem did it unasked | accepted |
+| D4 | smaller items not yet routed | none offered: the owner chose between the scaffold's `--github` dry run and the `post-record.mjs` follow-ups | without a dry run nobody may test `--github` (*Creation paths*); the follow-ups are polish | the dry run joins r6; the follow-ups do not |
+| D5 | `design:` in Claude mode | OpenCode-only: `CLAUDE.md`'s slot drops it, the scaffold asks it only for OpenCode, and `CLAUDE.md` names shaping plus its review as Claude mode's planning gate | in a Claude-mode slot it does nothing yet reads like that gate (pgn-postmortem item 2) | accepted |
+| D6 | what an adopter takes | the tag, plus a check of `main`: record the tag's commit, list what `main` holds beyond it, and ask the owner whether the project needs any of it now | both adoptions needed fixes that lived only on `main`; a pinned commit goes stale at every release | accepted |
+| D7 | where the roles are asked | in `ADOPT.md` and in the scaffold: who implements, who reviews each change, who reviews releases, recorded in the slot before a mode is chosen | the mode follows the roles, not one wanted feature (pgn-postmortem item 1) | accepted |
+| D8 | the testbed premise | a `premise:` slot field, `testbed` or `product`, asked at adoption and in the scaffold; `ROADMAP.md`'s "the project exists to exercise the process" holds only under `testbed` | a product's content is the deliverable (boar_life item 1) | accepted |
+| D9 | a handover file | none: the repository's records are the handover, and the Sessions handoff becomes the forked session's brief | the orchestrated mode never needs a session cleared | accepted |
+| D10 | the reports' smaller suggestions | none offered: the owner chose which of four to take | each removes a mismatch an adopter met | two taken: paths outside the repository described relative to it (boar_life item 5), and planning is not building (pgn-postmortem item 5); the floor's path list and the comparison-run line declined |
+| D11 | the Sessions habit | `PRINCIPLES.md` names a forked subagent as the default way to start a fresh session, in both modes; `CLAUDE.md` names the full shape | OpenCode has subagents too, and the habit is shared | accepted |
+
+**Claims** (each with how it is proved; the milestone reviewer tests every
+one itself, at the candidate commit):
+
+- **C1. Claude mode is orchestrated.** `CLAUDE.md` names the shape (D2): the
+  main session talks to the owner, asks the owner decisions, commits and
+  posts the review files, asks for the merge and writes the completion
+  notes; the implementer is a forked subagent in its own git worktree,
+  briefed from what the repository records; the reviewer is a separate
+  fresh subagent in its own worktree, which writes its review file and
+  neither commits nor posts it; a re-review resumes the same reviewer; and
+  one session is the fallback where subagents are unavailable, recorded in
+  the review. Every forked brief begins with a repository identity check.
+  *Proof:* the text, quoted by `file:line`.
+- **C2. The owner does not open sessions.** `PLAN.md`'s *The owner's part*
+  is the go-ahead, the owner decisions, the merge and playing the result,
+  not starting sessions; the Sessions habit in `PRINCIPLES.md` names a
+  forked subagent as the default way to start a fresh session, in both
+  modes, with the handoff as its brief (D11); and a prompt for the owner to
+  paste is only for work in another repository or by another model, such as
+  a milestone review. *Proof:* the text.
+- **C3. Adoption asks before it writes.** `ADOPT.md` states its steps as a
+  numbered sequence. Before it writes any file, it asks the owner, as owner
+  decisions with recommended defaults: the three roles (D7), the premise
+  (D8), `merge:`, and `design:` where the mode is OpenCode. It records the
+  answers in the slot, and the mode follows the roles. *Proof:* the text;
+  in `ADOPT.md`, the questions come before the first step that writes a
+  file.
+- **C4. Adoption takes a tag and checks `main`.** `ADOPT.md` names the
+  release tag. The adopter records the tag's commit, lists what the
+  harness's `main` holds beyond the tag, asks the owner whether the project
+  needs any of it now, and records what it took in the provenance (D6).
+  *Proof:* the text; at the candidate, `ADOPT.md` names `r6`.
+- **C5. Adoption ends with a real change, and a report.** `ADOPT.md`'s
+  done-when includes the first real change after the adoption PR, taken
+  through the loop: reviewed, posted and merged as the slot says (D3). The
+  adoption PR itself changes no product code. Adoption ends with a report
+  to the owner: what was built, every collision, the real change, and what
+  was left undecided. *Proof:* the text.
+- **C6. The slot fits a product.** Both adapters' slots carry `premise:`
+  (D8) and the three roles (D7); `ROADMAP.md`'s testbed sentences say they
+  hold only under `premise: testbed`; `CLAUDE.md`'s slot has no `design:`
+  line, and `CLAUDE.md` names shaping plus its fresh-context review as
+  Claude mode's planning gate (D5); and the never-echo item says a path
+  outside the repository is described relative to it (D10). *Proof:* the
+  text.
+- **C7. The scaffold asks the roles and the premise.** `tools/scaffold.mjs`
+  asks the three roles and the premise, as flags and interactively, and
+  writes them into the slot; it asks `design` only for OpenCode; and a
+  generated run's `.gitignore` lists `.claude/worktrees/`. *Proof:*
+  `node --test tools/scaffold.test.mjs` covers each; a run generated with
+  `--ref <candidate>` shows them.
+- **C8. `--github` has a dry run.** The scaffold's `--github` has a dry run
+  that prints the `gh repo create` and push commands it would run, and
+  creates nothing (D4). *Proof:* a test runs it against a fake `gh` that
+  records every call, and no creating call is made; `--help` names it.
+- **C9. Every preset generates cleanly from the candidate.** `light`,
+  `standard` and `auto`, each generated with `--ref <candidate>` into a
+  temporary directory and without `--github`, exit 0, leave no `{{…}}`
+  other than the placeholders `reviews/milestone-prompt.md` documents, and
+  leave no dangling relative link. `node --check` passes on every
+  `tools/*.mjs`. *Proof:* the commands.
+- **C10. The verification pattern lands.** `verification/README.md` says a
+  gate on a tool that exits 0 on failure reads the tool's log, not its exit
+  code, and that a check which runs only what a scene loads misses what no
+  scene loads, with boar_life's Godot gate as the example. *Proof:* the
+  text.
+- **C11. Planning is not building.** A habit in `PRINCIPLES.md` says that a
+  design discussion is not a request to build, and that building starts
+  only on the owner's go (D10). *Proof:* the text.
+- **C12. Every r6 PR follows the loop.** r5's rules hold for every r6 PR:
+  each review file is posted on the PR before the next commit and the
+  merge, one comment equal to the file; the body names the reviewed
+  revision and has the four parts; and every owner decision recorded in an
+  r6 PR has its evidence where *Owner decisions* says. *Proof:*
+  `git log --first-parent <landing merge>..<candidate>` shows only r6 PR
+  merges, completion-note commits and trivial changes; for every r6 PR,
+  `gh pr view N --json body,comments,commits,mergedAt` shows the rest.
+
 ## Release 5: scope and claims
 
 **Status:** decided on 2026-09-23: the owner accepted the scope and every
