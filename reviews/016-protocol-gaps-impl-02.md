@@ -187,3 +187,23 @@ The round-01 file was posted as it should be:
 
 — Claude Opus 5.5 (claude-opus-5-5), reviewer
 No blocking finding remains.
+
+## Completion
+
+Landed by PR #21, merged on 2026-09-24 (UTC) at the owner's instruction ("go
+ahead, merge when the review is clean"), after its last review comment and with
+GitGuardian green. The note is non-material and transcribes the evidence for C7.
+
+- `design: none` gives the completion note and a bypass amendment one home each
+  (D7); "rules apply going forward" is a rule in `PRINCIPLES.md` (D11); rounds
+  keep counting after a clean round (D6); every preset, `light` included,
+  generates from the candidate with 0 dangling relative links.
+- Also settled: a stopped review is a stop notice, no review and no round; every
+  milestone verdict's copy lands after the tag.
+- Two review rounds; round 01's two blocking findings fixed; round 02 clean on
+  `d7f633f`; `d00d30c` only adds its record. Both posted with the tool after
+  GitHub showed the head.
+- To settle before the r5 milestone (the PR's "Left out"): C11's "when a verdict
+  arrives" versus copies after the tag; the C8 relabel's date.
+
+— Implementer (Claude Opus 5.5)
