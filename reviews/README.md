@@ -29,7 +29,8 @@
   stage. A milestone verdict ends with the marker in both modes
   (`PRINCIPLES.md`, *Milestones*).
 - **A stop notice without a remote** (`PRINCIPLES.md`, *Rounds*) is one line
-  the next reviewer writes after its file's opening lines, beginning
+  the next reviewer writes after the opening lines of its review file, or of
+  its appended design verdict at the design stage, beginning
   `STOP NOTICE:` (as [`milestone-prompt.md`](milestone-prompt.md) does) and
   quoting why the stopped review stopped.
 - **The owner's signature**, on a comment or a line that records an owner

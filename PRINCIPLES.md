@@ -128,13 +128,13 @@ and does not relax CI.
   request or a design record records, the evidence is the pull request's
   merge where the owner merges (*Merge policy*; a merge the owner orders
   counts as the owner's), or else a comment the owner signs on the pull
-  request or the design issue, which `merge: auto`, a design stage and a
-  decision that must hold before the merge all need. For a decision
-  recorded on a milestone issue, such as the override to tag without a
-  review (*Milestones*), it is a comment the owner signs on that issue.
-  Without a remote, the owner's merge commit of the change stands for the
-  merge, and a line the owner signs in the change's record stands for the
-  comment. The owner and the agents may post from one GitHub account, so the
+  request or the design issue, which `merge: auto`, a decision in a design
+  record, and any other decision that must hold before the merge all need.
+  For a decision recorded on a milestone issue, such as the override to tag
+  without a review (*Milestones*), it is a comment the owner signs on that
+  issue. Without a remote, the owner's merge commit of the change stands for
+  the merge, and a line the owner signs under the decision's record stands
+  for the comment. The owner and the agents may post from one GitHub account, so the
   account tells nobody apart: the act named here is the owner's
   confirmation. So no agent signs as the owner, and where the owner merges,
   no agent merges without the owner's order. The owner's signature is the

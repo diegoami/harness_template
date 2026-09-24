@@ -600,7 +600,10 @@ on PR #11**, routed to this design:
   change without its reason. (b) Without a remote, a stop notice is a line
   in the change's next review file. The reason: records are files, and
   without a remote a stop would otherwise leave no record. Each is the
-  recommended default, taken. They are the first decisions held to C12's
+  recommended default, taken. Two points in the rule that carries (b) are
+  the implementer's, added on review round 01 within (b)'s reason, and not
+  an owner decision: at the design stage the line goes in the design
+  record, and the next reviewer writes it, quoting the notice. They are the first decisions held to C12's
   rule, which lands in the same pull request: their evidence is the owner's
   merge of PR #27.
 - The r4 milestone review (#10) is copied verbatim into `reviews/`:
