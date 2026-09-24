@@ -28,6 +28,13 @@
   whether any blocking finding remains; there is no marker and no design
   stage. A milestone verdict ends with the marker in both modes
   (`PRINCIPLES.md`, *Milestones*).
+- **A stop notice without a remote** (`PRINCIPLES.md`, *Rounds*) is one line
+  the next reviewer writes after its file's opening lines, beginning
+  `STOP NOTICE:` (as [`milestone-prompt.md`](milestone-prompt.md) does) and
+  quoting why the stopped review stopped.
+- **The owner's signature**, on a comment or a line that records an owner
+  decision (`PRINCIPLES.md`, *Owner decisions*), is a final line
+  `— <name>, owner`. Only the owner writes it.
 - **A comment, not an approval:** the verdict is written here and posted as the
   pull-request or issue comment when and how `PRINCIPLES.md` (*Posting*) says;
   it is never an approval action. The file stays canonical.
