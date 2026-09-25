@@ -55,7 +55,9 @@ and never silently reworded.
 ## Artistic license
 
 The project exists to exercise the process; its content is not the deliverable.
-So the agent has **artistic license inside a request**:
+That holds only under `premise: testbed` (the project slot in `CLAUDE.md`);
+under `premise: product`, the content is the deliverable. Under either
+premise, the agent has **artistic license inside a request**:
 
 - invent the names, the prose, the puzzles, the small mechanics;
 - implement the thing that reads best, not the thing that follows the request
@@ -67,9 +69,10 @@ What the license does not cover: **the intent of the request**, **scope**, **the
 done-when and the gates** (extendable with the reason recorded, never
 weakened), and **owner decisions**.
 
-The point is the process, not precision. A puzzle nobody asked for, landed
-through a review that caught the right things, is a better result than a
-literal request landed through a rubber stamp. The request is a direction; the
+The point is the process, not precision. That, too, holds only under
+`premise: testbed`: there, a puzzle nobody asked for, landed through a review
+that caught the right things, is a better result than a literal request landed
+through a rubber stamp. Under either premise, the request is a direction; the
 done-when is the contract.
 
 ## How it plugs into the rest
