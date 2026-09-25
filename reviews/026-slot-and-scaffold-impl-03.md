@@ -137,3 +137,40 @@
 
 — Claude Opus 5.5 (claude-opus-5-5), reviewer
 No blocking finding remains.
+
+## Completion
+
+Landed by PR #32, merged on 2026-09-25 at 13:55 UTC as `6f8ee88` at the
+owner's instruction ("merge #32"), after its last review comment and with
+GitGuardian green. The note is non-material and transcribes the evidence
+for the done-when items.
+
+- C6: the one project slot, in `CLAUDE.md`, carries `premise:` and the
+  three roles, and governs them (the ownership map; `AGENTS.md` defers to
+  it). `ROADMAP.md`'s two testbed sentences hold only under
+  `premise: testbed`, and its comparison-run line is unchanged. The
+  `design:` line is OpenCode-only, and `CLAUDE.md` names shaping plus its
+  review as Claude mode's planning gate. The never-echo item describes paths
+  outside the repository relative to it (rounds 01–03, *Verified*).
+- C7: the scaffold asks the roles and the premise as flags and
+  interactively, takes the mode from the implementer's tool, asks `design`
+  and writes its line only in OpenCode mode, writes the models into
+  `AGENTS.md` in OpenCode mode, and lists `.claude/worktrees/` in a run's
+  `.gitignore`. Each of these is pinned by a test that was shown failing
+  first. The `merge: auto` wording names the main session in Claude mode
+  (PR #31's *Left out*).
+- The owner decisions of 2026-09-25 on this PR, recorded in `BACKLOG.md`'s
+  *Notes*: Claude Code as the default tool, `product` as the default
+  premise, and "a model that is not Claude" as the Claude-mode release
+  reviewer. Their evidence is this merge.
+- Gates at `ba9e55b`: `node --test tools/*.test.mjs`, 60 of 60 pass;
+  `node --check` passes on every `tools/*.mjs`. Eight generated runs,
+  without `--github`, exit 0 with no stray `{{…}}`, no dangling link, and
+  no slot line over 79 columns.
+- Three review rounds. Round 01 had one blocking finding (the roles in two
+  homes), fixed in `b2ca6ed`. Rounds 02 and 03 ended clean. Round 02's
+  cross-file contradictions were fixed in `ba9e55b`, and round 03's one
+  wording finding was left, as the PR body says. `95991d5` only adds round
+  03's record.
+
+— Implementer (Claude Opus 5.5)
