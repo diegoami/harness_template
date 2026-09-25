@@ -145,3 +145,36 @@
 
 — Claude Opus 5.5 (claude-opus-5-5), reviewer
 No blocking finding remains.
+
+## Completion
+
+Landed by PR #31, merged on 2026-09-25 at 10:29 UTC as `0942ca4` at the
+owner's instruction ("merge #31"), after its last review comment and with
+GitGuardian green. The note is non-material and transcribes the evidence
+for the done-when items. It is r6's first implementation PR, built in the
+shape it describes: a forked implementer and a fresh reviewer, each in its
+own worktree, with the main session committing and posting the reviews.
+
+- C1: every clause holds in `CLAUDE.md` at `97fa44a` (round 03, *C1 and
+  C2*). The shape, the main session's part (including `merge: auto`), the
+  forked implementer and its resumption on findings, the fresh reviewer
+  that neither commits nor posts, the resumed re-review, the
+  external-process option, the headless fallback, the definition of a
+  forked subagent (`PRINCIPLES.md`, Sessions), and the identity check.
+- C2: *The owner's part* in `PLAN.md` has no session the owner opens. It
+  keeps the go-ahead, the owner decisions, the merge, playing the result
+  and filing findings. The Sessions habit names a forked subagent as the
+  default, makes the handoff its brief, and limits paste prompts to another
+  repository or another model.
+- Gates at `97fa44a`: `node --test tools/*.test.mjs`, 43 of 43 pass;
+  `node --check` passes on every `tools/*.mjs`; `light`, `standard` and
+  `auto` generate cleanly and ship the new text; no added line is over 79
+  columns.
+- Three review rounds. Rounds 01 and 02 each had one blocking finding: the
+  merge sentence under `merge: auto`, then a fallback in which the owner
+  opened a session. Both were fixed. Round 03 was clean on `97fa44a`, and
+  its one non-blocking finding (the headless fallback's worktree and
+  identity check) is left for a later change, as the PR body says.
+  `f9f744f` only adds round 03's record.
+
+— Implementer (Claude Opus 5.5)
