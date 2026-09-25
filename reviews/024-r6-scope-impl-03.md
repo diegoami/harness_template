@@ -92,3 +92,28 @@
 
 — Claude Opus 5.5 (claude-opus-5-5), reviewer
 No blocking finding remains.
+
+## Completion
+
+Landed by PR #30, merged on 2026-09-25 at 09:31 UTC as `3e114c2` at the
+owner's instruction ("merge #30"), after its last review comment and with
+GitGuardian green. The note is non-material and transcribes the evidence
+for the done-when items. r6's claims are fixed from this merge.
+
+- The r6 section has a promise, a range, *In r6*, a release step, *Not in
+  r6*, owner decisions D1–D11 with their answers, and claims C1–C12, each
+  with a proof (rounds 01–03, *Verified*).
+- Every item routed to r6 is in a claim or under *Not in r6* (round 01's
+  finding 8 placed the last two).
+- Every owner decision matches the answer given, D4 and D10 say that no
+  default was offered, and D5 records the owner's clarification from round
+  01. The owner's merge is the evidence for all of them (`PRINCIPLES.md`,
+  *Owner decisions*).
+- No r5 claim changed.
+- `node --test tools/*.test.mjs`: 43 tests, 43 pass.
+- Three review rounds. Round 01 had two blocking findings, fixed in
+  `d80951d`. Rounds 02 and 03 ended clean. Round 03's one whitespace
+  finding was left, as the PR body says. `e954a55` only adds round 03's
+  record.
+
+— Implementer (Claude Opus 5.5)
