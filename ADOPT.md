@@ -137,8 +137,8 @@ grounded in what steps 2 and 3 found. **Write nothing before the answers.**
 
 1. **First, the roles** (`CLAUDE.md`, the slot's roles), in a message of
    their own, since the mode and the other questions follow from them. If
-   the prompt already carries the owner's answer (step 4.2), record it and
-   do not ask again:
+   the prompt already carries the owner's answer (step 4.2), take it as
+   the owner's answer; step 6.4 writes it into the slot. Do not ask again:
    - **the implementer**: the tool, Claude Code or OpenCode, and its model
      id. Default: the tool and the model running this session.
    - **the reviewer of each change**, with its model id. Default: with
@@ -177,7 +177,10 @@ grounded in what steps 2 and 3 found. **Write nothing before the answers.**
       requests), and `verification/README.md` (default: take it).
    6. **Each collision**: how it is reconciled (step 6.2), with a default
       for each. Ask each conflict between a project rule and a harness
-      rule as a decision of its own. Default: the harness rule.
+      rule as a decision of its own. Default: the harness rule. If the
+      owner keeps the project's rule, step 6.2 adapts the harness file
+      that owns it. Where the kept rule would skip a change's review, say
+      that the first real change is still reviewed (step 9.2).
    7. **The rest of the slot, as drafted from step 3**: the product
       paragraph, the paths, the never-echo list, the milestones line, the
       gates table and the conventions. Ask the owner to correct it, and ask
@@ -224,15 +227,24 @@ branch is made from the default branch, for example `adopt-harness-<tag>`.
        items, goes into the slot, except a conservative floor's path
        list, which goes into the adopted `PRINCIPLES.md`'s floor;
      - a project rule that conflicts with a harness rule is settled by the
-       owner's answer to step 4: the harness rule, or the project's rule
-       kept in the slot's conventions;
+       owner's answer to step 4. If the harness rule is taken, the
+       project's rule goes. If the project's rule is kept, the harness
+       file that owns that rule (`PRINCIPLES.md`, *The ownership map*) is
+       adapted to state it, and so is every sentence in another adopted
+       file that states the opposite, so that no two files contradict.
+       The slot's conventions record the decision as an owner decision,
+       with its reason;
      - a project rule the harness lacks goes into the slot's conventions;
      - anything that is not a rule, such as history or notes, moves to a
        file the harness does not own, named in the pull request.
-   - **An existing `PLAN.md` or `ROADMAP.md`** with this project's own
-     plans is not overwritten. Either keep the project's file and skip the
-     harness one, or move the plan into the harness file's shape, and note
-     what moved.
+   - **An existing `PLAN.md` or `ROADMAP.md`** that is the project's own is
+     not overwritten. Choose one, and note what moved:
+     - keep the project's file, and skip the harness one;
+     - move the project's plan into the harness file's shape;
+     - where it is another kind of file, such as a companion document
+       rather than a plan of iterations or a queue of requests, move it
+       to a name the harness does not use, update the links to it, and
+       take the harness file.
    - **An existing `.gitignore`** is appended to (step 6.5); none of its
      lines changes.
    - **Existing records in `design/` or `reviews/`** stay; new records
@@ -303,9 +315,14 @@ branch is made from the default branch, for example `adopt-harness-<tag>`.
    `ROADMAP.md` says where the project takes it, implemented on a branch,
    reviewed, posted and merged as the slot says, with its completion note.
    It is the first change under the harness, not part of the adoption PR.
+   It is reviewed even where a rule the owner kept in step 6.2 would skip
+   a change's review, since adoption ends with one reviewed change.
 3. A contradiction it finds in the adopted files is a defect
    (`PRINCIPLES.md`, *The ownership map*). Fix it in this change, say so in
-   its pull request, and keep it for the report.
+   its pull request, and keep it for the report. A project rule the owner
+   kept in step 6.2 is not a defect: the slot records the decision, and
+   the file that owns the rule states it. Change it only by a new owner
+   decision.
 
 ### 10. Report to the owner
 
@@ -329,9 +346,11 @@ records are the handover: write no handover file. The report says:
   was taken from `main`.
 - Every chosen harness file exists, and the slot's product, paths,
   never-echo list, milestones and gates table are filled **from this
-  repository**; the gates table names commands that run here.
-- The adapters carry only their mode-specific text, and nothing contradicts
-  `PRINCIPLES.md`.
+  repository**; the gates table, in the slot or where a rule the owner
+  kept puts it, names commands that run here.
+- The adapters carry only their mode-specific text, and no two adopted
+  files contradict each other. A project rule the owner kept is stated by
+  the file that owns it, and the slot records the decision.
 - Every collision is reported, with where the displaced knowledge went.
 - The adoption PR changed no product code, and it was reviewed, posted and
   merged as the slot says, with every gate green.
