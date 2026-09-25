@@ -7,9 +7,9 @@
 ## One iteration per session
 
 Work comes from [`ROADMAP.md`](ROADMAP.md). An **iteration** is one shaped
-request: one session, one branch (`iteration-N-<slug>`), one review, one merge.
-Do not start the next iteration in the same session; do not grow an iteration
-while it is in flight.
+request: one implementer session, one branch (`iteration-N-<slug>`), one
+review, one merge. Do not start the next iteration in the same implementer
+session; do not grow an iteration while it is in flight.
 
 ## The iteration's shape
 
@@ -40,9 +40,10 @@ so; the exception is recorded, never improvised.
 
 ## The owner's part
 
-- **Give the go-ahead** for each iteration. The agent opens every session the
-  iteration needs (`PRINCIPLES.md`, *Sessions and handoff*); the owner opens
-  and closes none.
+- **Give the go-ahead** for each iteration. The owner opens only the main
+  session, their own conversation; the agent opens every other session the
+  iteration needs, outside a mode's fallback (`PRINCIPLES.md`, *Sessions and
+  handoff*).
 - **Answer owner decisions** when they are raised, with the recommended default
   in hand.
 - **Merge** each change, unless the project slot records `merge: auto`

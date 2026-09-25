@@ -306,12 +306,14 @@ the last one.
   notice, then go and play it.
 - **Durable facts belong in the repository** — this file, the project rules,
   the design and review records, the pull-request body — not in a conversation.
-- **Sessions and handoff.** Start a fresh session after a completed logical unit
-  or when a thread has grown long. The agent starts it, not the owner. In both
-  modes the default way is a **forked subagent**: a new subagent that starts
-  from its brief, not from a copy of the main session's conversation. The
-  brief is a short handoff: **Completed** (what is now true, and what was
+- **Sessions and handoff.** The main session is the owner's own conversation.
+  Start a fresh session after a completed logical unit or when a thread has
+  grown long. The agent starts it from the main session, not the owner. In
+  both modes the default way is a **forked subagent**: a new subagent that
+  starts from its brief, not from a copy of the main session's conversation.
+  The brief is a short handoff: **Completed** (what is now true, and what was
   verified); **Files / decisions** (the paths touched and the decisions made,
-  with reasons); **Next** (the next task, or "nothing open"). A prompt for the
-  owner to paste is only for work in another repository or by another model,
-  such as a milestone review.
+  with reasons); **Next** (the next task, or "nothing open"). The owner opens
+  another session only where a mode's fallback says so, or for a prompt to
+  paste. A prompt for the owner to paste is only for work in another
+  repository or by another model, such as a milestone review.
