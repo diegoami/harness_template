@@ -40,9 +40,8 @@ so; the exception is recorded, never improvised.
 
 ## The owner's part
 
-- **Give the go-ahead** for each iteration. The owner opens only the main
-  session, their own conversation; the agent opens every other session the
-  iteration needs, outside a mode's fallback (`PRINCIPLES.md`, *Sessions and
+- **Give the go-ahead** for each iteration, in the main session. The agent
+  opens every session the iteration needs (`PRINCIPLES.md`, *Sessions and
   handoff*).
 - **Answer owner decisions** when they are raised, with the recommended default
   in hand.

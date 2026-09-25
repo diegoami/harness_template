@@ -40,18 +40,16 @@ session's conversation, such as Claude Code's `fork`.
   commit. A worktree is made from the directory the fork starts in, so a fork
   from the wrong checkout lands in the wrong repository.
 - **Without subagents**, one session is the fallback: the main session also
-  implements, and the review comes from the external process, which the main
-  session runs. Where neither a subagent nor the external process is
-  available, the review comes from a new session the owner opens; that is the
-  one case in a change where the owner opens a session. The review records
-  the fallback.
+  implements, and starts the review itself, as a headless same-family session
+  (for example `claude -p`) or by running the external process. The owner
+  opens none. The review records the fallback.
 - There is **no design stage**, and a change's review carries **no AGREE/BLOCK
   marker**. The review is recorded per [`reviews/README.md`](reviews/README.md).
 - **Milestones** follow `PRINCIPLES.md` (*Milestones*); their verdict is not a
   change's review and does carry the marker.
-- **Fallback** for a failed or unavailable review: a new reviewer subagent,
-  or the external process, recorded; without either, a new session the owner
-  opens, as above. The rules are in the protocol.
+- **Fallback** for a failed or unavailable review: a new reviewer subagent, a
+  headless session the main session starts, or the external process,
+  recorded. The rules are in the protocol.
 - The **owner may review** as an independent option, but an owner is not
   automatically a fresh context — and is not one if they directed or wrote the
   change.
