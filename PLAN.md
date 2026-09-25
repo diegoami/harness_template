@@ -40,9 +40,13 @@ so; the exception is recorded, never improvised.
 
 ## The owner's part
 
-- **Start each iteration** and stop the session at its end.
+- **Give the go-ahead** for each iteration. The agent opens every session the
+  iteration needs (`PRINCIPLES.md`, *Sessions and handoff*); the owner opens
+  and closes none.
 - **Answer owner decisions** when they are raised, with the recommended default
   in hand.
+- **Merge** each change, unless the project slot records `merge: auto`
+  (`PRINCIPLES.md`, *Merge policy*).
 - **Play the result** after an iteration that changes what a person sees. The
   checks measure what they measure; only a player measures whether it is fun.
 - **File what you find** — the defect path is in `PRINCIPLES.md`.
