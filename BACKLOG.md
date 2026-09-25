@@ -799,6 +799,16 @@ on PR #11**, routed to this design:
   matches the owner's rule that any model other than Claude qualifies. The
   alternatives were DeepSeek, or Codex (`gpt-5`). Each is the recommended
   default, taken. Their evidence is the owner's merge of PR #32.
+- **Owner decision (2026-09-25), on PR #33's round 03**, asked in
+  conversation under the round ceiling (`PRINCIPLES.md`, *Rounds*), since
+  round 03 did not end clean. **Adapt the harness file:** when the owner
+  keeps a project's own rule over a harness rule at adoption, the harness
+  file that owns that rule is edited to state it, and the decision is
+  recorded in the slot. The reason: adopted files are already adapted per
+  project, and pgn-postmortem changed its `PRINCIPLES.md` this way. The
+  alternatives were "harness rule always wins", which drops the option,
+  and "waive and merge now". The recommended default, taken. Its evidence
+  is the owner's merge of PR #33.
 - The r4 milestone review (#10) is copied verbatim into `reviews/`:
   `006-r4-milestone-01.md` by DeepSeek V4.1 Flash, r4's implementer — not
   independent, kept as input — and `006-r4-milestone-02.md` by GPT-5.6 Luna,
