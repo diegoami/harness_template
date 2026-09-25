@@ -784,6 +784,21 @@ on PR #11**, routed to this design:
   record, and the next reviewer writes it, quoting the notice. Decisions (a)
   and (b) are the first held to C12's rule, which lands in the same pull
   request: their evidence is the owner's merge of PR #27.
+- **Owner decisions (2026-09-25), on PR #32** (C6 and C7), asked in
+  conversation. (a) The scaffold's default implementer tool is Claude Code,
+  so without OpenCode the `standard` and `auto` presets have no design stage.
+  The reason: it matches how the owner works; the presets still differ in
+  merge policy and in `PLAN.md` and `ROADMAP.md`, and a design stage appears
+  only when OpenCode is chosen. The alternative was a default per preset,
+  with `standard` and `auto` on OpenCode. (b) The default premise is
+  `product`. The reason: a new project's content is the deliverable, so the
+  testbed sentences are off unless `--premise testbed` is given. The
+  alternative was `testbed`. (c) In Claude mode, the default reviewer of
+  releases is written as "a model that is not Claude, for example Codex or
+  DeepSeek", and the owner picks one at each milestone. The reason: it
+  matches the owner's rule that any model other than Claude qualifies. The
+  alternatives were DeepSeek, or Codex (`gpt-5`). Each is the recommended
+  default, taken. Their evidence is the owner's merge of PR #32.
 - The r4 milestone review (#10) is copied verbatim into `reviews/`:
   `006-r4-milestone-01.md` by DeepSeek V4.1 Flash, r4's implementer — not
   independent, kept as input — and `006-r4-milestone-02.md` by GPT-5.6 Luna,

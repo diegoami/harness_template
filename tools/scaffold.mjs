@@ -26,8 +26,40 @@ const SLOT_END = "<!-- SLOT:END -->";
 const TBD = "TBD — the first session replaces this line";
 const DEFAULT_TEST = 'node --test "tools/**/*.test.mjs"';
 
+// The harness has one mode per tool, so the implementer's tool picks the mode.
+// The defaults are the current assignment, not the rule.
+const TOOLS = {
+  "claude-code": {
+    name: "Claude Code",
+    mode: "Claude mode",
+    where: "`CLAUDE.md`, *The process*",
+    merger: "the main session",
+    model: "claude-opus-5-5",
+    reviewer: (model) => `a fresh subagent, \`${model}\``,
+    // The owner picks the model at each milestone (BACKLOG.md, Notes).
+    milestoneReviewer: () =>
+      "a model that is not Claude, for example Codex or DeepSeek; the owner picks one at each milestone",
+  },
+  opencode: {
+    name: "OpenCode",
+    mode: "OpenCode mode",
+    where: "`AGENTS.md`",
+    merger: "the implementer",
+    model: "opencode/deepseek-v4.1-flash",
+    reviewer: () => "`opencode/gpt-5.6-luna#high`, as a subagent",
+    milestoneReviewer: () => "Claude, `claude-opus-5-5`",
+  },
+};
+const PREMISES = {
+  product: "the project's content is the deliverable",
+  testbed:
+    "the project exists to exercise the process; its content is not the deliverable",
+};
+
 const CHOICES = {
   "--preset": PRESETS,
+  "--premise": Object.keys(PREMISES),
+  "--implementer": Object.keys(TOOLS),
   "--github": ["none", "private", "public"],
   "--merge": ["owner", "auto"],
   "--design": ["required", "none"],
@@ -39,6 +71,9 @@ const VALUE_FLAGS = [
   "--name",
   "--dir",
   "--description",
+  "--implementer-model",
+  "--reviewer",
+  "--milestone-reviewer",
   "--ref",
   "--tag",
   "--test",
@@ -163,9 +198,14 @@ Questions and flags (each flag is asked when absent):
   --description <text>   one paragraph for the project slot        (TBD)
   --preset <name>        ${PRESETS.join(" | ")}   (standard)
   --ref | --tag <ref>    the harness release to copy               (newest r* tag)
+  --premise <premise>    product | testbed                         (product)
+  --implementer <tool>   claude-code | opencode; picks the mode    (claude-code)
+  --implementer-model <id>   the implementer's model id            (the tool's)
+  --reviewer <who>       who reviews each change, with its model   (the mode's)
+  --milestone-reviewer <who>   who reviews releases, with its model (the mode's)
   --github <mode>        none | private | public                   (none)
   --merge <policy>       owner | auto                              (preset)
-  --design <policy>      required | none                           (preset)
+  --design <policy>      required | none; OpenCode mode only       (preset)
   --plan <yes|no>        copy PLAN.md                              (preset)
   --roadmap <yes|no>     copy ROADMAP.md                           (preset)
   --test <command>       the test command for the gates table      (${DEFAULT_TEST})
@@ -173,6 +213,12 @@ Questions and flags (each flag is asked when absent):
   --owner <login>        the GitHub owner                          (gh login)
   --interactive          ask every question (default without --yes)
   --yes                  accept every default
+
+The roles and the premise are asked before the policy, and written into the
+project slot. The implementer's tool picks the mode, since the harness has one
+mode per tool: Claude Code works in Claude mode, OpenCode in OpenCode mode.
+Only OpenCode mode is asked --design and gets the slot's design: line; with
+--implementer claude-code, --design is refused.
 
 Quoting --test: the value usually holds double quotes, which a shell can
 strip. In bash, wrap the whole value in single quotes:
@@ -198,7 +244,9 @@ async function initInput() {
 async function ask(question, def) {
   const suffix = def !== undefined ? ` [${def}]` : "";
   if (pipedLines) {
+    // Piped answers still show each question, so a run shows what it asked.
     const answer = (pipedLines.shift() ?? "").trim();
+    console.log(`${question}${suffix}: ${answer}`);
     return answer || def;
   }
   if (!ttyRl) {
@@ -247,7 +295,41 @@ function readPreset(sha, name) {
   return JSON.parse(raw);
 }
 
-function slotText({ name, description, merge, design, test, ci, plan, roadmap }) {
+// One slot item, wrapped at 79 columns: `lead` starts the first line, and the
+// rest are indented by `indent` spaces. A word longer than a line stays whole.
+function wrapItem(lead, text, indent) {
+  const lines = [];
+  let line = lead;
+  let fresh = true;
+  for (const word of text.split(/\s+/).filter(Boolean)) {
+    if (!fresh && line.length + 1 + word.length > 79) {
+      lines.push(line);
+      line = " ".repeat(indent) + word;
+    } else {
+      line += (line.trim() === "" ? "" : " ") + word;
+    }
+    fresh = false;
+  }
+  lines.push(line);
+  return lines.join("\n");
+}
+
+function slotText({
+  name,
+  description,
+  premise,
+  tool,
+  model,
+  reviewer,
+  milestoneReviewer,
+  merge,
+  design,
+  test,
+  ci,
+  plan,
+  roadmap,
+}) {
+  const t = TOOLS[tool];
   const planFile = plan
     ? "`PLAN.md`"
     : roadmap
@@ -261,11 +343,31 @@ function slotText({ name, description, merge, design, test, ci, plan, roadmap })
     merge === "auto"
       ? `- **merge conditions:** a clean review (\`AGREE\` in OpenCode mode, no
   blocking finding in Claude mode), its reviews posted on the pull request
-  (\`PRINCIPLES.md\`, *Posting*), and every gate green; the implementer merges
+  (\`PRINCIPLES.md\`, *Posting*), and every gate green; ${t.merger} merges
   with \`gh pr merge --squash --delete-branch\`, and the pull request records it.
 `
       : "";
+  // Only OpenCode mode has a design stage, so only its slot has the line.
+  const designLine =
+    tool === "opencode"
+      ? `- **design:** ${design} — OpenCode mode only (\`AGENTS.md\`, *The two
+  stages*).
+`
+      : "";
   return `- **product:** ${name} — ${description}
+${wrapItem("- **premise:**", `${premise} — ${PREMISES[premise]}.`, 2)}
+- **roles:** recorded before the mode; the mode is the implementer's tool's.
+${wrapItem(
+  "  - **implementer:**",
+  `${t.name}, model \`${model}\`. The project works in ${t.mode} (${t.where}).`,
+  4,
+)}
+${wrapItem("  - **reviewer of each change:**", `${reviewer}.`, 4)}
+${wrapItem(
+  "  - **reviewer of releases:**",
+  `${milestoneReviewer} (\`PRINCIPLES.md\`, *Milestones*).`,
+  4,
+)}
 - **paths to inspect:** the project's source roots and documents worth reading
   by default.
 - **the canonical source:** the one place to read and edit; name any mirror,
@@ -274,10 +376,10 @@ function slotText({ name, description, merge, design, test, ci, plan, roadmap })
   its reason; read the lockfile only when dependencies are the task. Ignoring a
   path never means deleting or gitignoring it.
 - **never read or echo:** secrets, signing material, one machine's paths. None
-  are known; keep it that way and list them here when that changes.
+  are known; keep it that way and list them here when that changes. A path
+  outside the repository is described relative to it, never absolutely.
 - **merge:** ${merge}
-${mergeConditions}- **design:** ${design}
-- **milestones:** annotated tags \`vX.Y.Z\` on \`main\`, as
+${mergeConditions}${designLine}- **milestones:** annotated tags \`vX.Y.Z\` on \`main\`, as
   \`PRINCIPLES.md\` (*Milestones*) says; the plan that holds each release's
   claims: ${planFile}.
 - **the gates table:**
@@ -306,11 +408,30 @@ function fillSlot(claude, slot) {
   );
 }
 
+// In OpenCode mode, AGENTS.md's assignment table and implementer signature
+// name the slot's models, so a run's two files never disagree.
+function assignAgents(agents, model, reviewer) {
+  const cell = (text) => text.replaceAll("|", "\\|");
+  const edits = [
+    [/^\| implementer \| .* \|$/m, `| implementer | \`${model}\` |`],
+    [/^\| reviewer \| .* \|$/m, `| reviewer | ${cell(reviewer)} |`],
+    [/`— Implementer \([^)`]*\)`/, `\`— Implementer (${model})\``],
+  ];
+  for (const [pattern, replacement] of edits) {
+    if (!pattern.test(agents)) {
+      fail(`this ref's AGENTS.md has no ${pattern.source.includes("Implementer") ? "implementer signature" : "assignment row"} to fill`);
+    }
+    agents = agents.replace(pattern, () => replacement);
+  }
+  return agents;
+}
+
 function readmeText({
   name,
   ref,
   sha,
   preset,
+  tool,
   merge,
   design,
   plan,
@@ -319,6 +440,7 @@ function readmeText({
   github,
   tbd,
 }) {
+  const t = TOOLS[tool];
   const steps = [];
   if (tbd) {
     steps.push(
@@ -342,9 +464,9 @@ function readmeText({
       "Keep [`PLAN.md`](PLAN.md) and fill its iteration table, or delete it if the project does not slice work into iterations.",
     );
   }
-  if (design === "required") {
+  if (tool === "opencode" && design === "required") {
     steps.push(
-      "**OpenCode mode only:** for a non-trivial change, write the design record first ([`design/README.md`](design/README.md)). Claude mode has no design stage.",
+      "For a non-trivial change, write the design record first ([`design/README.md`](design/README.md)).",
     );
   }
   const list = steps.map((step, i) => `${i + 1}. ${step}`).join("\n");
@@ -359,9 +481,9 @@ Read [\`AGENTS.md\`](AGENTS.md) if you work with OpenCode, or
 
 ## Policy
 
-- **merge:** \`${merge}\` — ${merge === "auto" ? "the implementer merges on a clean review, its reviews posted, and green gates" : "the owner merges"}.
-- **design:** \`${design}\` — ${design === "required" ? "OpenCode mode writes a design record before implementation" : "no design stage; the implementation review alone decides"}.
-
+- **mode:** ${t.mode} — the implementer's tool is ${t.name} (the project slot in \`CLAUDE.md\`).
+- **merge:** \`${merge}\` — ${merge === "auto" ? `${t.merger} merges on a clean review, its reviews posted, and green gates` : "the owner merges"}.
+${tool === "opencode" ? `- **design:** \`${design}\` — ${design === "required" ? "a design record before implementation" : "no design stage; the implementation review alone decides"}.\n` : ""}
 ## First session
 
 ${list}
@@ -398,9 +520,14 @@ async function main() {
     "description",
     "preset",
     "ref",
+    "premise",
+    "implementer",
+    "implementer-model",
+    "reviewer",
+    "milestone-reviewer",
     "github",
     "merge",
-    "design",
+    ...(args.implementer === "opencode" ? ["design"] : []),
     "plan",
     "roadmap",
     "test",
@@ -434,6 +561,44 @@ async function main() {
   }
   if (!description) description = TBD;
 
+  // The premise and the roles come before the policy; the mode follows the
+  // implementer's tool.
+  const premise =
+    args.premise ??
+    (interactive
+      ? await askChoice("Premise", Object.keys(PREMISES), "product")
+      : "product");
+  const tool =
+    args.implementer ??
+    (interactive
+      ? await askChoice("Implementer's tool", Object.keys(TOOLS), "claude-code")
+      : "claude-code");
+  // --design belongs to OpenCode mode; refused, not ignored, before any write.
+  if (args.design !== undefined && tool !== "opencode") {
+    fail(
+      "--design applies only in OpenCode mode (--implementer opencode); Claude mode has no design stage",
+    );
+  }
+  const role = async (flag, question, def) => {
+    const value =
+      args[flag] ?? (interactive ? await ask(question, def) : def);
+    if (!value || !value.trim() || /[\r\n]/.test(value))
+      fail(`--${flag} must be one non-empty line: ${JSON.stringify(value)}`);
+    return value.trim().replace(/\.$/, "");
+  };
+  const model = await role("implementer-model", "Implementer's model id", TOOLS[tool].model);
+  if (model.includes("`")) fail("--implementer-model must not hold a backtick");
+  const reviewer = await role(
+    "reviewer",
+    "Reviewer of each change",
+    TOOLS[tool].reviewer(model),
+  );
+  const milestoneReviewer = await role(
+    "milestone-reviewer",
+    "Reviewer of releases",
+    TOOLS[tool].milestoneReviewer(),
+  );
+
   const github =
     args.github ??
     (interactive
@@ -444,15 +609,18 @@ async function main() {
     (interactive
       ? await askChoice("Merge policy", ["owner", "auto"], preset.policy.merge)
       : preset.policy.merge);
+  // Asked only in OpenCode mode; Claude mode has no design stage (D5).
   const design =
-    args.design ??
-    (interactive
-      ? await askChoice(
-          "Design stage (OpenCode mode)",
-          ["required", "none"],
-          preset.policy.design,
-        )
-      : preset.policy.design);
+    tool !== "opencode"
+      ? undefined
+      : (args.design ??
+        (interactive
+          ? await askChoice(
+              "Design stage (OpenCode mode)",
+              ["required", "none"],
+              preset.policy.design,
+            )
+          : preset.policy.design));
   const plan =
     (args.plan ??
       (interactive
@@ -521,8 +689,25 @@ async function main() {
   }
 
   const tbd = description === TBD;
-  const slot = slotText({ name, description, merge, design, test, ci, plan, roadmap });
+  const slot = slotText({
+    name,
+    description,
+    premise,
+    tool,
+    model,
+    reviewer,
+    milestoneReviewer,
+    merge,
+    design,
+    test,
+    ci,
+    plan,
+    roadmap,
+  });
   contents.set("CLAUDE.md", fillSlot(contents.get("CLAUDE.md"), slot));
+  if (tool === "opencode") {
+    contents.set("AGENTS.md", assignAgents(contents.get("AGENTS.md"), model, reviewer));
+  }
   for (const [file, content] of contents) {
     contents.set(file, content.replaceAll("{{PROJECT}}", name));
   }
@@ -540,6 +725,7 @@ async function main() {
       ref,
       sha,
       preset: presetName,
+      tool,
       merge,
       design,
       plan,
@@ -548,6 +734,11 @@ async function main() {
       github,
       tbd,
     }),
+  );
+  // The orchestrated Claude mode puts each subagent in its own worktree there.
+  writeFileSync(
+    path.join(target, ".gitignore"),
+    "# Subagent worktrees (CLAUDE.md, The process)\n.claude/worktrees/\n",
   );
   if (ci) {
     const workflow = path.join(target, ".github", "workflows", "check.yml");
@@ -609,7 +800,9 @@ async function main() {
   console.log(`${name} created at ${target}`);
   console.log(
     `  ${contents.size} files from ${ref} (${sha.slice(0, 12)}), preset ${presetName}` +
-      `, merge ${merge}, design ${design}, ci ${ci ? "yes" : "no"}`,
+      `, ${TOOLS[tool].mode}, premise ${premise}, merge ${merge}` +
+      (design ? `, design ${design}` : "") +
+      `, ci ${ci ? "yes" : "no"}`,
   );
   if (github !== "none") console.log(`  remote: https://github.com/${owner}/${name}`);
   else console.log("  no remote; see README.md to add one");

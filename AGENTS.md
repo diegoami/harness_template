@@ -8,6 +8,11 @@ This file adds the OpenCode-specific process and nothing else.
 
 ## Roles and the assignment
 
+A project's roles are recorded in the project slot in `CLAUDE.md`, and the
+slot governs. The table below is the harness's default assignment; in
+OpenCode mode, the scaffold writes the slot's models into it, and into the
+signature below.
+
 | role | who |
 |---|---|
 | implementer | DeepSeek — `opencode/deepseek-v4.1-flash` |
@@ -20,9 +25,10 @@ This file adds the OpenCode-specific process and nothing else.
   family than the implementer**. It verifies against the real code rather than
   trusting the description, and signs its verdict as
   [`reviews/README.md`](reviews/README.md) defines.
-- **The invariant is the different model family; the table above is the current
-  assignment, not the rule.** Whoever changes an assignment updates the table in
-  the same change.
+- **The invariant is the different model family; the table above is the
+  default assignment, and the slot holds the current one; neither is the
+  rule.** Whoever changes an assignment updates the slot, and in OpenCode
+  mode the table, in the same change.
 - The implementer never reviews its own change; the reviewer never shares the
   implementer's context.
 

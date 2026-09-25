@@ -45,6 +45,9 @@ session's conversation, such as Claude Code's `fork`.
   opens none. The review records the fallback.
 - There is **no design stage**, and a change's review carries **no AGREE/BLOCK
   marker**. The review is recorded per [`reviews/README.md`](reviews/README.md).
+- Claude mode's **planning gate** is the shaping of a request (`ROADMAP.md`,
+  *The agent's job*) plus its fresh-context review, so a project does not
+  take OpenCode's design stage to get one.
 - **Milestones** follow `PRINCIPLES.md` (*Milestones*); their verdict is not a
   change's review and does carry the marker.
 - **Fallback** for a failed or unavailable review: a new reviewer subagent, a
@@ -69,6 +72,18 @@ bootstrap applies as written there — one review, not two stages.
      are in BACKLOG.md, and its history in design/ and reviews/. -->
 
 - **product:** {{PROJECT}} — one paragraph: what it is and who it is for.
+- **premise:** `product` or `testbed`. Under `product`, the project's content
+  is the deliverable; under `testbed`, the project exists to exercise the
+  process, and `ROADMAP.md`'s testbed sentences hold.
+- **roles:** who implements, who reviews each change and who reviews
+  releases, recorded before a mode is chosen. The mode is the implementer's
+  tool's: Claude mode for Claude Code (this file), OpenCode mode for OpenCode
+  (`AGENTS.md`).
+  - **implementer:** the tool, Claude Code or OpenCode, and its model id.
+  - **reviewer of each change:** who, with its model id.
+  - **reviewer of releases:** who, with its model id where one is chosen. In
+    Claude mode the default is a model that is not Claude, which the owner
+    picks at each milestone (`PRINCIPLES.md`, *Milestones*).
 - **paths to inspect:** the source roots and documents worth reading by default.
 - **the canonical source:** the one place to read and edit; name any mirror,
   copy or generated artifact that must never be edited or cited.
@@ -76,9 +91,11 @@ bootstrap applies as written there — one review, not two stages.
   of what, or merely large. Ignoring a path never means deleting or gitignoring
   it.
 - **never read or echo:** secrets, signing material, one machine's paths. List
-  them explicitly.
+  them explicitly. A path outside the repository, such as a sibling clone or a
+  download cache, is described relative to it, never absolutely.
 - **merge:** owner
-- **design:** required
+- **design:** OpenCode mode only: `required` or `none` (`AGENTS.md`, *The two
+  stages*). A Claude-mode project's slot has no `design:` line.
 - **milestones:** the release tag scheme (`vX.Y.Z` by default) and the one
   file that holds each release's claims (`PRINCIPLES.md`, *Milestones*).
 - **the gates table:** one row per gate — the command, what it covers, when it
