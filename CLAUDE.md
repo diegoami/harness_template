@@ -8,23 +8,48 @@ This file records the Claude-specific process and the project slot.
 
 ## The process
 
-- Claude **implements** the change on a branch and opens a pull request; each
-  review round is posted on it as `PRINCIPLES.md` says (*Posting*, *Pull
-  requests*), which also covers a project with no remote yet.
-- The review is a **fresh-context session** — a new session that has not seen
-  the implementation. **The reviewer is the same model family by default; no
+Claude mode is **orchestrated**: a main session, a forked implementer and a
+fresh reviewer. A **forked subagent** is defined in `PRINCIPLES.md`
+(*Sessions and handoff*); it is not a subagent type that copies the main
+session's conversation, such as Claude Code's `fork`.
+
+- The **main session** talks to the owner and asks the owner decisions. It
+  holds only the subagents' reports. It commits each review file to the pull
+  request's branch and posts it as `PRINCIPLES.md` says (*Posting*, *Pull
+  requests*), which also covers a project with no remote yet. It asks the
+  owner for the merge, or, where the slot records `merge: auto`, merges when
+  the slot's conditions hold; and it writes the completion notes.
+- Claude **implements** as a forked subagent in its own git worktree, on the
+  owner's go. Its brief comes from what the repository records — the project
+  slot, the request and its done-when — so a gap in the records surfaces as a
+  question. It implements the change on a branch, opens a pull request, and
+  stops and reports.
+- A review's findings go back to **that same implementer, resumed**, which
+  fixes them in the same change; a finding it disagrees with goes to the owner,
+  not around the reviewer.
+- The review is a **fresh-context session**: a separate, fresh forked
+  subagent in its own worktree, which has not seen the implementation. It
+  writes its review file and neither commits nor posts it. A re-review resumes
+  the same reviewer. **The reviewer is the same model family by default; no
   cross-family reviewer is required.** The mechanism may instead be an
   **external process** from another family (for example `codex exec`, or
   `opencode run -m <provider>/<model>`); when it is, record the tool and the
   model id in the review.
+- **Every forked brief, the implementer's and the reviewer's, begins with a
+  repository identity check**: the remote's URL and the expected branch or
+  commit. A worktree is made from the directory the fork starts in, so a fork
+  from the wrong checkout lands in the wrong repository.
+- **Without subagents**, one session is the fallback: the main session also
+  implements, and starts the review itself, as a headless same-family session
+  (for example `claude -p`) or by running the external process. The owner
+  opens none. The review records the fallback.
 - There is **no design stage**, and a change's review carries **no AGREE/BLOCK
   marker**. The review is recorded per [`reviews/README.md`](reviews/README.md).
 - **Milestones** follow `PRINCIPLES.md` (*Milestones*); their verdict is not a
   change's review and does carry the marker.
-- **Fallback:** a new session, or the external process, recorded. The rules are
-  in the protocol.
-- The builder fixes findings in the same change; a finding the builder disagrees
-  with goes to the owner, not around the reviewer.
+- **Fallback** for a failed or unavailable review: a new reviewer subagent, a
+  headless session the main session starts, or the external process,
+  recorded. The rules are in the protocol.
 - The **owner may review** as an independent option, but an owner is not
   automatically a fresh context — and is not one if they directed or wrote the
   change.
