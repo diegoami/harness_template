@@ -15,9 +15,9 @@
 | the verdict protocol: revision scope and target proof, rounds, materiality, reviewer sessions, fallback, waiver, owner decisions, defect path, completion note, merge policy, `design: none` scoping, rules going forward, bootstrap, comment-not-approval, creation paths, posting, pull requests | `PRINCIPLES.md` |
 | milestones: the definition, claims before work, the milestone issue, the reviewer and its verdict, the tag, triage | `PRINCIPLES.md` |
 | the milestone review prompt | `reviews/milestone-prompt.md` |
-| the OpenCode process: roles, assignment table, reviewer acquisition, the two stages, BLOCK scope, withdraw/re-scope | `AGENTS.md` |
+| the OpenCode process: the roles' duties, the default assignment table, reviewer acquisition, the two stages, BLOCK scope, withdraw/re-scope | `AGENTS.md` |
 | the Claude Code process: fresh-context review, same-family default, no design stage, the external-process option | `CLAUDE.md` |
-| the project rules: product, paths, never-echo, the gates table, conventions, one source of truth, decided-not-to-reopen, open work | `CLAUDE.md`, the project slot |
+| the project rules: product, premise, the roles (who implements, who reviews each change, who reviews releases), paths, never-echo, the gates table, conventions, one source of truth, decided-not-to-reopen, open work | `CLAUDE.md`, the project slot |
 | the iteration overlay and the fork-provenance table | `PLAN.md` |
 | feature requests and artistic license | `ROADMAP.md` |
 | the design-record format | `design/README.md` |

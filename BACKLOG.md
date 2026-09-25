@@ -784,6 +784,21 @@ on PR #11**, routed to this design:
   record, and the next reviewer writes it, quoting the notice. Decisions (a)
   and (b) are the first held to C12's rule, which lands in the same pull
   request: their evidence is the owner's merge of PR #27.
+- **Owner decisions (2026-09-25), on PR #32** (C6 and C7), asked in
+  conversation. (a) The scaffold's default implementer tool is Claude Code,
+  so without OpenCode the `standard` and `auto` presets have no design stage.
+  The reason: Claude Code is how the owner's projects are implemented
+  (pgn-postmortem item 1), and the mode follows the roles, not a preset. The
+  alternative was a default per preset, with `standard` and `auto` on
+  OpenCode. (b) The default premise is `product`. The reason: a scaffolded
+  project is usually a product, and a `testbed` default would recreate the
+  mismatch of boar_life item 1. The alternative was `testbed`. (c) In Claude
+  mode, the default reviewer of releases is written as "a model that is not
+  Claude, for example Codex or DeepSeek", and the owner picks one at each
+  milestone. The reason: *Milestones* fixes only that the family implemented
+  none of the range, and the owner chooses the model when the review is due.
+  The alternatives were DeepSeek, or Codex (`gpt-5`). Each is the recommended
+  default, taken. Their evidence is the owner's merge of PR #32.
 - The r4 milestone review (#10) is copied verbatim into `reviews/`:
   `006-r4-milestone-01.md` by DeepSeek V4.1 Flash, r4's implementer — not
   independent, kept as input — and `006-r4-milestone-02.md` by GPT-5.6 Luna,

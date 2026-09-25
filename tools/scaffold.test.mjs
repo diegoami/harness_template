@@ -187,6 +187,12 @@ function scaffoldAsked(answers, args = []) {
   return { ...r, dir, target, done: () => rmSync(dir, { recursive: true, force: true }) };
 }
 
+// Every generated slot line fits 79 columns, except the gates table's rows.
+function assertSlotWidth(target, what) {
+  for (const line of slotOf(target).split(/\r?\n/))
+    if (!line.startsWith("  |")) assert.ok(line.length <= 79, `${what}: ${line.length} columns: ${line}`);
+}
+
 test("the role and premise flags land in the slot, and the mode is the implementer's tool's", () => {
   for (const [tool, premise, label, mode] of [
     ["claude-code", "testbed", "Claude Code", "Claude mode"],
@@ -207,9 +213,104 @@ test("the role and premise flags land in the slot, and the mode is the implement
       assert.ok(slot.includes(`works in ${mode}`), `${tool}: no mode in ${slot}`);
       assert.ok(slot.includes(`**reviewer of each change:** change reviewer for ${tool}`), tool);
       assert.ok(slot.includes(`**reviewer of releases:** release reviewer for ${tool}`), tool);
+      assertSlotWidth(r.target, tool);
     } finally {
       r.done();
     }
+  }
+});
+
+test("every generated slot line fits 79 columns, for both premises and both tools", () => {
+  for (const args of [
+    [],
+    ["--premise", "testbed"],
+    ["--premise", "testbed", "--implementer", "opencode"],
+    ["--preset", "auto"],
+    ["--preset", "auto", "--implementer", "opencode"],
+  ]) {
+    const r = scaffold(args);
+    try {
+      assert.equal(r.status, 0, r.stderr);
+      assertSlotWidth(r.target, args.join(" ") || "defaults");
+    } finally {
+      r.done();
+    }
+  }
+});
+
+test("the defaults: product, Claude Code, and each role's default in the slot", () => {
+  const r = scaffold([]);
+  try {
+    assert.equal(r.status, 0, r.stderr);
+    const slot = slotOf(r.target).replace(/\s+/g, " ");
+    assert.match(slot, /\*\*premise:\*\* product —/);
+    assert.ok(slot.includes("**implementer:** Claude Code, model `claude-opus-5-5`"), slot);
+    assert.ok(slot.includes("**reviewer of each change:** a fresh subagent, `claude-opus-5-5`"), slot);
+    assert.ok(
+      slot.includes("**reviewer of releases:** a model that is not Claude, for example Codex or DeepSeek"),
+      slot,
+    );
+  } finally {
+    r.done();
+  }
+  // The change reviewer's default follows the implementer's model.
+  const changed = scaffold(["--implementer-model", "claude-other-9"]);
+  try {
+    assert.equal(changed.status, 0, changed.stderr);
+    assert.ok(
+      slotOf(changed.target).replace(/\s+/g, " ").includes("**reviewer of each change:** a fresh subagent, `claude-other-9`"),
+    );
+  } finally {
+    changed.done();
+  }
+});
+
+test("blank interactive answers give the premise product and the tool Claude Code", () => {
+  const r = scaffoldAsked([]);
+  try {
+    assert.equal(r.status, 0, r.stderr);
+    const slot = slotOf(r.target).replace(/\s+/g, " ");
+    assert.match(slot, /\*\*premise:\*\* product —/);
+    assert.match(slot, /\*\*implementer:\*\* Claude Code, model `claude-opus-5-5`/);
+  } finally {
+    r.done();
+  }
+});
+
+for (const [what, args, flag] of [
+  ["an empty --reviewer", ["--reviewer", ""], "--reviewer"],
+  ["a multi-line --reviewer", ["--reviewer", "one\ntwo"], "--reviewer"],
+  ["a blank --milestone-reviewer", ["--milestone-reviewer", "   "], "--milestone-reviewer"],
+  ["a backtick in --implementer-model", ["--implementer-model", "a`b"], "--implementer-model"],
+]) {
+  test(`${what} is refused before anything is written`, () => {
+    const r = scaffold(args);
+    try {
+      assert.notEqual(r.status, 0, "the scaffold accepted it");
+      assert.ok(r.stderr.includes(flag), r.stderr);
+      assert.equal(existsSync(r.target), false, "the target was written");
+    } finally {
+      r.done();
+    }
+  });
+}
+
+test("an OpenCode run's AGENTS.md names the slot's models, and no other", () => {
+  const r = scaffold([
+    "--implementer", "opencode",
+    "--implementer-model", "opencode/kimi-k3",
+    "--reviewer", "Claude, `claude-opus-5-5`, as a subagent",
+  ]);
+  try {
+    assert.equal(r.status, 0, r.stderr);
+    const agents = readFileSync(path.join(r.target, "AGENTS.md"), "utf8");
+    assert.ok(agents.includes("| implementer | `opencode/kimi-k3` |"), agents);
+    assert.ok(agents.includes("| reviewer | Claude, `claude-opus-5-5`, as a subagent |"), agents);
+    assert.ok(agents.includes("`— Implementer (opencode/kimi-k3)`"), agents);
+    assert.doesNotMatch(agents, /DeepSeek|deepseek|GPT-5\.6|gpt-5\.6/);
+    assert.match(agents.replace(/\s+/g, " "), /the slot governs/);
+  } finally {
+    r.done();
   }
 });
 

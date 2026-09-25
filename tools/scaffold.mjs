@@ -35,8 +35,10 @@ const TOOLS = {
     where: "`CLAUDE.md`, *The process*",
     merger: "the main session",
     model: "claude-opus-5-5",
-    reviewer: "a fresh Claude Code subagent, same family",
-    milestoneReviewer: "DeepSeek, `opencode/deepseek-v4.1-flash`",
+    reviewer: (model) => `a fresh subagent, \`${model}\``,
+    // The owner picks the model at each milestone (BACKLOG.md, Notes).
+    milestoneReviewer: () =>
+      "a model that is not Claude, for example Codex or DeepSeek; the owner picks one at each milestone",
   },
   opencode: {
     name: "OpenCode",
@@ -44,8 +46,8 @@ const TOOLS = {
     where: "`AGENTS.md`",
     merger: "the implementer",
     model: "opencode/deepseek-v4.1-flash",
-    reviewer: "`opencode/gpt-5.6-luna#high`, as a subagent",
-    milestoneReviewer: "Claude, `claude-opus-5-5`",
+    reviewer: () => "`opencode/gpt-5.6-luna#high`, as a subagent",
+    milestoneReviewer: () => "Claude, `claude-opus-5-5`",
   },
 };
 const PREMISES = {
@@ -293,6 +295,25 @@ function readPreset(sha, name) {
   return JSON.parse(raw);
 }
 
+// One slot item, wrapped at 79 columns: `lead` starts the first line, and the
+// rest are indented by `indent` spaces. A word longer than a line stays whole.
+function wrapItem(lead, text, indent) {
+  const lines = [];
+  let line = lead;
+  let fresh = true;
+  for (const word of text.split(/\s+/).filter(Boolean)) {
+    if (!fresh && line.length + 1 + word.length > 79) {
+      lines.push(line);
+      line = " ".repeat(indent) + word;
+    } else {
+      line += (line.trim() === "" ? "" : " ") + word;
+    }
+    fresh = false;
+  }
+  lines.push(line);
+  return lines.join("\n");
+}
+
 function slotText({
   name,
   description,
@@ -334,13 +355,19 @@ function slotText({
 `
       : "";
   return `- **product:** ${name} — ${description}
-- **premise:** ${premise} — ${PREMISES[premise]}.
+${wrapItem("- **premise:**", `${premise} — ${PREMISES[premise]}.`, 2)}
 - **roles:** recorded before the mode; the mode is the implementer's tool's.
-  - **implementer:** ${t.name}, model \`${model}\`.
-    The project works in ${t.mode} (${t.where}).
-  - **reviewer of each change:** ${reviewer}.
-  - **reviewer of releases:** ${milestoneReviewer}
-    (\`PRINCIPLES.md\`, *Milestones*).
+${wrapItem(
+  "  - **implementer:**",
+  `${t.name}, model \`${model}\`. The project works in ${t.mode} (${t.where}).`,
+  4,
+)}
+${wrapItem("  - **reviewer of each change:**", `${reviewer}.`, 4)}
+${wrapItem(
+  "  - **reviewer of releases:**",
+  `${milestoneReviewer} (\`PRINCIPLES.md\`, *Milestones*).`,
+  4,
+)}
 - **paths to inspect:** the project's source roots and documents worth reading
   by default.
 - **the canonical source:** the one place to read and edit; name any mirror,
@@ -379,6 +406,24 @@ function fillSlot(claude, slot) {
     "\n\n" +
     claude.slice(end)
   );
+}
+
+// In OpenCode mode, AGENTS.md's assignment table and implementer signature
+// name the slot's models, so a run's two files never disagree.
+function assignAgents(agents, model, reviewer) {
+  const cell = (text) => text.replaceAll("|", "\\|");
+  const edits = [
+    [/^\| implementer \| .* \|$/m, `| implementer | \`${model}\` |`],
+    [/^\| reviewer \| .* \|$/m, `| reviewer | ${cell(reviewer)} |`],
+    [/`— Implementer \([^)`]*\)`/, `\`— Implementer (${model})\``],
+  ];
+  for (const [pattern, replacement] of edits) {
+    if (!pattern.test(agents)) {
+      fail(`this ref's AGENTS.md has no ${pattern.source.includes("Implementer") ? "implementer signature" : "assignment row"} to fill`);
+    }
+    agents = agents.replace(pattern, () => replacement);
+  }
+  return agents;
 }
 
 function readmeText({
@@ -543,11 +588,15 @@ async function main() {
   };
   const model = await role("implementer-model", "Implementer's model id", TOOLS[tool].model);
   if (model.includes("`")) fail("--implementer-model must not hold a backtick");
-  const reviewer = await role("reviewer", "Reviewer of each change", TOOLS[tool].reviewer);
+  const reviewer = await role(
+    "reviewer",
+    "Reviewer of each change",
+    TOOLS[tool].reviewer(model),
+  );
   const milestoneReviewer = await role(
     "milestone-reviewer",
     "Reviewer of releases",
-    TOOLS[tool].milestoneReviewer,
+    TOOLS[tool].milestoneReviewer(),
   );
 
   const github =
@@ -656,6 +705,9 @@ async function main() {
     roadmap,
   });
   contents.set("CLAUDE.md", fillSlot(contents.get("CLAUDE.md"), slot));
+  if (tool === "opencode") {
+    contents.set("AGENTS.md", assignAgents(contents.get("AGENTS.md"), model, reviewer));
+  }
   for (const [file, content] of contents) {
     contents.set(file, content.replaceAll("{{PROJECT}}", name));
   }
