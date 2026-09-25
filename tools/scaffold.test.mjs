@@ -201,7 +201,7 @@ test("the role and premise flags land in the slot, and the mode is the implement
     ]);
     try {
       assert.equal(r.status, 0, r.stderr);
-      const slot = slotOf(r.target);
+      const slot = slotOf(r.target).replace(/\s+/g, " ");
       assert.match(slot, new RegExp(`\\*\\*premise:\\*\\* ${premise} —`), tool);
       assert.ok(slot.includes(`**implementer:** ${label}, model \`model-of-${tool}\``), `${tool}: ${slot}`);
       assert.ok(slot.includes(`works in ${mode}`), `${tool}: no mode in ${slot}`);

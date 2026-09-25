@@ -35,8 +35,8 @@ const TOOLS = {
     where: "`CLAUDE.md`, *The process*",
     merger: "the main session",
     model: "claude-opus-5-5",
-    reviewer: "a fresh Claude Code subagent, the implementer's model family",
-    milestoneReviewer: "DeepSeek, `opencode/deepseek-v4.1-flash`, through `opencode run`",
+    reviewer: "a fresh Claude Code subagent, same family",
+    milestoneReviewer: "DeepSeek, `opencode/deepseek-v4.1-flash`",
   },
   opencode: {
     name: "OpenCode",
@@ -44,8 +44,8 @@ const TOOLS = {
     where: "`AGENTS.md`",
     merger: "the implementer",
     model: "opencode/deepseek-v4.1-flash",
-    reviewer: "GPT-5.6 Luna, high effort, `opencode/gpt-5.6-luna#high`, as a subagent",
-    milestoneReviewer: "Claude, `claude-opus-5-5`, through Claude Code",
+    reviewer: "`opencode/gpt-5.6-luna#high`, as a subagent",
+    milestoneReviewer: "Claude, `claude-opus-5-5`",
   },
 };
 const PREMISES = {
@@ -336,11 +336,11 @@ function slotText({
   return `- **product:** ${name} — ${description}
 - **premise:** ${premise} — ${PREMISES[premise]}.
 - **roles:** recorded before the mode; the mode is the implementer's tool's.
-  - **implementer:** ${t.name}, model \`${model}\`; the project works in ${t.mode}
-    (${t.where}).
+  - **implementer:** ${t.name}, model \`${model}\`.
+    The project works in ${t.mode} (${t.where}).
   - **reviewer of each change:** ${reviewer}.
-  - **reviewer of releases:** ${milestoneReviewer} (\`PRINCIPLES.md\`,
-    *Milestones*).
+  - **reviewer of releases:** ${milestoneReviewer}
+    (\`PRINCIPLES.md\`, *Milestones*).
 - **paths to inspect:** the project's source roots and documents worth reading
   by default.
 - **the canonical source:** the one place to read and edit; name any mirror,
