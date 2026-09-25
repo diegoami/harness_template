@@ -9,10 +9,11 @@ project with it.
 
 The harness runs the same project either:
 
-- **with OpenCode** — the implementer and reviewer in `AGENTS.md`'s assignment
-  table: a different model family, fresh context, an explicit model id, the
-  design agreed before code (unless the slot records `design: none`), signed
-  verdicts, and a BLOCK that is not overridden; or
+- **with OpenCode** — the implementer and reviewer the project slot names
+  (`AGENTS.md`'s table holds the default): a different model family, fresh
+  context, an explicit model id, the design agreed before code (unless the
+  slot records `design: none`), signed verdicts, and a BLOCK that is not
+  overridden; or
 - **with Claude Code** — Claude implements, and a fresh-context Claude session
   reviews; no design stage, and no cross-family reviewer required (the
   options are in `CLAUDE.md`).
@@ -45,7 +46,7 @@ lessons), `r3` (the parametrizable scaffold), `r2` (field-test fixes), `r1`
 | file | what it owns |
 |---|---|
 | [`PRINCIPLES.md`](PRINCIPLES.md) | the habits, the ownership map, the non-trivial test, the six gates disciplines, the verdict protocol |
-| [`AGENTS.md`](AGENTS.md) | the OpenCode mode, and the current implementer/reviewer assignment |
+| [`AGENTS.md`](AGENTS.md) | the OpenCode mode, and the default implementer/reviewer assignment; the project slot in `CLAUDE.md` holds the current one |
 | [`CLAUDE.md`](CLAUDE.md) | the Claude Code mode, and the project slot |
 | [`PLAN.md`](PLAN.md) | the optional iteration overlay — a template, not this repository's plan |
 | [`ROADMAP.md`](ROADMAP.md) | feature requests, with artistic license — a template |

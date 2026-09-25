@@ -81,8 +81,9 @@ bootstrap applies as written there — one review, not two stages.
   (`AGENTS.md`).
   - **implementer:** the tool, Claude Code or OpenCode, and its model id.
   - **reviewer of each change:** who, with its model id.
-  - **reviewer of releases:** who, with its model id (`PRINCIPLES.md`,
-    *Milestones*).
+  - **reviewer of releases:** who, with its model id where one is chosen. In
+    Claude mode the default is a model that is not Claude, which the owner
+    picks at each milestone (`PRINCIPLES.md`, *Milestones*).
 - **paths to inspect:** the source roots and documents worth reading by default.
 - **the canonical source:** the one place to read and edit; name any mirror,
   copy or generated artifact that must never be edited or cited.

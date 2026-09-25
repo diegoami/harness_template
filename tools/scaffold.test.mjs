@@ -299,16 +299,28 @@ test("an OpenCode run's AGENTS.md names the slot's models, and no other", () => 
   const r = scaffold([
     "--implementer", "opencode",
     "--implementer-model", "opencode/kimi-k3",
-    "--reviewer", "Claude, `claude-opus-5-5`, as a subagent",
+    "--reviewer", "Claude, `claude-opus-5-5`, a | b",
   ]);
   try {
     assert.equal(r.status, 0, r.stderr);
     const agents = readFileSync(path.join(r.target, "AGENTS.md"), "utf8");
     assert.ok(agents.includes("| implementer | `opencode/kimi-k3` |"), agents);
-    assert.ok(agents.includes("| reviewer | Claude, `claude-opus-5-5`, as a subagent |"), agents);
+    // A | in the reviewer is escaped, so the table keeps its two columns.
+    assert.ok(agents.includes("| reviewer | Claude, `claude-opus-5-5`, a \\| b |"), agents);
     assert.ok(agents.includes("`— Implementer (opencode/kimi-k3)`"), agents);
     assert.doesNotMatch(agents, /DeepSeek|deepseek|GPT-5\.6|gpt-5\.6/);
     assert.match(agents.replace(/\s+/g, " "), /the slot governs/);
+  } finally {
+    r.done();
+  }
+});
+
+test("a Claude-mode run's AGENTS.md is the ref's, unchanged", () => {
+  const r = scaffold(["--implementer", "claude-code", "--implementer-model", "claude-other-9"]);
+  try {
+    assert.equal(r.status, 0, r.stderr);
+    const shipped = execFileSync("git", ["-C", REPO, "show", "HEAD:AGENTS.md"], { encoding: "utf8" });
+    assert.equal(readFileSync(path.join(r.target, "AGENTS.md"), "utf8"), shipped);
   } finally {
     r.done();
   }
