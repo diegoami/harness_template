@@ -3,8 +3,9 @@
 Open a session **in the project** and paste:
 
 > Adopt harness release `r5` into this project. The harness is the clone at
-> `C:\Users\diego\projects\harness_template`. Run `git fetch origin --tags`
-> there, then read `ADOPT.md` as `origin/main` holds it, with
+> `C:\Users\diego\projects\harness_template`. Fetch it, with
+> `git -C C:\Users\diego\projects\harness_template fetch origin --tags`,
+> then read `ADOPT.md` as `origin/main` holds it, with
 > `git -C C:\Users\diego\projects\harness_template show origin/main:ADOPT.md`,
 > and execute it as written.
 
@@ -122,9 +123,11 @@ it to learn what it does. Find:
 10. **The remote and the branch**: the remote's URL, the default branch,
     and any uncommitted change in the working tree. The adoption never
     commits a change it did not make.
-11. **Collisions**: an existing `AGENTS.md`, `CLAUDE.md`, `PLAN.md`,
-    `ROADMAP.md`, `design/`, `reviews/` or `.gitignore`, or a review process
-    already in use. For each, note the project knowledge it holds.
+11. **Collisions**: every file that step 6.1 names, chosen or not, that
+    already exists here, and `.gitignore`, which step 6.5 appends to. Also
+    any review process already in use, and any records already in
+    `design/` or `reviews/`. For each file, note what it holds: process
+    text, project knowledge, and any rule that conflicts with the harness.
 
 ### 4. Ask the owner, and wait
 
@@ -133,7 +136,9 @@ Put the questions below to the owner as owner decisions (`PRINCIPLES.md`,
 grounded in what steps 2 and 3 found. **Write nothing before the answers.**
 
 1. **First, the roles** (`CLAUDE.md`, the slot's roles), in a message of
-   their own, since the mode and the other questions follow from them:
+   their own, since the mode and the other questions follow from them. If
+   the prompt already carries the owner's answer (step 4.2), record it and
+   do not ask again:
    - **the implementer**: the tool, Claude Code or OpenCode, and its model
      id. Default: the tool and the model running this session.
    - **the reviewer of each change**, with its model id. Default: with
@@ -150,8 +155,10 @@ grounded in what steps 2 and 3 found. **Write nothing before the answers.**
    planning gate is shaping plus its review (`CLAUDE.md`, *The process*),
    not a design stage.
 2. **If the implementer's tool is not the tool running this session,
-   stop.** Tell the owner that adoption continues in that tool, where the
-   same prompt is pasted, and write nothing.
+   stop**, and write nothing. Tell the owner that adoption continues in
+   that tool, and print the prompt to paste there: this file's paste
+   prompt, followed by one line, "The owner has answered the roles:" and
+   the three answers, with their model ids.
 3. **Then the rest, in one message**, and wait for the answers:
    1. **The premise**: `product` or `testbed` (`CLAUDE.md`, the slot's
       premise). Default: `product`, unless step 3 found a testbed.
@@ -168,8 +175,9 @@ grounded in what steps 2 and 3 found. **Write nothing before the answers.**
    5. **The optional files**: `PLAN.md` and `ROADMAP.md` (default: take
       them if the project slices work into iterations or grows by
       requests), and `verification/README.md` (default: take it).
-   6. **Each collision**: how it is reconciled (step 6), with a default for
-      each.
+   6. **Each collision**: how it is reconciled (step 6.2), with a default
+      for each. Ask each conflict between a project rule and a harness
+      rule as a decision of its own. Default: the harness rule.
    7. **The rest of the slot, as drafted from step 3**: the product
       paragraph, the paths, the never-echo list, the milestones line, the
       gates table and the conventions. Ask the owner to correct it, and ask
@@ -199,38 +207,57 @@ branch is made from the default branch, for example `adopt-harness-<tag>`.
 
 ### 6. Write the files
 
-1. Each file comes from one revision, never a mix: the tag, with
+1. The files: `PRINCIPLES.md`, `CLAUDE.md`, `AGENTS.md`,
+   `reviews/README.md` and `reviews/milestone-prompt.md` always;
+   `design/README.md` only in OpenCode mode with `design: required`; and
+   the optional files, `PLAN.md`, `ROADMAP.md` and
+   `verification/README.md`, where the owner chose them.
+2. Reconcile each collision of step 3 before writing over it, as the owner
+   decided in step 4. For every kind, **nothing is lost**: the project's
+   own knowledge moves into the slot, or stays in a file the harness does
+   not own, and every move is noted for the pull request and the report.
+   - **A file of step 6.1 that exists and is not the harness's**, such as
+     a project's own `PRINCIPLES.md`, `AGENTS.md`, `CLAUDE.md` or
+     `reviews/README.md`, is never overwritten unread. Sort what it says:
+     - process text that the harness file covers is replaced by it;
+     - project knowledge, such as paths, gates, conventions and decided
+       items, goes into the slot, except a conservative floor's path
+       list, which goes into the adopted `PRINCIPLES.md`'s floor;
+     - a project rule that conflicts with a harness rule is settled by the
+       owner's answer to step 4: the harness rule, or the project's rule
+       kept in the slot's conventions;
+     - a project rule the harness lacks goes into the slot's conventions;
+     - anything that is not a rule, such as history or notes, moves to a
+       file the harness does not own, named in the pull request.
+   - **An existing `PLAN.md` or `ROADMAP.md`** with this project's own
+     plans is not overwritten. Either keep the project's file and skip the
+     harness one, or move the plan into the harness file's shape, and note
+     what moved.
+   - **An existing `.gitignore`** is appended to (step 6.5); none of its
+     lines changes.
+   - **Existing records in `design/` or `reviews/`** stay; new records
+     take the next free number.
+   - **An existing `README.md` at the root** is left as it is. The
+     harness writes none.
+3. Write each file from one revision, never a mix: the tag, with
    `git -C <harness> show <tag>:<file>`, or `main`'s recorded commit for an
    item the owner took in step 4. An item from `main` is taken with all of
    its changes, in every file it touches. Then each file is adapted like
    any harness file.
-2. The files: `PRINCIPLES.md`, `CLAUDE.md`, `AGENTS.md`,
-   `reviews/README.md` and `reviews/milestone-prompt.md` always;
-   `design/README.md` only in OpenCode mode with `design: required`; and
-   the optional files the owner chose.
-3. Fill the project slot in `CLAUDE.md`, between its markers, **from this
-   repository**: the owner's answers to step 4 and the reconnaissance of
-   step 3. The roles, the premise and `merge:` are the owner's answers;
-   `design:` is written only in OpenCode mode.
-4. In OpenCode mode, write the slot's models into `AGENTS.md`'s assignment
-   table and its implementer signature (`AGENTS.md`, *Roles and the
-   assignment*).
-5. Add `.claude/worktrees/` to `.gitignore`, as the scaffold does: a forked
-   subagent's worktree goes there.
-6. Reconcile each collision as the owner decided; nothing is lost:
-   - **an existing `AGENTS.md` or `CLAUDE.md`**: its project knowledge goes
-     into the slot, and the file's process text is replaced by the harness
-     file. Note every move.
-   - **an existing `PLAN.md` or `ROADMAP.md`** with this project's own
-     plans: do not overwrite it. Either keep the project's file and skip
-     the harness one, or move the plan into the harness file's shape, and
-     note what moved.
-   - **an existing `README.md`**: leave it. The harness needs none.
-7. Record the provenance: the harness's URL, the tag and its commit,
+4. Fill the project slot in `CLAUDE.md`, between its markers, **from this
+   repository**: the owner's answers to step 4, the reconnaissance of
+   step 3 and what step 6.2 moved there. The roles, the premise and
+   `merge:` are the owner's answers; `design:` is written only in OpenCode
+   mode. In OpenCode mode, also write the slot's models into `AGENTS.md`'s
+   assignment table and its implementer signature (`AGENTS.md`, *Roles and
+   the assignment*).
+5. Append `.claude/worktrees/` to `.gitignore`, or create it with that
+   line, as the scaffold does: a forked subagent's worktree goes there.
+6. Record the provenance: the harness's URL, the tag and its commit,
    `main`'s commit as step 2 read it, each item taken from `main`, and the
    date. It goes in `PLAN.md`'s *Fork provenance* table where the project
    takes the harness's `PLAN.md`, and otherwise in the slot's conventions.
-8. Change nothing else. **The adoption PR changes no product code.** A gate
+7. Change nothing else. **The adoption PR changes no product code.** A gate
    the project lacks is a real change for step 9, not part of this one.
 
 ### 7. Check the adoption
@@ -242,8 +269,10 @@ branch is made from the default branch, for example `adopt-harness-<tag>`.
    disciplines*). Run a gate that is red on the adoption branch on the
    default branch too, outside the owner's checkout:
    - **red there as well**: it goes to the owner as an owner decision
-     before step 8. Default: fix it first, in a change of its own, reviewed
-     like any change, and merge the adoption after it.
+     before step 8. In Claude mode, the implementer stops there, before
+     step 8.1, and reports; the main session asks the owner. Default: fix
+     it first, in a change of its own, reviewed as the roles answered in
+     step 4 say, and merge the adoption after it.
    - **red only on the adoption branch**: the adoption broke it. Fix it in
      the adoption PR.
 3. Check that every relative link in the files written resolves, and that
