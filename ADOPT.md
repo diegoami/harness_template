@@ -2,11 +2,13 @@
 
 Open a session **in the project** and paste:
 
-> Adopt harness release `r5` into this project. Read
-> `C:\Users\diego\projects\harness_template\ADOPT.md` and execute it as
-> written.
+> Adopt harness release `r5` into this project. The harness is the clone at
+> `C:\Users\diego\projects\harness_template`. Run `git fetch origin --tags`
+> there, then read `ADOPT.md` as `origin/main` holds it, with
+> `git -C C:\Users\diego\projects\harness_template show origin/main:ADOPT.md`,
+> and execute it as written.
 
-If the session cannot read that path, paste this file's content instead.
+If the session cannot run that, paste this file's content instead.
 
 ---
 
@@ -22,24 +24,40 @@ check what the harness's `main` holds beyond it. You write the harness files
 repository contains and from what the owner answers. **Read the harness
 files and adapt them; do not invent rules and do not copy them blind.**
 
-Three rules hold from the first step to the last:
+Four rules hold from the first step to the last:
 
 - **You ask before you write.** Steps 1 to 4 write no file in this project.
   No file is written before step 5, and step 5 comes after the owner has
   answered step 4.
 - **The harness files own the rules.** This file says only what adoption
   does, in order. Where it names a rule, the file it names is the rule.
+- **Read the harness from git, never from its working tree.** Read each
+  harness file at the tag or at `main`'s recorded commit, as the steps say,
+  with `git -C <harness> show <revision>:<file>`. The clone's checked-out
+  branch does not matter.
 - **Where the repository does not say, ask.** Do not guess a command, a
   path, a language or a role.
+
+## Who does which step
+
+- **Claude mode**, in the orchestrated shape that the harness's `CLAUDE.md`
+  describes (*The process*): the main session, the one the prompt was
+  pasted into, does steps 1 to 5 and everything that faces the owner. The
+  forked implementer's brief starts at step 6, after its identity check.
+  It creates the branch in its own worktree, never in the owner's checkout.
+  It does steps 6, 7 and 8.1, then stops and reports. The main session does
+  the rest, as `CLAUDE.md` says.
+- **OpenCode mode**: the session running `AGENTS.md` does every step.
 
 ## The steps
 
 ### 1. Read the harness at the tag
 
-1. Fetch the harness: `git -C <harness> fetch origin --tags`. It updates
-   only the clone's remote refs, and writes nothing in this project. If the
-   clone is missing, clone the URL above into a temporary directory outside
-   this project, and use that.
+1. Fetch the harness, if the prompt has not, with
+   `git -C <harness> fetch origin --tags`. It updates only the clone's
+   remote refs, and writes nothing in this project. If the clone is
+   missing, clone the URL above into a temporary directory outside this
+   project, and use that.
 2. Record the tag's commit: `git -C <harness> rev-parse <tag>^{commit}`.
 3. Read these files **as the tag holds them**, with
    `git -C <harness> show <tag>:<file>`: `PRINCIPLES.md`, `CLAUDE.md`,
@@ -51,17 +69,23 @@ Three rules hold from the first step to the last:
 ### 2. List what the harness's `main` holds beyond the tag
 
 1. Record `main`'s commit: `git -C <harness> rev-parse origin/main`.
-2. List what changed in the files of step 1 since the tag, where `<files>`
-   are those files:
+2. List every change since the tag, new files included:
+   `git -C <harness> diff --name-status <tag>..origin/main`.
+3. Keep the harness's shipped files: the files of step 1, and every file
+   that a `presets/*.json` lists as `origin/main` holds it
+   (`git -C <harness> show origin/main:presets/<name>.json`). Below,
+   `<files>` are those files. List the changes to them:
 
    ```sh
    git -C <harness> log --oneline --first-parent <tag>..origin/main -- <files>
    git -C <harness> diff --stat <tag>..origin/main -- <files>
    ```
 
-3. Write the list for the owner: one line per pull request or commit that
-   changes one of those files, saying what it changes for an adopter. If
-   the list is empty, say so; step 4 then has nothing to ask about it.
+4. Write the list for the owner: one line per pull request or commit that
+   changes one of those files, saying what it changes for an adopter. Mark
+   each item that adds something this file's steps rely on and the tag
+   lacks, such as a slot field or the mode's shape. If the list is empty,
+   say so; step 4 then has nothing to ask about it.
 
 ### 3. Reconnoitre this project, read-only
 
@@ -104,12 +128,12 @@ it to learn what it does. Find:
 
 ### 4. Ask the owner, and wait
 
-Put the questions below to the owner **in one message**, as owner decisions
-(`PRINCIPLES.md`, *Owner decisions*): each with a recommended default and
-its reason, grounded in what steps 2 and 3 found. **Then stop, and wait for
-the answers. Write nothing before them.**
+Put the questions below to the owner as owner decisions (`PRINCIPLES.md`,
+*Owner decisions*): each with a recommended default and its reason,
+grounded in what steps 2 and 3 found. **Write nothing before the answers.**
 
-1. **The roles** (`CLAUDE.md`, the slot's roles), asked before any mode:
+1. **First, the roles** (`CLAUDE.md`, the slot's roles), in a message of
+   their own, since the mode and the other questions follow from them:
    - **the implementer**: the tool, Claude Code or OpenCode, and its model
      id. Default: the tool and the model running this session.
    - **the reviewer of each change**, with its model id. Default: with
@@ -120,58 +144,66 @@ the answers. Write nothing before them.**
      picks at each milestone; with OpenCode, a model of another family than
      the implementer's, such as Claude (`PRINCIPLES.md`, *Milestones*).
 
-   **The mode follows the roles**: it is the implementer's tool's, Claude
-   mode for Claude Code and OpenCode mode for OpenCode. Do not choose a mode
-   for a feature it has. In Claude mode, the planning gate is shaping plus
-   its review (`CLAUDE.md`, *The process*), not a design stage.
-2. **The premise**: `product` or `testbed` (`CLAUDE.md`, the slot's
-   premise). Default: `product`, unless step 3 found a testbed.
-3. **`merge:`**: `owner` or `auto` (`PRINCIPLES.md`, *Merge policy*).
-   Default: `owner`. Under `auto`, also ask the merge conditions the slot
-   will state.
-4. **`design:`**, only where the mode is OpenCode: `required` or `none`
-   (`AGENTS.md`, *The two stages*). Default: `required`. In Claude mode, do
-   not ask it; the slot has no `design:` line.
-5. **What is taken from the harness**: the tag alone, or also some of what
-   `main` holds beyond it (step 2). Ask whether the project needs any of it
-   now, item by item. Default: the tag alone, except an item that fixes a
-   rule this project will use before the next release.
-6. **The optional files**: `PLAN.md` and `ROADMAP.md` (default: take them
-   if the project slices work into iterations or grows by requests), and
-   `verification/README.md` (default: take it).
-7. **Each collision**: how it is reconciled (step 6), with a default for
-   each.
-8. **The rest of the slot, as drafted from step 3**: the product
-   paragraph, the paths, the never-echo list, the milestones line, the
-   gates table and the conventions. Ask the owner to correct it, and ask
-   whatever step 3 could not settle.
-9. **The first real change** after the adoption (step 9): a candidate,
-   such as the first open request, or a gate the project lacks. Default:
-   the smallest real change that runs the gates.
+   Wait for the answer. **The mode follows the roles**: it is the
+   implementer's tool's, Claude mode for Claude Code and OpenCode mode for
+   OpenCode. Do not choose a mode for a feature it has. In Claude mode, the
+   planning gate is shaping plus its review (`CLAUDE.md`, *The process*),
+   not a design stage.
+2. **If the implementer's tool is not the tool running this session,
+   stop.** Tell the owner that adoption continues in that tool, where the
+   same prompt is pasted, and write nothing.
+3. **Then the rest, in one message**, and wait for the answers:
+   1. **The premise**: `product` or `testbed` (`CLAUDE.md`, the slot's
+      premise). Default: `product`, unless step 3 found a testbed.
+   2. **`merge:`**: `owner` or `auto` (`PRINCIPLES.md`, *Merge policy*).
+      Default: `owner`. Under `auto`, also ask the merge conditions the
+      slot will state.
+   3. **`design:`**, only in OpenCode mode: `required` or `none`
+      (`AGENTS.md`, *The two stages*). Default: `required`. In Claude mode,
+      do not ask it; the slot has no `design:` line.
+   4. **What is taken from the harness**: the tag alone, or also some of
+      what `main` holds beyond it (step 2). Ask whether the project needs
+      any of it now, item by item. Default: the tag alone, plus every item
+      step 2 marked, since this file's steps rely on it; say so for each.
+   5. **The optional files**: `PLAN.md` and `ROADMAP.md` (default: take
+      them if the project slices work into iterations or grows by
+      requests), and `verification/README.md` (default: take it).
+   6. **Each collision**: how it is reconciled (step 6), with a default for
+      each.
+   7. **The rest of the slot, as drafted from step 3**: the product
+      paragraph, the paths, the never-echo list, the milestones line, the
+      gates table and the conventions. Ask the owner to correct it, and ask
+      whatever step 3 could not settle.
+   8. **The first real change** after the adoption (step 9): a candidate
+      that is non-trivial (`PRINCIPLES.md`, *What counts as non-trivial*),
+      so that it takes the loop, such as the first open request, or a gate
+      the project lacks. Default: the smallest non-trivial change that runs
+      the gates.
 
 If the owner rejects the adoption rather than answering, stop.
 
 ### 5. Open the change
 
-1. Create a branch from the default branch, for example
-   `adopt-harness-<tag>`. The adoption is a non-trivial change
-   (`PRINCIPLES.md`, *Bootstrap*).
-2. **Claude mode**: this session is the main session of the orchestrated
-   shape that the harness's `CLAUDE.md` describes (*The process*). It forks
-   the implementer, whose brief is this file, the reconnaissance and the
-   owner's answers.
-3. **OpenCode mode** with `design: required`: write
+The adoption is a non-trivial change (`PRINCIPLES.md`, *Bootstrap*). Its
+branch is made from the default branch, for example `adopt-harness-<tag>`.
+
+1. **Claude mode**: the main session forks the implementer. Its brief is
+   the identity check, this file from step 6 on, the reconnaissance and the
+   owner's answers. The implementer creates the branch in its own worktree.
+2. **OpenCode mode**: create the branch. With `design: required`, write
    `design/001-adopt-harness.md` (`design/README.md`) with the file list,
-   the filled slot, the owner's answers and every collision, and take it
-   to an explicit **AGREE** as `AGENTS.md` says. **Write no harness file
-   before AGREE.** With `design: none`, go on to step 6.
+   the filled slot, the owner's answers and every collision. Post it as
+   `PRINCIPLES.md` says (*Posting*): with a remote, it opens as an issue.
+   Take it to an explicit **AGREE** as `AGENTS.md` says. **Write no harness
+   file before AGREE.** With `design: none`, go on to step 6.
 
 ### 6. Write the files
 
-1. Write each chosen file from the tag, with
-   `git -C <harness> show <tag>:<file>`, or from `main`'s recorded commit
-   for an item the owner took in step 4. A file is taken whole, and an
-   item's files are taken together.
+1. Each file comes from one revision, never a mix: the tag, with
+   `git -C <harness> show <tag>:<file>`, or `main`'s recorded commit for an
+   item the owner took in step 4. An item from `main` is taken with all of
+   its changes, in every file it touches. Then each file is adapted like
+   any harness file.
 2. The files: `PRINCIPLES.md`, `CLAUDE.md`, `AGENTS.md`,
    `reviews/README.md` and `reviews/milestone-prompt.md` always;
    `design/README.md` only in OpenCode mode with `design: required`; and
@@ -183,8 +215,8 @@ If the owner rejects the adoption rather than answering, stop.
 4. In OpenCode mode, write the slot's models into `AGENTS.md`'s assignment
    table and its implementer signature (`AGENTS.md`, *Roles and the
    assignment*).
-5. In Claude mode, add `.claude/worktrees/` to `.gitignore`: the
-   orchestrated shape puts its worktrees there.
+5. Add `.claude/worktrees/` to `.gitignore`, as the scaffold does: a forked
+   subagent's worktree goes there.
 6. Reconcile each collision as the owner decided; nothing is lost:
    - **an existing `AGENTS.md` or `CLAUDE.md`**: its project knowledge goes
      into the slot, and the file's process text is replaced by the harness
@@ -206,8 +238,14 @@ If the owner rejects the adoption rather than answering, stop.
 1. Run every gate the slot names, on the adoption branch, and commit none
    of their output. A command that does not run as the gates table says is
    corrected in the table, and the owner is told.
-2. Adoption changes no product code, so a gate that is red here was red
-   before. Report it to the owner; do not fix it in the adoption PR.
+2. A red gate does not merge (`PRINCIPLES.md`, *The six gates
+   disciplines*). Run a gate that is red on the adoption branch on the
+   default branch too, outside the owner's checkout:
+   - **red there as well**: it goes to the owner as an owner decision
+     before step 8. Default: fix it first, in a change of its own, reviewed
+     like any change, and merge the adoption after it.
+   - **red only on the adoption branch**: the adoption broke it. Fix it in
+     the adoption PR.
 3. Check that every relative link in the files written resolves, and that
    no `{{…}}` placeholder is left other than those
    `reviews/milestone-prompt.md` documents.
@@ -225,8 +263,8 @@ If the owner rejects the adoption rather than answering, stop.
    `reviews/` already holds records.
 3. Post each record as `PRINCIPLES.md` says (*Posting*). Rounds are capped
    as *Rounds* says.
-4. It merges as the slot's `merge:` says. The completion note follows the
-   merge (`PRINCIPLES.md`, *Completion*).
+4. It merges as the slot's `merge:` says, with every gate green. The
+   completion note follows the merge (`PRINCIPLES.md`, *Completion*).
 
 ### 9. Take the first real change through the loop
 
@@ -251,7 +289,7 @@ records are the handover: write no handover file. The report says:
 3. **the real change**: its pull request, its review rounds and what they
    found;
 4. **what was left undecided**: every question the owner did not settle,
-   every red gate of step 7, and every defect of step 9.
+   every red gate of step 7 and its outcome, and every defect of step 9.
 
 ## Done when
 
@@ -267,7 +305,7 @@ records are the handover: write no handover file. The report says:
   `PRINCIPLES.md`.
 - Every collision is reported, with where the displaced knowledge went.
 - The adoption PR changed no product code, and it was reviewed, posted and
-  merged as the slot says.
-- The first real change after the adoption PR was taken through the loop:
-  reviewed, posted and merged as the slot says.
+  merged as the slot says, with every gate green.
+- The first real change after the adoption PR, a non-trivial one, was taken
+  through the loop: reviewed, posted and merged as the slot says.
 - The report of step 10 reached the owner.
