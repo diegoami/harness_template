@@ -67,8 +67,8 @@ node tools/scaffold.mjs --preset auto --name my-app --dir ../my-app --github pri
 | `auto` | `PLAN.md` and `ROADMAP.md`; in OpenCode mode, the two stages | `auto` — the conditions are in `PRINCIPLES.md` |
 
 The scaffold asks the roles and the premise before the policy; the
-implementer's tool, Claude Code or OpenCode, picks the mode. The flags, questions and defaults are
-in `node tools/scaffold.mjs --help`;
+implementer's tool, Claude Code or OpenCode, picks the mode. The flags,
+questions and defaults are in `node tools/scaffold.mjs --help`;
 `presets/*.json` holds each preset's files and policy. The generator fills the
 project slot, writes the README and the CI workflow, makes the first commit, and
 creates the GitHub remote when asked.
