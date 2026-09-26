@@ -196,11 +196,11 @@ one itself, at the candidate commit):
   text; a test that points `GIT_DIR` at a decoy repository, runs each of the
   harness's git-spawning paths that a test can run, and shows the decoy's
   config and refs unchanged, shown to fail before the fix. **Added on
-  2026-09-25** by the owner's decision (PR #34), a scope change: in
-  Geoclick2027, a test's scratch repository, run by a pre-push hook pushed
-  from a worktree, inherited the hook's `GIT_DIR` and rewrote the real
-  repository's `.git/config`
-  ([report](docs/sources/geoclick-git-env-report.md)); Imperial Conquest 2
+  2026-09-25** by the owner's decision (PR #34), a scope change: in a
+  private project of the owner's, a test's scratch repository, run by a
+  pre-push hook pushed from a worktree, inherited the hook's `GIT_DIR` and
+  rewrote the real repository's `.git/config`
+  ([report](docs/sources/hook-git-env-report.md)); Imperial Conquest 2
   traces its review failures of 2026-09-18 to subagents that started in the
   main checkout, and answers with worktrees it creates and agents that say
   where they worked ([source](docs/sources/ic2-worktrees.md)); and
@@ -843,10 +843,11 @@ on PR #11**, routed to this design:
   and "waive and merge now". The recommended default, taken. Its evidence
   is the owner's merge of PR #33.
 - **Owner decision (2026-09-25), on adding C13 to r6**, asked in
-  conversation: where the git-environment fix goes, that is the harness
-  tools' own git calls plus a test, a clause in *Creation paths*, and the
-  Geoclick2027 and Imperial Conquest 2 reports as sources. r6's claims were
-  already fixed, so adding it to r6 is a dated scope change. **Join r6:** it
+  conversation; the question is paraphrased here. Where the git-environment
+  fix goes: the harness tools' own git calls plus a test, a clause in
+  *Creation paths*, and as sources the reports from a private project of
+  the owner's and from Imperial Conquest 2. r6's claims were already fixed,
+  so adding it to r6 is a dated scope change. **Join r6:** it
   is added as claim C13, dated, with its reason. The reason: it is the same
   builder rule r6 already touches (C1's worktrees, *Creation paths*), and it
   is a latent defect in r6's own tools. The alternatives were "defect fix

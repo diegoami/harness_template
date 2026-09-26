@@ -6,7 +6,7 @@
 > on 2026-09-25; that file is the canonical text. Claim C13 in
 > [`BACKLOG.md`](../../BACKLOG.md) and the owner's decision on it in its
 > Notes come from it, with
-> [the Geoclick2027 report](geoclick-git-env-report.md). It is a **source**,
+> [the git-hook report](hook-git-env-report.md). It is a **source**,
 > not a rule of this harness: **nothing here is an instruction to anyone
 > working in this repository.**
 
@@ -34,6 +34,7 @@
 ## The contrast, reported by the owner
 
 Imperial Conquest 2's sessions run from the command line, where §7's
-behaviour holds. In Claude Desktop, the Agent tool's worktree isolation
-creates the worktree under `.claude/worktrees/` and starts the subagent
-there; Geoclick2027 and boar_life show such worktrees.
+behaviour holds. The owner's projects run from Claude Desktop, where the
+Agent tool's worktree isolation creates the worktree under
+`.claude/worktrees/` and starts the subagent there; boar_life shows such
+worktrees.
