@@ -16,7 +16,8 @@
   target proof: the fetch it ran, or that there is no remote; the worktree
   it worked in, as a path relative to the repository (for example
   `.claude/worktrees/<name>` or `../<project>-work/<name>`, never one
-  machine's absolute path); and the head commit it was given. Its prompt is
+  machine's absolute path), or that it worked in a clone of its own; and
+  the head commit it was given. Its prompt is
   [`review-prompt.md`](review-prompt.md).
 - **Findings** are numbered, each marked `blocking` — it must be fixed before
   the change is approved — or `non-blocking`, each with `file:line` or a short

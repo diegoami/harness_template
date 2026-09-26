@@ -65,9 +65,10 @@ Four rules hold from the first step to the last:
    `AGENTS.md`, `reviews/README.md`, `reviews/milestone-prompt.md`,
    `reviews/review-prompt.md`, `design/README.md`, `PLAN.md`, `ROADMAP.md`
    and `verification/README.md`. A tag before `r6` lacks
-   `reviews/review-prompt.md`: read it at `origin/main`, and step 2 marks
-   it. Read `PRINCIPLES.md` and `CLAUDE.md` in full. They own the rules;
-   this file does not restate them.
+   `reviews/review-prompt.md`: record `main`'s commit first, as step 2.1
+   does, and read the prompt at that commit; step 2 marks it. Read
+   `PRINCIPLES.md` and `CLAUDE.md` in full. They own the rules; this file
+   does not restate them.
 
 ### 2. List what the harness's `main` holds beyond the tag
 
@@ -175,6 +176,10 @@ grounded in what steps 2 and 3 found. **Write nothing before the answers.**
       what `main` holds beyond it (step 2). Ask whether the project needs
       any of it now, item by item. Default: the tag alone, plus every item
       step 2 marked, since this file's steps rely on it; say so for each.
+      Where the tag lacks `reviews/review-prompt.md`, the item that adds it
+      is not offered for declining: every adoption writes the prompt
+      (step 6.1), and the item comes whole, with the rules the prompt
+      relies on in the other files. Say so.
    5. **The optional files**: `PLAN.md` and `ROADMAP.md` (default: take
       them if the project slices work into iterations or grows by
       requests), and `verification/README.md` (default: take it).
@@ -259,8 +264,9 @@ branch is made from the default branch, for example `adopt-harness-<tag>`.
    `git -C <harness> show <tag>:<file>`, or `main`'s recorded commit for an
    item the owner took in step 4. An item from `main` is taken with all of
    its changes, in every file it touches. `reviews/review-prompt.md` is
-   always written: from `main`'s recorded commit where the tag lacks it.
-   Then each file is adapted like any harness file.
+   always written: where the tag lacks it, with the whole item that adds
+   it, from `main`'s recorded commit (step 4). Then each file is
+   adapted like any harness file.
 4. Fill the project slot in `CLAUDE.md`, between its markers, **from this
    repository**: the owner's answers to step 4, the reconnaissance of
    step 3 and what step 6.2 moved there. The roles, the premise and

@@ -28,7 +28,10 @@ session's conversation, such as Claude Code's `fork`.
 - **Where a forked agent works.** Its worktree comes from the tool's worktree
   isolation where the tool has it (Claude Code's, under `.claude/worktrees/`);
   otherwise the main session creates it in a sibling directory,
-  `<project>-work/`, and the brief tells the agent to work only there. Every
+  `<project>-work/`, and the brief tells the agent to work only there. The
+  reviewer's brief is the fixed prompt, which names no path: the main
+  session starts it in that worktree, or the reviewer makes its own there,
+  as the prompt says. Every
   forked agent reports **where it worked** — the worktree's toplevel, `HEAD`,
   branch, and `git diff --name-only origin/main...HEAD` (without a remote,
   `main...HEAD`) — in its first step and in its final report. The main

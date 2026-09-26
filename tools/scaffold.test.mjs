@@ -567,6 +567,8 @@ test("--github against a fake gh: the push lands, gh gets none of the caller's r
     const gh = fakeGh(dir);
     const globalConfig = path.join(dir, "global.gitconfig");
     writeFileSync(globalConfig, "");
+    const systemConfig = path.join(dir, "system.gitconfig");
+    writeFileSync(systemConfig, "");
     const target = path.join(dir, "run");
     const pathKey = Object.keys(process.env).find((k) => k.toUpperCase() === "PATH") ?? "PATH";
     const env = {
@@ -586,12 +588,16 @@ test("--github against a fake gh: the push lands, gh gets none of the caller's r
       GIT_OBJECT_DIRECTORY: path.join(d.common, "objects"),
       GIT_ALTERNATE_OBJECT_DIRECTORIES: path.join(d.common, "objects"),
       GIT_PREFIX: "sub/",
-      GIT_CONFIG_PARAMETERS: "'core.bare'='true'",
+      // Windows reads a variable's name in any case, so there this one is
+      // given in mixed case, and must be cut off all the same.
+      [process.platform === "win32" ? "Git_Config_Parameters" : "GIT_CONFIG_PARAMETERS"]:
+        "'core.bare'='true'",
       GIT_CONFIG_COUNT: "1",
       GIT_CONFIG_KEY_0: "core.bare",
       GIT_CONFIG_VALUE_0: "true",
       // The user's own choice of config, which passes through.
       GIT_CONFIG_GLOBAL: globalConfig,
+      GIT_CONFIG_SYSTEM: systemConfig,
       GIT_CONFIG_NOSYSTEM: "1",
     };
     const before = d.state();
@@ -606,7 +612,13 @@ test("--github against a fake gh: the push lands, gh gets none of the caller's r
     for (const call of calls) {
       const what = `gh ${call.args.join(" ")}`;
       assert.deepEqual(Object.keys(call.env).filter(isNamed), [], `${what} received them`);
-      for (const key of ["GIT_CONFIG_GLOBAL", "GIT_CONFIG_NOSYSTEM", "GIT_AUTHOR_NAME", "FAKE_GH_ORIGIN"])
+      for (const key of [
+        "GIT_CONFIG_GLOBAL",
+        "GIT_CONFIG_SYSTEM",
+        "GIT_CONFIG_NOSYSTEM",
+        "GIT_AUTHOR_NAME",
+        "FAKE_GH_ORIGIN",
+      ])
         assert.equal(call.env[key], env[key], `${what} lost ${key}`);
     }
     assert.equal(r.status, 0, r.stderr);
