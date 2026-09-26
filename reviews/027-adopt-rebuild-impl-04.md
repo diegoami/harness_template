@@ -204,3 +204,35 @@
 
 — Claude Opus 5.5 (claude-opus-5-5), reviewer
 No blocking finding remains.
+
+## Completion
+
+Landed by PR #33, merged by the owner on GitHub on 2026-09-25 at 14:52 UTC
+as `83a62ff`, after its last review comment and with GitGuardian green. The
+note is non-material and transcribes the evidence for the done-when items.
+
+- C3: `ADOPT.md` states its steps as a numbered sequence. Before any file is
+  written, step 4 asks the owner the three roles first, then the premise,
+  `merge:`, `design:` in OpenCode mode only, what to take from `main`, and
+  each conflicting project rule, as owner decisions with recommended
+  defaults. The answers go into the slot, and the mode follows the roles.
+- C4: `ADOPT.md` names the release tag. The adopter records the tag's
+  commit, lists what the harness's `main` holds beyond it (read from git,
+  never the working tree), asks the owner, and records what it took in the
+  provenance.
+- C5: the done-when includes the first non-trivial real change after the
+  adoption PR, reviewed, posted and merged as the slot says. The adoption PR
+  changes no product code, and adoption ends with a report to the owner.
+- The owner decision of 2026-09-25 on round 03 ("Adapt the harness file"),
+  made under the round ceiling, is recorded in `BACKLOG.md`'s *Notes*. Its
+  evidence is this merge.
+- Gates at `81fd35b`: `node --test tools/*.test.mjs`, 60 of 60 pass;
+  `node --check` passes on every `tools/*.mjs`; `light`, `standard` and
+  `auto` generate cleanly. Read-only walks against Tressette, Scopetta and
+  discola-web changed nothing there.
+- Four review rounds. Rounds 01–03 each had blocking findings, and round 03
+  went to the owner. Round 04 was clean on `81fd35b`, and its three
+  non-blocking findings go to the next r6 text PR, as the PR body says.
+  `c7e0499` only adds round 04's record.
+
+— Implementer (Claude Opus 5.5)
