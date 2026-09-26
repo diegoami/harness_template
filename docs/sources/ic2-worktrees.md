@@ -2,8 +2,9 @@
 
 > Imperial Conquest 2 (`../imperial_conquest_2`) is the owner's repository.
 > This is a summary of its `docs/build-process.md`, §7 "Concurrency,
-> single-instance, and local-only", read at commit `d8b4e50` on its `main`
-> on 2026-09-25; that file is the canonical text. Claim C13 in
+> single-instance, and local-only", read at commit `d8b4e50` on its `main`;
+> the last commit to change that file is `7b644d3`. That file is the
+> canonical text. Claim C13 in
 > [`BACKLOG.md`](../../BACKLOG.md) and the owner's decision on it in its
 > Notes come from it, with
 > [the git-hook report](hook-git-env-report.md). It is a **source**,
@@ -34,7 +35,7 @@
 ## The contrast, reported by the owner
 
 Imperial Conquest 2's sessions run from the command line, where §7's
-behaviour holds. The owner's projects run from Claude Desktop, where the
-Agent tool's worktree isolation creates the worktree under
-`.claude/worktrees/` and starts the subagent there; boar_life shows such
-worktrees.
+behaviour holds. Some of the owner's projects run from Claude Desktop, such
+as boar_life. There the Agent tool's worktree isolation creates the
+worktree under `.claude/worktrees/` and starts the subagent there, and
+boar_life shows such worktrees.

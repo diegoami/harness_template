@@ -38,8 +38,9 @@ items 8 and 6); the `ADOPT.md` rebuild, mined from the six bootstrap prompts
 in `harness_prompts`, with boar_life items 1, 2 and 5 and pgn-postmortem
 items 1, 2, 3 and 5; the verification pattern from the boar_life report
 (item 6); a dry run for the scaffold's `--github`; and, added on
-2026-09-25, git runs cut off from the caller's git environment, with a
-checked worktree for every forked agent (C13). Of the five things the
+2026-09-25 and widened on 2026-09-26, git runs cut off from the caller's
+git environment, with a checked worktree and review target for every
+forked agent (C13). Of the five things the
 *Adoption* candidate names to mine, interview first is C3, a real
 change is C5, and the handover file is not taken (D9). The PR mechanics are
 r5's rule in `PRINCIPLES.md`, which the rebuilt `ADOPT.md` points to rather
@@ -178,28 +179,63 @@ one itself, at the candidate commit):
   `git log --first-parent <landing merge>..<candidate>` shows only r6 PR
   merges, completion-note commits and trivial changes; for every r6 PR,
   `gh pr view N --json body,comments,commits,mergedAt` shows the rest.
-- **C13. Git runs are isolated, and a forked agent's worktree is obtained
-  and checked.** `PRINCIPLES.md` *Creation paths* says a throwaway git
-  repository runs with every `GIT_*` variable of the caller cleared, because
-  a git hook exports them and they override `-C` and the working directory.
-  The harness's own tools do so: every git call `tools/scaffold.mjs` makes
-  in the new project clears them (its push to GitHub keeps only what
-  reaching GitHub needs), and so does every throwaway repository in
-  `tools/*.test.mjs`. `CLAUDE.md` says how a forked agent's worktree is
-  obtained: through the tool's worktree isolation where the tool has it
-  (under `.claude/worktrees/`), otherwise created by the main session in a
-  sibling directory, `<project>-work/`, with the brief telling the agent to
-  work only there. Every forked agent reports where it worked (the
-  worktree's toplevel, `HEAD`, branch, and
-  `git diff --name-only origin/main...HEAD`) in its first step and its final
-  report, and the main session checks that before it acts. *Proof:* the
-  text; a test that points `GIT_DIR` at a decoy repository, runs each of the
-  harness's git-spawning paths that a test can run, and shows the decoy's
-  config and refs unchanged, shown to fail before the fix. **Added on
-  2026-09-25** by the owner's decision (PR #34), a scope change: in a
-  private project of the owner's, a test's scratch repository, run by a
-  pre-push hook pushed from a worktree, inherited the hook's `GIT_DIR` and
-  rewrote the real repository's `.git/config`
+- **C13. Git runs are isolated, and a forked agent's worktree and target
+  are obtained and checked.**
+  - *Git isolation.* `PRINCIPLES.md` *Creation paths* says a throwaway git
+    repository runs with every `GIT_*` variable of the caller cleared,
+    because a git hook exports them and they override `-C` and the working
+    directory. The harness's own tools do so. Every child process
+    `tools/scaffold.mjs` starts in the new project, `git` and `gh` alike
+    (`gh repo create --source … --remote origin` runs git there), runs
+    without the caller's repository-locating git variables: `GIT_DIR`,
+    `GIT_WORK_TREE`, `GIT_INDEX_FILE`, `GIT_COMMON_DIR`,
+    `GIT_OBJECT_DIRECTORY`, `GIT_ALTERNATE_OBJECT_DIRECTORIES`,
+    `GIT_PREFIX`, every `GIT_CONFIG_*` and `GIT_CONFIG_PARAMETERS`. The tests
+    in `tools/*.test.mjs` clear every `GIT_*` variable from their own
+    process environment, so every throwaway repository they build, and
+    every tool they run, is cut off from the caller's.
+  - *The forked agent's worktree.* `CLAUDE.md` says how a forked agent's
+    worktree is obtained: through the tool's worktree isolation where the
+    tool has it (under `.claude/worktrees/`), otherwise created by the main
+    session in a sibling directory, `<project>-work/`, with the brief
+    telling the agent to work only there. `CLAUDE.md` says that every
+    forked agent reports where it worked (the worktree's toplevel, `HEAD`,
+    branch, and `git diff --name-only origin/main...HEAD`) in its first
+    step and its final report, and that the main session checks that before
+    it acts.
+  - *The review target.* (a) `PRINCIPLES.md`'s target proof says that
+    before a reviewer judges a named revision it lacks, it fetches `origin`
+    and the pull request's head ref (`pull/<N>/head`): a revision missing
+    only before that fetch is not a wrong target, and one still missing
+    after it is. (b) The reviewer checks out the named revision, detached,
+    in a fresh worktree of its own: never the implementer's directory, and
+    never the owner's main checkout. (c) `reviews/review-prompt.md` is a
+    fixed per-change review prompt, modelled on
+    `reviews/milestone-prompt.md`, which the implementer only fills in (the
+    repository, the pull request, the head commit and the base); it carries
+    the identity check, the fetch, the reviewer's own worktree and its
+    report of where it worked. (d) The implementer names as the head commit
+    the one GitHub reports for the pull request
+    (`gh pr view <N> --json headRefOid`), after checking that it equals the
+    commit it pushed. `CLAUDE.md` says (b) and (d).
+  - *Proof:* the text of each part, quoted by `file:line`, and
+    `reviews/review-prompt.md`, whose only placeholders are the four in (c).
+    Two tests, each shown to fail before the fix: the gate,
+    `node --test tools/*.test.mjs`, run with `GIT_DIR` pointed at a decoy
+    repository's linked-worktree gitdir, passes and leaves the decoy's
+    config, `HEAD`, refs and index unchanged; and a test runs
+    `tools/scaffold.mjs` with `--github` against a fake `gh` that records
+    the environment it receives, with `GIT_DIR` pointed at a decoy and a
+    `GIT_CONFIG_*` variable set, and shows that the fake `gh` received none
+    of the named variables and that the decoy's config, `HEAD`, refs and
+    index are unchanged. Every per-change review written after C13 lands
+    records, in its target proof, the fetch, the worktree it worked in, and
+    the head commit GitHub reports.
+
+  **Added on 2026-09-25** by the owner's decision (PR #34), a scope change:
+  in a private project of the owner's, a test's scratch repository, run by
+  a pre-push hook pushed from a worktree, inherited the hook's `GIT_DIR`
+  and rewrote the real repository's `.git/config`
   ([report](docs/sources/hook-git-env-report.md)); Imperial Conquest 2
   traces its review failures of 2026-09-18 to subagents that started in the
   main checkout, and answers with worktrees it creates and agents that say
@@ -208,7 +244,13 @@ one itself, at the candidate commit):
   throwaway repository with the caller's environment, which *Creation
   paths* does not forbid. It joins r6 because it is the builder rule r6
   already touches (C1's worktrees, *Creation paths*), and a latent defect in
-  r6's own tools.
+  r6's own tools. **Widened on 2026-09-26** by the owner's second decision
+  (PR #34) to the review target, parts (a) to (d) above: a reviewer given a
+  commit id in its own checkout did not fetch, could not find the commit,
+  and stopped, and some reviewers forked into a process pointing at the
+  main checkout. C13 becomes where agents work and how they find the
+  target; it was not yet fixed, since PR #34 had not merged, so widening it
+  is not a change to a landed claim.
 
 ## Release 5: scope and claims
 
@@ -845,14 +887,31 @@ on PR #11**, routed to this design:
 - **Owner decision (2026-09-25), on adding C13 to r6**, asked in
   conversation; the question is paraphrased here. Where the git-environment
   fix goes: the harness tools' own git calls plus a test, a clause in
-  *Creation paths*, and as sources the reports from a private project of
-  the owner's and from Imperial Conquest 2. r6's claims were already fixed,
-  so adding it to r6 is a dated scope change. **Join r6:** it
-  is added as claim C13, dated, with its reason. The reason: it is the same
-  builder rule r6 already touches (C1's worktrees, *Creation paths*), and it
-  is a latent defect in r6's own tools. The alternatives were "defect fix
-  now, rule in r7" and "all of it in r7". The recommended default, taken.
-  Its evidence is the owner's merge of PR #34.
+  *Creation paths*, the guidance in `CLAUDE.md` on how a forked agent's
+  worktree is obtained and on its report of where it worked, which the main
+  session checks, and as sources the reports from a private project of the
+  owner's and from Imperial Conquest 2. r6's claims were already fixed, so
+  adding it to r6 is a dated scope change. **Join r6:** all of it is added
+  as claim C13, dated, with its reason. The reason: it is the same builder
+  rule r6 already touches (C1's worktrees, *Creation paths*), and it is a
+  latent defect in r6's own tools. The alternatives were "defect fix now,
+  rule in r7", which would have deferred the *Creation paths* clause and
+  the worktree guidance to r7, and "all of it in r7". The recommended
+  default, taken. Its evidence is the owner's merge of PR #34.
+- **Owner decision (2026-09-26), on widening C13**, asked in conversation
+  after PR #34's review round 01 had started; the question is paraphrased
+  here. A reviewer given a commit id in its own checkout does not fetch,
+  cannot find the commit, and stops; and the owner does not trust reviewers
+  to share the implementer's directory, since some forked into a process
+  pointing at the main checkout. Where the review-target fix goes: fetching
+  before judging, the reviewer's own worktree, a fixed per-change review
+  prompt, and the implementer checking the head commit it names. **Extend
+  C13 in PR #34:** C13 is widened to cover all four. The reason: C13
+  becomes where agents work and how they find the target, and it is not
+  fixed yet, since PR #34 has not merged, so widening it now is not a
+  change to a landed claim. The alternatives were a new claim C14, and
+  "later, in r7". The recommended default, taken. Its evidence is the
+  owner's merge of PR #34.
 - The r4 milestone review (#10) is copied verbatim into `reviews/`:
   `006-r4-milestone-01.md` by DeepSeek V4.1 Flash, r4's implementer — not
   independent, kept as input — and `006-r4-milestone-02.md` by GPT-5.6 Luna,
