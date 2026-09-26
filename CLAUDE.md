@@ -23,7 +23,17 @@ session's conversation, such as Claude Code's `fork`.
   owner's go. Its brief comes from what the repository records — the project
   slot, the request and its done-when — so a gap in the records surfaces as a
   question. It implements the change on a branch, opens a pull request, and
-  stops and reports.
+  stops and reports, with its branch's head commit, pushed where a remote
+  exists.
+- **Where a forked agent works.** Its worktree comes from the tool's worktree
+  isolation where the tool has it (Claude Code's, under `.claude/worktrees/`);
+  otherwise the main session creates it in a sibling directory,
+  `<project>-work/`, and the brief tells the agent to work only there. Every
+  forked agent reports **where it worked** — the worktree's toplevel, `HEAD`,
+  branch, and `git diff --name-only origin/main...HEAD` (without a remote,
+  `main...HEAD`) — in its first step and in its final report. The main
+  session checks that report before it acts on the agent's work: one that is
+  missing, or names the main checkout, is not acted on.
 - A review's findings go back to **that same implementer, resumed**, which
   fixes them in the same change; a finding it disagrees with goes to the owner,
   not around the reviewer.
@@ -35,6 +45,17 @@ session's conversation, such as Claude Code's `fork`.
   **external process** from another family (for example `codex exec`, or
   `opencode run -m <provider>/<model>`); when it is, record the tool and the
   model id in the review.
+- **The review target.** The reviewer checks out the named revision,
+  detached, in a fresh worktree of its own: never the implementer's
+  directory, and never the owner's main checkout. The main session briefs it
+  with [`reviews/review-prompt.md`](reviews/review-prompt.md), filling in
+  only its placeholders. It names the head commit: with a pull request, the
+  one GitHub reports for it (`gh pr view <N> --json headRefOid`); without
+  one, the branch's head on `origin`; in both cases after checking that it
+  equals the commit the implementer reported. Without a remote, it names the
+  branch's local head, which the implementer reported. It fills in the
+  prompt with that commit; a re-review gives the resumed reviewer its new
+  head commit the same way.
 - **Every forked brief, the implementer's and the reviewer's, begins with a
   repository identity check**: the remote's URL and the expected branch or
   commit. A worktree is made from the directory the fork starts in, so a fork

@@ -12,7 +12,12 @@
   list the reviewer checked and how it was obtained (the pull request's files,
   or the local diff from the merge base), the reviewer's display name and model
   id, and the mode. Findings name files from that list; a mismatch or an empty
-  list is a wrong target, not a finding.
+  list is a wrong target, not a finding. A change's review also records its
+  target proof: the fetch it ran, or that there is no remote; the worktree
+  it worked in, as a path relative to the repository (for example
+  `.claude/worktrees/<name>` or `../<project>-work/<name>`, never one
+  machine's absolute path); and the head commit it was given. Its prompt is
+  [`review-prompt.md`](review-prompt.md).
 - **Findings** are numbered, each marked `blocking` — it must be fixed before
   the change is approved — or `non-blocking`, each with `file:line` or a short
   quote as evidence.
