@@ -125,3 +125,32 @@ None.
 
 — Claude Opus 5.5 (claude-opus-5-5), reviewer
 No blocking finding remains.
+
+## Completion
+
+Landed by PR #34, merged on 2026-09-26 at 20:16 UTC as `892fcb9` at the
+owner's instruction ("ok merge it"), after its last review comment and with
+GitGuardian green. The note is non-material and transcribes the evidence
+for the done-when items.
+
+- C13 is added to r6's claims, dated, with its reason and its sources
+  (`docs/sources/hook-git-env-report.md`, `docs/sources/ic2-worktrees.md`):
+  git runs isolated from the caller's git environment, a forked agent's
+  worktree obtained and checked, and the review target fetched, checked
+  out in the reviewer's own worktree and named from a fixed per-change
+  review prompt that both the scaffold and adoption carry.
+- C9 is extended visibly and dated: a generated run carries
+  `reviews/review-prompt.md`, whose placeholders are allowed in that file
+  only.
+- Four owner decisions are recorded in `BACKLOG.md`'s *Notes*, the last
+  made under the round ceiling. Their evidence is this merge.
+- The private project's details are absent from the tree and the PR body,
+  as the owner decided; the history was not rewritten, by the owner's
+  decision.
+- `node --test tools/*.test.mjs`: 60 of 60 pass; `node --check` passes on
+  every `tools/*.mjs`.
+- Four review rounds. Round 01 had two blocking findings; round 02 ended
+  clean; round 03 had one, and went to the owner. Round 04 had no finding,
+  on `75c9747`. `43abc93` only adds round 04's record.
+
+— Implementer (Claude Opus 5.5)
