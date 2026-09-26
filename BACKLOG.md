@@ -37,8 +37,10 @@ an r6 PR's merge, a completion-note commit that changes only a
 items 8 and 6); the `ADOPT.md` rebuild, mined from the six bootstrap prompts
 in `harness_prompts`, with boar_life items 1, 2 and 5 and pgn-postmortem
 items 1, 2, 3 and 5; the verification pattern from the boar_life report
-(item 6); and a dry run for the scaffold's `--github`. Of the five things
-the *Adoption* candidate names to mine, interview first is C3, a real
+(item 6); a dry run for the scaffold's `--github`; and, added on
+2026-09-25, git runs cut off from the caller's git environment, with a
+checked worktree for every forked agent (C13). Of the five things the
+*Adoption* candidate names to mine, interview first is C3, a real
 change is C5, and the handover file is not taken (D9). The PR mechanics are
 r5's rule in `PRINCIPLES.md`, which the rebuilt `ADOPT.md` points to rather
 than restates. Dry-run outward tooling is *Creation paths* for any project,
@@ -176,6 +178,37 @@ one itself, at the candidate commit):
   `git log --first-parent <landing merge>..<candidate>` shows only r6 PR
   merges, completion-note commits and trivial changes; for every r6 PR,
   `gh pr view N --json body,comments,commits,mergedAt` shows the rest.
+- **C13. Git runs are isolated, and a forked agent's worktree is obtained
+  and checked.** `PRINCIPLES.md` *Creation paths* says a throwaway git
+  repository runs with every `GIT_*` variable of the caller cleared, because
+  a git hook exports them and they override `-C` and the working directory.
+  The harness's own tools do so: every git call `tools/scaffold.mjs` makes
+  in the new project clears them (its push to GitHub keeps only what
+  reaching GitHub needs), and so does every throwaway repository in
+  `tools/*.test.mjs`. `CLAUDE.md` says how a forked agent's worktree is
+  obtained: through the tool's worktree isolation where the tool has it
+  (under `.claude/worktrees/`), otherwise created by the main session in a
+  sibling directory, `<project>-work/`, with the brief telling the agent to
+  work only there. Every forked agent reports where it worked (the
+  worktree's toplevel, `HEAD`, branch, and
+  `git diff --name-only origin/main...HEAD`) in its first step and its final
+  report, and the main session checks that before it acts. *Proof:* the
+  text; a test that points `GIT_DIR` at a decoy repository, runs each of the
+  harness's git-spawning paths that a test can run, and shows the decoy's
+  config and refs unchanged, shown to fail before the fix. **Added on
+  2026-09-25** by the owner's decision (PR #<this PR>), a scope change: in
+  Geoclick2027, a test's scratch repository, run by a pre-push hook pushed
+  from a worktree, inherited the hook's `GIT_DIR` and rewrote the real
+  repository's `.git/config`
+  ([report](docs/sources/geoclick-git-env-report.md)); Imperial Conquest 2
+  traces its review failures of 2026-09-18 to subagents that started in the
+  main checkout, and answers with worktrees it creates and agents that say
+  where they worked ([source](docs/sources/ic2-worktrees.md)); and
+  `tools/scaffold.mjs` and `tools/post-record.test.mjs` run git in a new or
+  throwaway repository with the caller's environment, which *Creation
+  paths* does not forbid. It joins r6 because it is the builder rule r6
+  already touches (C1's worktrees, *Creation paths*), and a latent defect in
+  r6's own tools.
 
 ## Release 5: scope and claims
 
@@ -809,6 +842,16 @@ on PR #11**, routed to this design:
   alternatives were "harness rule always wins", which drops the option,
   and "waive and merge now". The recommended default, taken. Its evidence
   is the owner's merge of PR #33.
+- **Owner decision (2026-09-25), on adding C13 to r6**, asked in
+  conversation: where the git-environment fix goes, that is the harness
+  tools' own git calls plus a test, a clause in *Creation paths*, and the
+  Geoclick2027 and Imperial Conquest 2 reports as sources. r6's claims were
+  already fixed, so adding it to r6 is a dated scope change. **Join r6:** it
+  is added as claim C13, dated, with its reason. The reason: it is the same
+  builder rule r6 already touches (C1's worktrees, *Creation paths*), and it
+  is a latent defect in r6's own tools. The alternatives were "defect fix
+  now, rule in r7" and "all of it in r7". The recommended default, taken.
+  Its evidence is the owner's merge of PR #<this PR>.
 - The r4 milestone review (#10) is copied verbatim into `reviews/`:
   `006-r4-milestone-01.md` by DeepSeek V4.1 Flash, r4's implementer — not
   independent, kept as input — and `006-r4-milestone-02.md` by GPT-5.6 Luna,
