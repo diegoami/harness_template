@@ -115,7 +115,10 @@ and does not relax CI.
   it gets no `-NN` file, carries no marker, and is recorded only as a stop
   notice, a comment that says why it stopped. Without a remote, it is a line
   in the change's next review file (at the design stage, the design record),
-  which the next reviewer writes, quoting the notice. A milestone's rounds
+  which the next reviewer writes, quoting the notice. To reach that
+  reviewer, the session that receives the notice quotes it in the message
+  of the next commit on the change's branch, an empty commit if nothing
+  else changes. A milestone's rounds
   are counted per milestone instead: each verdict on its milestone issue is
   one round (a stop notice is not a verdict), and a third that is not
   `AGREE` goes to the owner (*Milestones*).

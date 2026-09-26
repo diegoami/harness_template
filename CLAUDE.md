@@ -14,11 +14,13 @@ fresh reviewer. A **forked subagent** is defined in `PRINCIPLES.md`
 session's conversation, such as Claude Code's `fork`.
 
 - The **main session** talks to the owner and asks the owner decisions. It
-  holds only the subagents' reports. It commits each review file to the pull
-  request's branch and posts it as `PRINCIPLES.md` says (*Posting*, *Pull
-  requests*), which also covers a project with no remote yet. It asks the
-  owner for the merge, or, where the slot records `merge: auto`, merges when
-  the slot's conditions hold; and it writes the completion notes.
+  holds only the subagents' reports. It takes each review file from the
+  reviewer's worktree, then removes that worktree (`git worktree remove`),
+  commits the file to the pull request's branch and posts it as
+  `PRINCIPLES.md` says (*Posting*, *Pull requests*), which also covers a
+  project with no remote yet. It asks the owner for the merge, or, where the
+  slot records `merge: auto`, merges when the slot's conditions hold; and it
+  writes the completion notes.
 - Claude **implements** as a forked subagent in its own git worktree, on the
   owner's go. Its brief comes from what the repository records — the project
   slot, the request and its done-when — so a gap in the records surfaces as a
@@ -29,14 +31,12 @@ session's conversation, such as Claude Code's `fork`.
   isolation where the tool has it (Claude Code's, under `.claude/worktrees/`);
   otherwise the main session creates it in a sibling directory,
   `<project>-work/`, and the brief tells the agent to work only there. The
-  reviewer's brief is the fixed prompt, which names no path: the main
-  session starts it in that worktree, or the reviewer makes its own there,
-  as the prompt says. Every
-  forked agent reports **where it worked** — the worktree's toplevel, `HEAD`,
-  branch, and `git diff --name-only origin/main...HEAD` (without a remote,
-  `main...HEAD`) — in its first step and in its final report. The main
-  session checks that report before it acts on the agent's work: one that is
-  missing, or names the main checkout, is not acted on.
+  reviewer's worktree is the one *The review target*, below, names. Every
+  forked agent reports **where it worked** — the worktree's toplevel,
+  `HEAD`, branch, and `git diff --name-only origin/main...HEAD` (without a
+  remote, `main...HEAD`) — in its first step and in its final report. The
+  main session checks that report before it acts on the agent's work: one
+  that is missing, or names the main checkout, is not acted on.
 - A review's findings go back to **that same implementer, resumed**, which
   fixes them in the same change; a finding it disagrees with goes to the owner,
   not around the reviewer.
@@ -50,11 +50,14 @@ session's conversation, such as Claude Code's `fork`.
   model id in the review.
 - **The review target.** The reviewer checks out the named revision,
   detached, in a fresh worktree of its own: never the implementer's
-  directory, and never the owner's main checkout. The main session briefs it
-  with [`reviews/review-prompt.md`](reviews/review-prompt.md), filling in
-  only its placeholders. It names the head commit: with a pull request, the
-  one GitHub reports for it (`gh pr view <N> --json headRefOid`); without
-  one, the branch's head on `origin`; in both cases after checking that it
+  directory, and never the owner's main checkout. Wherever it was started,
+  in the tool's isolated worktree or not, it makes that worktree itself, in
+  `<project>-work/`, as the prompt says, so the prompt names no path. The
+  main session briefs it with
+  [`reviews/review-prompt.md`](reviews/review-prompt.md), filling in only
+  its placeholders. It names the head commit: with a pull request, the one
+  GitHub reports for it (`gh pr view <N> --json headRefOid`); without one,
+  the branch's head on `origin`; in both cases after checking that it
   equals the commit the implementer reported. Without a remote, it names the
   branch's local head, which the implementer reported. It fills in the
   prompt with that commit; a re-review gives the resumed reviewer its new
