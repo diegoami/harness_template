@@ -196,7 +196,7 @@ one itself, at the candidate commit):
   text; a test that points `GIT_DIR` at a decoy repository, runs each of the
   harness's git-spawning paths that a test can run, and shows the decoy's
   config and refs unchanged, shown to fail before the fix. **Added on
-  2026-09-25** by the owner's decision (PR #<this PR>), a scope change: in
+  2026-09-25** by the owner's decision (PR #34), a scope change: in
   Geoclick2027, a test's scratch repository, run by a pre-push hook pushed
   from a worktree, inherited the hook's `GIT_DIR` and rewrote the real
   repository's `.git/config`
@@ -851,7 +851,7 @@ on PR #11**, routed to this design:
   builder rule r6 already touches (C1's worktrees, *Creation paths*), and it
   is a latent defect in r6's own tools. The alternatives were "defect fix
   now, rule in r7" and "all of it in r7". The recommended default, taken.
-  Its evidence is the owner's merge of PR #<this PR>.
+  Its evidence is the owner's merge of PR #34.
 - The r4 milestone review (#10) is copied verbatim into `reviews/`:
   `006-r4-milestone-01.md` by DeepSeek V4.1 Flash, r4's implementer — not
   independent, kept as input — and `006-r4-milestone-02.md` by GPT-5.6 Luna,
