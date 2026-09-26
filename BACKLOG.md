@@ -164,10 +164,10 @@ one itself, at the candidate commit):
   leave no dangling relative link. `node --check` passes on every
   `tools/*.mjs`. *Proof:* the commands. **Extended on 2026-09-26** by the
   owner's decision (PR #34): the placeholders `reviews/review-prompt.md`
-  documents are allowed as well, and a generated run carries
-  `reviews/review-prompt.md`. The reason: a reviewer that cannot find the
-  commit it was given is a problem in the owner's projects, not only here,
-  so projects need the prompt (C13, part (c)).
+  documents are allowed as well, in that file only, and a generated run
+  carries `reviews/review-prompt.md`. The reason: a reviewer that cannot
+  find the commit it was given is a problem in the owner's projects, not
+  only here, so projects need the prompt (C13, part (c)).
 - **C10. The verification pattern lands.** `verification/README.md` says a
   gate on a tool that exits 0 on failure reads the tool's log, not its exit
   code, and that a check which runs only what a scene loads misses what no
@@ -231,22 +231,28 @@ one itself, at the candidate commit):
     the head commit and the base. The session that briefs the reviewer (in
     Claude mode, the main session) only fills them in. The prompt carries
     the identity check, the fetch, the reviewer's own worktree and its
-    report of where it worked. It ships with every preset, and
-    `PRINCIPLES.md`'s ownership map has a row for it. (d) The implementer
-    reports the head commit it pushed. The main session, which briefs the
-    reviewer, names as the head commit the one GitHub reports for the pull
-    request (`gh pr view <N> --json headRefOid`), or without a pull request
-    the branch's head on `origin`, after checking that it equals the commit
-    the implementer pushed, and fills in the prompt with it. `CLAUDE.md`
-    says (b) and (d).
+    report of where it worked. It reaches every project: it ships with
+    every preset, and `ADOPT.md` lists it among the files an adoption reads
+    and always writes, with its placeholder check allowing the placeholders
+    the prompt documents, in that file only. `PRINCIPLES.md`'s ownership
+    map has a row for it. (d) The implementer reports its branch's head
+    commit, pushed where a remote exists. The main session, which briefs
+    the reviewer, names the head commit: with a pull request, the one
+    GitHub reports for it (`gh pr view <N> --json headRefOid`); without
+    one, the branch's head on `origin`; in both cases after checking that
+    it equals the commit the implementer reported. Without a remote, it
+    names the branch's local head, which the implementer reported. It fills
+    in the prompt with that commit. `CLAUDE.md` says (b) and (d).
   - *Proof:* the text of each part, quoted by `file:line`, including the
     test identity the test files set; `reviews/review-prompt.md`, whose
-    only placeholders are the four in (c); the ownership map's row; and a
-    generated run of every preset, which carries the prompt (C9, as
-    extended). Two tests, each shown to fail before the fix: the gate,
-    `node --test tools/*.test.mjs`, run with `GIT_DIR` pointed at a decoy
-    repository's linked-worktree gitdir, passes and leaves the decoy's
-    config, `HEAD`, refs and index unchanged; and a test runs
+    only placeholders are the four in (c); the ownership map's row; the
+    text of `ADOPT.md` that lists and always writes the prompt and allows
+    its placeholders in that file only; and a generated run of every
+    preset, which carries the prompt (C9, as extended). Two tests, each
+    shown to fail before the fix: the gate, `node --test tools/*.test.mjs`,
+    run with `GIT_DIR` pointed at a decoy repository's linked-worktree
+    gitdir, passes and leaves the decoy's config, `HEAD`, refs and index
+    unchanged; and a test runs
     `tools/scaffold.mjs` with `--github` against a fake `gh` that records
     the environment it receives and points `origin` at a local bare
     repository in the temporary directory, with `GIT_DIR` pointed at a
@@ -255,10 +261,11 @@ one itself, at the candidate commit):
     push landed `main` in the bare repository, that the fake `gh` received
     none of the named variables, and that the decoy's config, `HEAD`, refs
     and index are unchanged. Every per-change review written after C13
-    lands records, in its target proof, the fetch, the worktree it worked
-    in as a path relative to the repository (for example
-    `.claude/worktrees/<name>` or `../<project>-work/<name>`, never one
-    machine's absolute path), and the head commit GitHub reports.
+    lands records, in its target proof, the fetch (or that there is no
+    remote), the worktree it worked in as a path relative to the
+    repository (for example `.claude/worktrees/<name>` or
+    `../<project>-work/<name>`, never one machine's absolute path), and the
+    head commit it was given, as (d) names it.
 
   **Added on 2026-09-25** by the owner's decision (PR #34), a scope change:
   in a private project of the owner's, a test's scratch repository, run by
@@ -280,7 +287,9 @@ one itself, at the candidate commit):
   target; it was not yet fixed, since PR #34 had not merged, so widening it
   is not a change to a landed claim. By the owner's third decision, the same
   day (PR #34), the prompt of part (c) ships with every preset, and C9 is
-  extended to allow its placeholders.
+  extended to allow its placeholders in that file; by the fourth, under the
+  round ceiling, adoption writes it too, so the owner's existing projects
+  get it.
 
 ## Release 5: scope and claims
 
@@ -953,7 +962,21 @@ on PR #11**, routed to this design:
   owner's projects, not only here, so projects need the prompt. The
   alternative was "harness-only", which would have listed shipping it under
   *Not in r6*. The recommended default, taken. Its evidence is the owner's
-  merge of PR #34.
+  merge of PR #34. Adoption takes the prompt too, by the decision on round
+  03 below.
+- **Owner decision (2026-09-26), on PR #34's round 03**, asked in
+  conversation under the round ceiling (`PRINCIPLES.md`, *Rounds*), since
+  round 03 did not end clean; the question is paraphrased here. The
+  per-change review prompt reaches new projects through the scaffold, but
+  not adopted ones: should adoption (`ADOPT.md`) also write
+  `reviews/review-prompt.md`? **Yes, adoption too:** `ADOPT.md` always
+  writes the prompt, and its placeholder check allows the prompt's
+  placeholders in that file only (C13, part (c)). The reason: the owner's
+  existing projects, which take the harness by adoption, are where a
+  reviewer cannot find the commit it was given. The alternatives were "new
+  projects only", which would have listed adoption under *Not in r6*, and
+  "waive and merge now". The recommended default, taken. Its evidence is
+  the owner's merge of PR #34.
 - The r4 milestone review (#10) is copied verbatim into `reviews/`:
   `006-r4-milestone-01.md` by DeepSeek V4.1 Flash, r4's implementer — not
   independent, kept as input — and `006-r4-milestone-02.md` by GPT-5.6 Luna,
