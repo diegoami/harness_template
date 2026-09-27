@@ -145,3 +145,27 @@
 
 — Claude Opus 5.5 (claude-opus-5-5), reviewer
 No blocking finding remains.
+
+## Completion
+
+Landed by PR #35, merged on 2026-09-27 at 07:47 UTC as `c4aecd2` at the
+owner's instruction ("ok, merge"), after its last review comment and with
+GitGuardian green. The note is non-material and transcribes the evidence
+for the done-when items.
+
+- C13 is implemented: every git and `gh` process the scaffold starts runs
+  without the caller's git environment, and both test suites clear it.
+  Under a decoy `GIT_DIR`, 61 of 61 pass and the decoy is unchanged.
+- `PRINCIPLES.md` has a reviewer fetch `origin` and the pull request's ref
+  before it calls a commit missing.
+- In both modes a reviewer makes a fresh, uniquely named worktree of its
+  own and reviews only there, and reports where it worked.
+- `reviews/review-prompt.md` ships with every preset, and `ADOPT.md`
+  always writes it.
+- `node --test tools/scaffold.test.mjs tools/post-record.test.mjs`: 61 of
+  61 pass; `node --check` passes on every `tools/*.mjs`.
+- Three review rounds. Round 01 had one blocking finding, fixed in
+  `0306d1c`; rounds 02 and 03 ended clean. Round 03's two non-blocking
+  findings go to the next text PR.
+
+— Implementer (Claude Opus 5.5)
