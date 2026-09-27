@@ -6,7 +6,8 @@
 // only what was stored under the id asked for. Two tests run real `git` in
 // throwaway repositories under the temp directory (the committed check, and
 // a checkout reached through a directory link), and one runs `node` on the
-// tool through a directory link.
+// tool through a directory link. None of them sees the caller's GIT_*
+// variables (below).
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -25,6 +26,19 @@ import {
   repoPath,
   shellQuote,
 } from "./post-record.mjs";
+
+// Every throwaway repository here, and every tool run, is cut off from the
+// caller's git environment (PRINCIPLES.md, Creation paths): a git hook exports
+// GIT_DIR and its kin, and they override -C and the working directory. Then a
+// fixed identity, so the gate does not depend on the machine's git config.
+for (const key of Object.keys(process.env))
+  if (/^GIT_/i.test(key)) delete process.env[key];
+Object.assign(process.env, {
+  GIT_AUTHOR_NAME: "Harness Test",
+  GIT_AUTHOR_EMAIL: "test@example.com",
+  GIT_COMMITTER_NAME: "Harness Test",
+  GIT_COMMITTER_EMAIL: "test@example.com",
+});
 
 const NEVER = () => {
   throw new Error("gh was called");

@@ -15,6 +15,7 @@
 | the verdict protocol: revision scope and target proof, rounds, materiality, reviewer sessions, fallback, waiver, owner decisions, defect path, completion note, merge policy, `design: none` scoping, rules going forward, bootstrap, comment-not-approval, creation paths, posting, pull requests | `PRINCIPLES.md` |
 | milestones: the definition, claims before work, the milestone issue, the reviewer and its verdict, the tag, triage | `PRINCIPLES.md` |
 | the milestone review prompt | `reviews/milestone-prompt.md` |
+| the per-change review prompt | `reviews/review-prompt.md` |
 | the OpenCode process: the roles' duties, the default assignment table, reviewer acquisition, the two stages, BLOCK scope, withdraw/re-scope | `AGENTS.md` |
 | the Claude Code process: fresh-context review, same-family default, no design stage, the external-process option | `CLAUDE.md` |
 | the project rules: product, premise, the roles (who implements, who reviews each change, who reviews releases), paths, never-echo, the gates table, conventions, one source of truth, decided-not-to-reopen, open work | `CLAUDE.md`, the project slot |
@@ -78,11 +79,19 @@ and does not relax CI.
   target before judging: the revision, and the files of the change — the pull
   request's head and file list where a pull request exists, otherwise the diff
   from the change's base (`git merge-base main <revision>`, then
-  `git diff --name-only <merge-base>..<revision>`). **The revision the reviewer
-  holds must equal the named target, and its file list must equal the change's
-  file list**; every finding names a file in that list. An empty diff or a
+  `git diff --name-only <merge-base>..<revision>`). Before a reviewer judges a
+  named revision it lacks, it **fetches**: where the change has a pull
+  request, `origin` and the pull request's head ref (`pull/<N>/head`); without
+  one, `origin` and the change's branch. A revision missing only before that
+  fetch is not a wrong target, and one still missing after it is. Without a
+  remote there is nothing to fetch: the revision is in the local repository,
+  and the target proof reads it there. **The revision the reviewer holds must
+  equal the named target, and its file list must equal the change's file
+  list**; every finding names a file in that list. An empty diff or a
   mismatched revision is the wrong tree, so the review stops and says so rather
-  than reviewing what it can see.
+  than reviewing what it can see. A change's reviewer is briefed with
+  [`reviews/review-prompt.md`](reviews/review-prompt.md), which carries these
+  steps.
 - **Materiality.** Non-material edits: commit messages, whitespace, and typos
   that change no behaviour, no assertion and no process text. A material edit to
   a design record, or a comment that changes the proposal or records an owner
@@ -106,7 +115,10 @@ and does not relax CI.
   it gets no `-NN` file, carries no marker, and is recorded only as a stop
   notice, a comment that says why it stopped. Without a remote, it is a line
   in the change's next review file (at the design stage, the design record),
-  which the next reviewer writes, quoting the notice. A milestone's rounds
+  which the next reviewer writes, quoting the notice. To reach that
+  reviewer, the session that receives the notice quotes it in the message
+  of the next commit on the change's branch, an empty commit if nothing
+  else changes. A milestone's rounds
   are counted per milestone instead: each verdict on its milestone issue is
   one round (a stop notice is not a verdict), and a third that is not
   `AGREE` goes to the owner (*Milestones*).
@@ -188,8 +200,11 @@ and does not relax CI.
   a posting or creating path only against fakes, a throwaway git repository
   in a temporary directory (never one on GitHub), or a dry run, and runs it
   for real (for example `post-record.mjs --confirm`) only to post or create
-  the real thing: a record, or a project's own repository. A path with no
-  dry run and no fake goes untested by builders until it has one.
+  the real thing: a record, or a project's own repository. A throwaway git
+  repository runs with every `GIT_*` variable of the caller cleared, because
+  a git hook exports them and they override `-C` and the working directory.
+  A path with no dry run and no fake goes untested by builders until it has
+  one.
 - **Posting.** A remote is assumed, and a record is posted when it is
   written, not after the fact; the file stays canonical. Where the project
   has a design stage (OpenCode mode, `design: required`), the design record

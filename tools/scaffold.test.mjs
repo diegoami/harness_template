@@ -1,6 +1,7 @@
 // scaffold.test.mjs — node --test tools/scaffold.test.mjs
 //
-// Runs the real scaffold into temporary directories, and never with --github:
+// Runs the real scaffold into temporary directories, and with --github only
+// against a fake gh and a local bare repository in the temp directory:
 // nothing outside the temp directory is created. The tool runs from the
 // working tree, but the files it copies come from the committed HEAD, so the
 // suite refuses to run while any shipped file has uncommitted changes:
@@ -9,13 +10,38 @@
 import { test, before } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import { createHash } from "node:crypto";
+import {
+  chmodSync,
+  copyFileSync,
+  existsSync,
+  linkSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const SCAFFOLD = path.join(path.dirname(fileURLToPath(import.meta.url)), "scaffold.mjs");
 const REPO = path.dirname(path.dirname(SCAFFOLD));
+
+// Every throwaway repository here, and every tool run, is cut off from the
+// caller's git environment (PRINCIPLES.md, Creation paths): a git hook exports
+// GIT_DIR and its kin, and they override -C and the working directory. Then a
+// fixed identity, so the gate does not depend on the machine's git config.
+for (const key of Object.keys(process.env))
+  if (/^GIT_/i.test(key)) delete process.env[key];
+Object.assign(process.env, {
+  GIT_AUTHOR_NAME: "Harness Test",
+  GIT_AUTHOR_EMAIL: "test@example.com",
+  GIT_COMMITTER_NAME: "Harness Test",
+  GIT_COMMITTER_EMAIL: "test@example.com",
+});
 
 before(() => {
   // Everything a preset ships, plus the presets and the generated README's
@@ -138,6 +164,8 @@ test("every preset names its milestones and its own plan file in the slot", () =
       const line = claude.slice(claude.indexOf("**milestones:**"), claude.indexOf("- **the gates table"));
       assert.ok(line.includes(planFile), `${preset}: ${line}`);
       assert.ok(readdirSync(path.join(r.target, "reviews")).includes("milestone-prompt.md"), preset);
+      // r6 C13 (c), and C9 as extended: every preset ships the per-change prompt.
+      assert.ok(readdirSync(path.join(r.target, "reviews")).includes("review-prompt.md"), preset);
       const reviews = readFileSync(path.join(r.target, "reviews", "README.md"), "utf8");
       assert.match(reviews, /reviews\/v1\.2\.0-milestone-01\.md/, preset);
     } finally {
@@ -442,4 +470,169 @@ test("--help names the role, premise and implementer flags", () => {
   for (const flag of ["--premise", "--implementer ", "--implementer-model", "--reviewer", "--milestone-reviewer"])
     assert.ok(r.stdout.includes(flag), flag);
   assert.match(r.stdout, /--design[^\n]*OpenCode/);
+});
+
+// --- r6 C13: the scaffold's git and gh are cut off from the caller's -------
+
+// The variables C13 names: they locate a repository or inject configuration.
+const NAMED = [
+  "GIT_DIR",
+  "GIT_WORK_TREE",
+  "GIT_INDEX_FILE",
+  "GIT_COMMON_DIR",
+  "GIT_OBJECT_DIRECTORY",
+  "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+  "GIT_PREFIX",
+  "GIT_CONFIG_PARAMETERS",
+  "GIT_CONFIG_COUNT",
+];
+const isNamed = (key) =>
+  NAMED.includes(key.toUpperCase()) || /^GIT_CONFIG_(KEY|VALUE)_\d+$/i.test(key);
+
+// A decoy repository with a linked worktree, both in `dir`. A git hook run from
+// that worktree exports GIT_DIR pointed at the worktree's gitdir.
+function decoy(dir) {
+  const main = path.join(dir, "decoy");
+  const worktree = path.join(dir, "decoy-wt");
+  const git = (cwd, ...args) =>
+    execFileSync("git", ["-C", cwd, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  mkdirSync(main);
+  git(main, "init", "-q", "-b", "main");
+  writeFileSync(path.join(main, "f.txt"), "decoy\n");
+  git(main, "add", "f.txt");
+  git(main, "commit", "-q", "-m", "decoy");
+  git(main, "worktree", "add", "-q", "-b", "wt", worktree);
+  const gitdir = git(worktree, "rev-parse", "--absolute-git-dir").trim();
+  const common = path.join(main, ".git");
+  const digest = (file) =>
+    existsSync(file) ? createHash("sha256").update(readFileSync(file)).digest("hex") : "absent";
+  // The decoy's config, HEAD, refs and index.
+  const state = () => ({
+    config: readFileSync(path.join(common, "config"), "utf8"),
+    head: readFileSync(path.join(common, "HEAD"), "utf8"),
+    worktreeHead: readFileSync(path.join(gitdir, "HEAD"), "utf8"),
+    refs: git(main, "for-each-ref", "--format=%(refname) %(objectname)"),
+    index: digest(path.join(common, "index")),
+    worktreeIndex: digest(path.join(gitdir, "index")),
+  });
+  return { worktree, gitdir, common, state };
+}
+
+// A fake gh: a copy of node named gh, which a preloaded script turns into gh,
+// since Windows starts no script file as a program without a shell. It records
+// its arguments and its environment, answers `api user`, and for `repo create
+// --source <dir> --remote origin` does what gh does there: it runs git in
+// <dir> to point origin at FAKE_GH_ORIGIN, a local bare repository.
+const FAKE_GH = `
+const { execFileSync } = require("node:child_process");
+const { appendFileSync, writeSync } = require("node:fs");
+const path = require("node:path");
+if (/^gh(\\.exe)?$/i.test(path.basename(process.execPath))) {
+  // Node took gh's first argument for a script to run; it is the subcommand.
+  const args = [path.basename(process.argv[1]), ...process.argv.slice(2)];
+  appendFileSync(process.env.FAKE_GH_LOG, JSON.stringify({ args, env: process.env }) + "\\n");
+  if (args[0] === "api" && args[1] === "user") writeSync(1, "fake-owner\\n");
+  else if (args[0] === "repo" && args[1] === "create") {
+    const at = (flag) => args[args.indexOf(flag) + 1];
+    execFileSync("git", ["-C", at("--source"), "remote", "add", at("--remote"), process.env.FAKE_GH_ORIGIN]);
+  } else {
+    writeSync(2, "fake gh: unexpected call " + args.join(" ") + "\\n");
+    process.exit(1);
+  }
+  process.exit(0);
+}
+`;
+
+function fakeGh(dir) {
+  const bin = path.join(dir, "bin");
+  mkdirSync(bin);
+  const exe = path.join(bin, process.platform === "win32" ? "gh.exe" : "gh");
+  try {
+    linkSync(process.execPath, exe);
+  } catch {
+    copyFileSync(process.execPath, exe);
+    if (process.platform !== "win32") chmodSync(exe, 0o755);
+  }
+  const script = path.join(dir, "fake-gh.cjs");
+  writeFileSync(script, FAKE_GH);
+  return { bin, script, log: path.join(dir, "gh-calls.jsonl") };
+}
+
+test("--github against a fake gh: the push lands, gh gets none of the caller's repository variables, and the decoy is untouched", () => {
+  const dir = mkdtempSync(path.join(tmpdir(), "scaffold-test-"));
+  try {
+    const d = decoy(dir);
+    const origin = path.join(dir, "origin.git");
+    execFileSync("git", ["init", "-q", "--bare", origin], { stdio: "ignore" });
+    const gh = fakeGh(dir);
+    const globalConfig = path.join(dir, "global.gitconfig");
+    writeFileSync(globalConfig, "");
+    const systemConfig = path.join(dir, "system.gitconfig");
+    writeFileSync(systemConfig, "");
+    const target = path.join(dir, "run");
+    const pathKey = Object.keys(process.env).find((k) => k.toUpperCase() === "PATH") ?? "PATH";
+    const env = {
+      ...process.env,
+      [pathKey]: gh.bin + path.delimiter + process.env[pathKey],
+      NODE_OPTIONS: `--require "${gh.script.replaceAll("\\", "/")}"`,
+      FAKE_GH_LOG: gh.log,
+      FAKE_GH_ORIGIN: origin,
+      // A real gh, had one run, would find no GitHub here.
+      GH_HOST: "fake-gh.invalid",
+      // What a hook run from the decoy's worktree exports, and injected
+      // configuration that breaks any git that sees it.
+      GIT_DIR: d.gitdir,
+      GIT_WORK_TREE: d.worktree,
+      GIT_INDEX_FILE: path.join(d.gitdir, "index"),
+      GIT_COMMON_DIR: d.common,
+      GIT_OBJECT_DIRECTORY: path.join(d.common, "objects"),
+      GIT_ALTERNATE_OBJECT_DIRECTORIES: path.join(d.common, "objects"),
+      GIT_PREFIX: "sub/",
+      // Windows reads a variable's name in any case, so there this one is
+      // given in mixed case, and must be cut off all the same.
+      [process.platform === "win32" ? "Git_Config_Parameters" : "GIT_CONFIG_PARAMETERS"]:
+        "'core.bare'='true'",
+      GIT_CONFIG_COUNT: "1",
+      GIT_CONFIG_KEY_0: "core.bare",
+      GIT_CONFIG_VALUE_0: "true",
+      // The user's own choice of config, which passes through.
+      GIT_CONFIG_GLOBAL: globalConfig,
+      GIT_CONFIG_SYSTEM: systemConfig,
+      GIT_CONFIG_NOSYSTEM: "1",
+    };
+    const before = d.state();
+    const r = spawnSync(
+      process.execPath,
+      [SCAFFOLD, "--yes", "--ref", "HEAD", "--name", "t", "--dir", target, "--github", "private"],
+      { encoding: "utf8", env },
+    );
+    const calls = existsSync(gh.log)
+      ? readFileSync(gh.log, "utf8").trim().split("\n").map((line) => JSON.parse(line))
+      : [];
+    for (const call of calls) {
+      const what = `gh ${call.args.join(" ")}`;
+      assert.deepEqual(Object.keys(call.env).filter(isNamed), [], `${what} received them`);
+      for (const key of [
+        "GIT_CONFIG_GLOBAL",
+        "GIT_CONFIG_SYSTEM",
+        "GIT_CONFIG_NOSYSTEM",
+        "GIT_AUTHOR_NAME",
+        "FAKE_GH_ORIGIN",
+      ])
+        assert.equal(call.env[key], env[key], `${what} lost ${key}`);
+    }
+    assert.equal(r.status, 0, r.stderr);
+    assert.deepEqual(
+      calls.map((call) => call.args),
+      [
+        ["api", "user", "--jq", ".login"],
+        ["repo", "create", "fake-owner/t", "--private", "--source", target, "--remote", "origin"],
+      ],
+    );
+    const rev = (cwd, ref) => execFileSync("git", ["-C", cwd, "rev-parse", ref], { encoding: "utf8" }).trim();
+    assert.equal(rev(origin, "refs/heads/main"), rev(target, "HEAD"), "the push did not land main");
+    assert.deepEqual(d.state(), before, "the decoy's config, HEAD, refs or index changed");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });

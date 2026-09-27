@@ -80,19 +80,40 @@ const VALUE_FLAGS = [
   "--owner",
 ];
 
+// The caller's variables that locate a repository or inject configuration. A
+// git hook exports them, and they override -C and the working directory, so
+// every git and gh this tool starts runs without them (PRINCIPLES.md,
+// Creation paths). Every other variable passes through, GIT_CONFIG_GLOBAL,
+// GIT_CONFIG_SYSTEM and GIT_CONFIG_NOSYSTEM among them: they are the user's
+// own choice of config, and can hold the identity and the credentials the new
+// project needs. On Windows, where a variable's name has no case, the match
+// ignores case.
+const CALLER_GIT =
+  /^GIT_(DIR|WORK_TREE|INDEX_FILE|COMMON_DIR|OBJECT_DIRECTORY|ALTERNATE_OBJECT_DIRECTORIES|PREFIX|CONFIG_PARAMETERS|CONFIG_COUNT|CONFIG_KEY_\d+|CONFIG_VALUE_\d+)$/;
+const CHILD_ENV = Object.fromEntries(
+  Object.entries(process.env).filter(
+    ([key]) =>
+      !CALLER_GIT.test(process.platform === "win32" ? key.toUpperCase() : key),
+  ),
+);
+
 function fail(message) {
   console.error(`scaffold: ${message}`);
   process.exit(1);
 }
 
 function gitOutput(...args) {
-  return execFileSync("git", ["-C", repoRoot, ...args], { encoding: "utf8" });
+  return execFileSync("git", ["-C", repoRoot, ...args], {
+    encoding: "utf8",
+    env: CHILD_ENV,
+  });
 }
 
 function gitShow(ref, file) {
   return execFileSync("git", ["-C", repoRoot, "show", `${ref}:${file}`], {
     encoding: "utf8",
     maxBuffer: 16 * 1024 * 1024,
+    env: CHILD_ENV,
   });
 }
 
@@ -746,13 +767,16 @@ async function main() {
     writeFileSync(workflow, workflowText(test));
   }
 
+  // Every git and gh run in the new project is cut off from the caller's
+  // repository (CHILD_ENV).
+  const inTarget = { cwd: target, stdio: "pipe", env: CHILD_ENV };
   try {
-    execFileSync("git", ["init", "-b", "main"], { cwd: target, stdio: "pipe" });
-    execFileSync("git", ["add", "-A"], { cwd: target, stdio: "pipe" });
+    execFileSync("git", ["init", "-b", "main"], inTarget);
+    execFileSync("git", ["add", "-A"], inTarget);
     execFileSync(
       "git",
       ["commit", "-m", `Scaffold from harness ${ref} (${presetName})`],
-      { cwd: target, stdio: "pipe" },
+      inTarget,
     );
   } catch (error) {
     const detail = error.stderr ? String(error.stderr) : String(error.message);
@@ -769,7 +793,10 @@ async function main() {
         owner ??
         execFileSync("gh", ["api", "user", "--jq", ".login"], {
           encoding: "utf8",
+          env: CHILD_ENV,
         }).trim();
+      // gh runs git in the new project (--source, --remote), so it gets the
+      // same environment.
       execFileSync(
         "gh",
         [
@@ -782,12 +809,9 @@ async function main() {
           "--remote",
           "origin",
         ],
-        { cwd: target, stdio: "pipe" },
+        inTarget,
       );
-      execFileSync("git", ["push", "-u", "origin", "main"], {
-        cwd: target,
-        stdio: "pipe",
-      });
+      execFileSync("git", ["push", "-u", "origin", "main"], inTarget);
     } catch (error) {
       const detail = error.stderr ? String(error.stderr) : String(error.message);
       fail(

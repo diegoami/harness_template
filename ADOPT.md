@@ -63,9 +63,12 @@ Four rules hold from the first step to the last:
 3. Read these files **as the tag holds them**, with
    `git -C <harness> show <tag>:<file>`: `PRINCIPLES.md`, `CLAUDE.md`,
    `AGENTS.md`, `reviews/README.md`, `reviews/milestone-prompt.md`,
-   `design/README.md`, `PLAN.md`, `ROADMAP.md` and
-   `verification/README.md`. Read `PRINCIPLES.md` and `CLAUDE.md` in full.
-   They own the rules; this file does not restate them.
+   `reviews/review-prompt.md`, `design/README.md`, `PLAN.md`, `ROADMAP.md`
+   and `verification/README.md`. A tag before `r6` lacks
+   `reviews/review-prompt.md`: record `main`'s commit first, as step 2.1
+   does, and read the prompt at that commit; step 2 marks it. Read
+   `PRINCIPLES.md` and `CLAUDE.md` in full. They own the rules; this file
+   does not restate them.
 
 ### 2. List what the harness's `main` holds beyond the tag
 
@@ -85,7 +88,8 @@ Four rules hold from the first step to the last:
 4. Write the list for the owner: one line per pull request or commit that
    changes one of those files, saying what it changes for an adopter. Mark
    each item that adds something this file's steps rely on and the tag
-   lacks, such as a slot field or the mode's shape. If the list is empty,
+   lacks, such as a slot field, the mode's shape or
+   `reviews/review-prompt.md`. If the list is empty,
    say so; step 4 then has nothing to ask about it.
 
 ### 3. Reconnoitre this project, read-only
@@ -172,6 +176,10 @@ grounded in what steps 2 and 3 found. **Write nothing before the answers.**
       what `main` holds beyond it (step 2). Ask whether the project needs
       any of it now, item by item. Default: the tag alone, plus every item
       step 2 marked, since this file's steps rely on it; say so for each.
+      Where the tag lacks `reviews/review-prompt.md`, the item that adds it
+      is not offered for declining: every adoption writes the prompt
+      (step 6.1), and the item comes whole, with the rules the prompt
+      relies on in the other files. Say so.
    5. **The optional files**: `PLAN.md` and `ROADMAP.md` (default: take
       them if the project slices work into iterations or grows by
       requests), and `verification/README.md` (default: take it).
@@ -211,7 +219,8 @@ branch is made from the default branch, for example `adopt-harness-<tag>`.
 ### 6. Write the files
 
 1. The files: `PRINCIPLES.md`, `CLAUDE.md`, `AGENTS.md`,
-   `reviews/README.md` and `reviews/milestone-prompt.md` always;
+   `reviews/README.md`, `reviews/milestone-prompt.md` and
+   `reviews/review-prompt.md` always;
    `design/README.md` only in OpenCode mode with `design: required`; and
    the optional files, `PLAN.md`, `ROADMAP.md` and
    `verification/README.md`, where the owner chose them.
@@ -254,8 +263,10 @@ branch is made from the default branch, for example `adopt-harness-<tag>`.
 3. Write each file from one revision, never a mix: the tag, with
    `git -C <harness> show <tag>:<file>`, or `main`'s recorded commit for an
    item the owner took in step 4. An item from `main` is taken with all of
-   its changes, in every file it touches. Then each file is adapted like
-   any harness file.
+   its changes, in every file it touches. `reviews/review-prompt.md` is
+   always written: where the tag lacks it, with the whole item that adds
+   it, from `main`'s recorded commit (step 4). Then each file is
+   adapted like any harness file.
 4. Fill the project slot in `CLAUDE.md`, between its markers, **from this
    repository**: the owner's answers to step 4, the reconnaissance of
    step 3 and what step 6.2 moved there. The roles, the premise and
@@ -289,7 +300,8 @@ branch is made from the default branch, for example `adopt-harness-<tag>`.
      the adoption PR.
 3. Check that every relative link in the files written resolves, and that
    no `{{…}}` placeholder is left other than those
-   `reviews/milestone-prompt.md` documents.
+   `reviews/milestone-prompt.md` documents and, in `reviews/review-prompt.md`
+   only, those that file documents.
 
 ### 8. Take the adoption PR through the loop
 
