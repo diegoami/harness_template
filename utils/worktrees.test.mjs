@@ -554,7 +554,10 @@ describe("what removal would lose keeps a worktree", () => {
       return (r) => {
         assert.equal(r.dirty, 0);
         assert.deepEqual(r.ignored, [".env"]);
-        assert.match(r.reason, /1 ignored entry, which removal would delete \(\.env\)/);
+        assert.match(
+          r.reason,
+          /1 ignored entry not on the rebuildable list, which removal would delete \(\.env\)/,
+        );
         assert.ok(existsSync(path.join(wt, ".env")));
       };
     }));
@@ -605,6 +608,80 @@ describe("what removal would lose keeps a worktree", () => {
     } finally {
       s.done();
     }
+  });
+});
+
+// The owner's decision on ignored files (BACKLOG.md, Notes): regenerated
+// output on the REBUILDABLE list does not keep a worktree; the dry run names
+// it; any other ignored file still does.
+describe("rebuildable ignored output", () => {
+  // A repository ignoring `ignore`, and an idle detached worktree at its
+  // head with `files` written into it; the dry run's and --clean's verdicts.
+  function run(ignore, files) {
+    const s = scratch();
+    try {
+      const main = repo(s.dir);
+      commit(main, ".gitignore", ignore);
+      const wt = addWorktree(main, path.join(s.dir, "wt"), "--detach", "HEAD");
+      for (const [f, text] of Object.entries(files)) {
+        mkdirSync(path.dirname(path.join(wt, f)), { recursive: true });
+        writeFileSync(path.join(wt, f), text);
+      }
+      age(wt, 48);
+      const dry = worktreeAt(report([main]), wt);
+      const clean = worktreeAt(report(["--clean", main]), wt);
+      return { dry, clean, removed: !existsSync(wt) };
+    } finally {
+      s.done();
+    }
+  }
+
+  test("only node_modules/, at the top and nested, is removed, and the dry run says so", () => {
+    const r = run("node_modules/\n", {
+      "node_modules/x/index.js": "installed\n",
+      "pkg/node_modules/y/index.js": "installed\n",
+    });
+    assert.deepEqual(r.dry.ignored, []);
+    assert.deepEqual(r.dry.rebuildable, ["node_modules/", "pkg/node_modules/"]);
+    assert.equal(r.dry.verdict, "remove", r.dry.reason);
+    assert.match(r.dry.reason, /deletes rebuildable: node_modules\/, pkg\/node_modules\/$/);
+    assert.equal(r.clean.verdict, "remove");
+    assert.ok(r.removed, "--clean left it");
+  });
+
+  test("node_modules/ with a .env is kept, and the reason names the .env", () => {
+    const r = run("node_modules/\n.env\n", {
+      "node_modules/x/index.js": "installed\n",
+      ".env": "SECRET=only-here\n",
+    });
+    assert.deepEqual(r.dry.ignored, [".env"]);
+    assert.deepEqual(r.dry.rebuildable, ["node_modules/"]);
+    assert.equal(r.dry.verdict, "keep");
+    assert.match(r.dry.reason, /1 ignored entry not on the rebuildable list, which removal would delete \(\.env\)/);
+    assert.doesNotMatch(r.dry.reason, /node_modules/);
+    assert.ok(!r.removed, "--clean removed it");
+  });
+
+  test("the name decides, not the content: an ignored build/ holding a hand-made file is removed", () => {
+    const r = run("build/\n", { "build/notes.txt": "written by hand\n" });
+    assert.deepEqual(r.dry.rebuildable, ["build/"]);
+    assert.equal(r.dry.verdict, "remove", r.dry.reason);
+    assert.match(r.dry.reason, /deletes rebuildable: build\//);
+    assert.ok(r.removed);
+  });
+
+  test("an ambiguous name, such as bin/, is not on the list and keeps the worktree", () => {
+    const r = run("bin/\n", { "bin/tool": "local\n" });
+    assert.deepEqual(r.dry.ignored, ["bin/"]);
+    assert.equal(r.dry.verdict, "keep");
+    assert.ok(!r.removed);
+  });
+
+  test("--help names the list", () => {
+    const help = tool(["--help"]).stdout;
+    for (const n of ["node_modules", ".godot", "target", "__pycache__", "coverage"])
+      assert.ok(help.includes(` ${n}`), n);
+    assert.ok(help.split(/\r?\n/).every((l) => l.length <= 79), "a --help line is over 79 columns");
   });
 });
 

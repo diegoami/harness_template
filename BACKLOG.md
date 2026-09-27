@@ -307,7 +307,11 @@ one itself, at the candidate commit):
   and its reason, missing (its directory gone), the dirty count (the
   non-ignored lines of `git status --porcelain --untracked-files=all`, so
   every untracked file counts, whatever `status.showUntrackedFiles` says),
-  its ignored files (`--ignored=matching`), an operation in progress (a
+  its ignored files (`--ignored=matching`), split into rebuildable ones
+  (an entry with a path component on the script's fixed `REBUILDABLE`
+  list of regenerated-output names, such as `node_modules`, `build` or
+  `.godot`, at any depth; the name decides, not the content) and all
+  others, an operation in progress (a
   rebase, merge, cherry-pick, revert or bisect, by the files git keeps in
   its admin dir), the commits reachable from no branch, tag or
   remote-tracking ref, whether its branch is merged into `origin/<default>`
@@ -319,8 +323,9 @@ one itself, at the candidate commit):
     such commits is kept, and so is every other missing worktree of its
     repository;
   - `remove`, for a linked, detached, clean, unlocked worktree with no
-    ignored file, no operation in progress and no commit on no ref, idle
-    at least `--min-age` hours (default 24);
+    ignored file off the rebuildable list, no operation in progress and no
+    commit on no ref, idle at least `--min-age` hours (default 24); its
+    reason names the rebuildable entries removal deletes;
   - `merged`, for the same on a branch merged into `origin/<default>`,
     removed only with `--merged`;
   - `reattach`, only with `--reattach`, for a detached main checkout that is
@@ -344,8 +349,12 @@ one itself, at the candidate commit):
   does, or whose commits cannot be counted, keeps its repository's prune
   from running; a dirty one and one with an untracked file are kept, the
   latter also under `status.showUntrackedFiles=no`; one with an ignored
-  file, one mid-rebase, and one whose status and commits git cannot read
-  are kept, each surviving `--clean`; a recent one is kept; a locked one
+  file off the list (a `.env`, alone or beside `node_modules/`, named in
+  the reason; an ignored `bin/`), one mid-rebase, and one whose status and
+  commits git cannot read are kept, each surviving `--clean`; one holding
+  only rebuildable output (`node_modules/`, a nested `pkg/node_modules/`,
+  a `build/` with a hand-made file) is removed by `--clean`, and its dry
+  run names what it deletes; a recent one is kept; a locked one
   is kept; a merged branch's worktree is reported, and removed only with
   `--merged`, its branch kept; a detached main checkout is reattached only
   with `--reattach` and only when clean and an ancestor, and never
@@ -356,11 +365,11 @@ one itself, at the candidate commit):
   of repositories is scanned and deduplicated by common dir, with a
   worktree outside the folder found, and a folder inside another
   repository lists its child repositories, not the outer one; and the
-  caller's `GIT_DIR` and `GIT_CONFIG_*` reach no git it runs. `node
-  --check` passes on
-  `utils/*.mjs`; the new test file, run with `GIT_DIR` pointed at a decoy
-  repository, passes and leaves the decoy unchanged; `README.md` says what
-  the script does and to run the dry run first; and no file in `presets/`
+  caller's `GIT_DIR` and `GIT_CONFIG_*` reach no git it runs; and
+  `--help` names the list. `node --check` passes on `utils/*.mjs`; the new
+  test file, run with `GIT_DIR` pointed at a decoy repository, passes and
+  leaves the decoy unchanged; `README.md` says what the script does, where
+  the list lives, and to run the dry run first; and no file in `presets/`
   and no line of `ADOPT.md` names it.
 
   **Added on 2026-09-27** by the owner's decision (this change's PR), a
@@ -377,7 +386,14 @@ one itself, at the candidate commit):
   another repository was taken for it. Each now keeps the worktree, or is
   scanned, and has its test. The claim was not yet fixed, since PR #36 had
   not merged, so tightening it is not a change to a landed claim, and it
-  removes less, never more.
+  removes less, never more. **Changed again on 2026-09-27**, still before
+  it landed, by the owner's decision on ignored files (PR #36, *Notes*):
+  the strict rule kept every real leftover, since they all hold
+  regenerated output, so ignored entries on the fixed rebuildable list no
+  longer keep a worktree, while any other ignored file, a `.env` or a key,
+  still does. It removes more than round 01's rule and less than the
+  first version, which let every ignored file go, and the owner decided
+  it.
 
 ## Release 5: scope and claims
 
@@ -1077,6 +1093,23 @@ on PR #11**, routed to this design:
   it under *Not in r6*", which is not possible if it lands before the tag,
   and "defer to r7". The recommended default, taken. Its evidence is the
   owner's merge of this change's pull request.
+- **Owner decision (2026-09-27), on ignored files in PR #36**, asked in
+  conversation after review round 01, whose fix made every ignored file
+  keep a worktree: "Worktrees holding ignored files are now always kept,
+  so the cleanup removes none of your real zombies. What should count as
+  safe to delete with a worktree?" The options: "Rebuildable list
+  (Recommended)": "Ignored folders that tools regenerate don't block
+  removal: node_modules/, .godot/, build/, dist/, target/, .venv/,
+  __pycache__/, .svelte-kit/ and similar, as a fixed list in the script.
+  Any other ignored file (.env, keys, local config) still keeps the
+  worktree, and the reason names it. Your six zombies become removable
+  again, and a .env stays safe."; "Opt-in flag": "--ignored lets --clean
+  delete worktrees with any ignored files, after reading the dry run";
+  "Both": "the list plus the flag"; and "Keep strict", the implementer's
+  recommendation. **Rebuildable list:** C14 is changed to match, dated.
+  The reason: the strict rule keeps every real leftover, since they all
+  hold regenerated output, while a `.env` or key stays protected. The
+  recommended default, taken. Its evidence is the owner's merge of PR #36.
 - The r4 milestone review (#10) is copied verbatim into `reviews/`:
   `006-r4-milestone-01.md` by DeepSeek V4.1 Flash, r4's implementer — not
   independent, kept as input — and `006-r4-milestone-02.md` by GPT-5.6 Luna,

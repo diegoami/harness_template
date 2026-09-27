@@ -18,7 +18,8 @@
 // and never fetches: origin/<default> is as last fetched. Git removes a
 // worktree only through `git worktree remove`, which refuses a dirty or locked
 // one on its own as well, but deletes ignored files: so an ignored file keeps
-// a worktree here.
+// a worktree here, unless it is regenerated output on the REBUILDABLE list
+// (node_modules/, build/ and the like), which the dry run names instead.
 
 import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
@@ -40,6 +41,20 @@ const CHILD_ENV = Object.fromEntries(
 
 const VERDICTS = ["prune", "remove", "merged", "reattach", "main detached", "keep"];
 
+// Names, indented, wrapped at 79 columns.
+function wrapNames(names) {
+  const lines = [];
+  let line = " ";
+  for (const n of names) {
+    if (line.length + n.length + 1 > 79) {
+      lines.push(line);
+      line = " ";
+    }
+    line += ` ${n}`;
+  }
+  return [...lines, line].join("\n");
+}
+
 function printHelp() {
   console.log(`usage: node utils/worktrees.mjs [--clean] [--merged] [--reattach]
                                 [--min-age <hours>] [--json] [<path>...]
@@ -52,13 +67,13 @@ current directory.
 verdicts:
   prune          a missing worktree (its directory is gone): git worktree prune
   remove         a linked, detached, unlocked worktree with no change, no
-                 untracked or ignored file, no rebase, merge, cherry-pick,
-                 revert or bisect in progress, no commit on no branch, tag or
-                 remote-tracking ref, idle >= --min-age:
-                 git worktree remove <path>
+                 untracked file, no ignored file off the rebuildable list
+                 (below), no rebase, merge, cherry-pick, revert or bisect in
+                 progress, no commit on no branch, tag or remote-tracking
+                 ref, idle >= --min-age: git worktree remove <path>
   merged         the same on a branch merged into origin/<default>; removed
                  only with --merged, and the branch is kept
-  reattach       a detached main checkout, clean, with no operation in progress,
+  reattach       a detached main checkout, clean, with nothing in progress,
                  whose HEAD is an ancestor of origin/<default>:
                  git switch <default>, only with --reattach
   main detached  a detached main checkout that is left, with the reason
@@ -71,6 +86,12 @@ options:
   --min-age <h>    hours a worktree must be idle before removal (default 24)
   --json           print the same data as JSON
   -h, --help       this text
+
+Rebuildable: an ignored entry with a path component named
+${wrapNames([...REBUILDABLE])}
+is regenerated output. Removal deletes it with the worktree, and the dry run
+says so ("deletes rebuildable: ..."). The name decides, not the content. Any
+other ignored file, such as a .env or a key, keeps the worktree.
 
 It never fetches (origin/<default> is as last fetched), never passes --force,
 and never deletes a branch or a file itself. Run the dry run first.`);
@@ -361,13 +382,50 @@ function isAncestor(at, a, b) {
   return r.status === 0 ? true : r.status === 1 ? false : null;
 }
 
+// Directory names that are regenerated output and nothing else: package
+// installs, build and cache folders that the project's own tools write again
+// (BACKLOG.md, C14, and the owner's decision on ignored files). An ignored
+// entry is rebuildable when one of its path components is one of these, at
+// any depth (node_modules/, app/node_modules/, build/x.o). The name decides,
+// not the content: a hand-made file inside an ignored build/ goes with it.
+// Ambiguous names, where a local file can be the only copy, are left out on
+// purpose: bin, out, tmp, temp, data, cache, gen, www, logs.
+const REBUILDABLE = new Set([
+  "node_modules",
+  ".godot",
+  ".import",
+  "build",
+  "dist",
+  "target",
+  ".venv",
+  "venv",
+  "__pycache__",
+  ".pytest_cache",
+  ".mypy_cache",
+  ".ruff_cache",
+  ".svelte-kit",
+  ".next",
+  ".nuxt",
+  ".turbo",
+  ".parcel-cache",
+  ".gradle",
+  "obj",
+  "coverage",
+]);
+function isRebuildable(entry) {
+  // Porcelain quotes a path with unusual characters; the name test needs none.
+  const p = entry.startsWith('"') ? entry.slice(1, -1) : entry;
+  return p.split("/").some((c) => REBUILDABLE.has(c));
+}
+
 // The worktree's status, named in full so the repository's config cannot
 // narrow it: --untracked-files=all counts every untracked file whatever
 // status.showUntrackedFiles says, and --ignored=matching lists each ignored
 // file or directory once (a whole node_modules/ is one entry). `git worktree
-// remove` deletes ignored files without a word, and one can be the only copy
-// of something, a local .env or build, so they keep a worktree too.
-// null when git cannot read the status.
+// remove` deletes ignored files without a word. A rebuildable one is only
+// reported; any other, which can be the only copy of something (a local .env,
+// a key, a local config), keeps the worktree. null when git cannot read the
+// status.
 function statusOf(dir) {
   const r = git(dir, [
     "status",
@@ -377,8 +435,12 @@ function statusOf(dir) {
   ]);
   if (!r.ok) return null;
   const lines = r.out ? r.out.split(/\r?\n/) : [];
-  const ignored = lines.filter((l) => l.startsWith("!! ")).map((l) => l.slice(3));
-  return { dirty: lines.length - ignored.length, ignored };
+  const all = lines.filter((l) => l.startsWith("!! ")).map((l) => l.slice(3));
+  return {
+    dirty: lines.length - all.length,
+    ignored: all.filter((e) => !isRebuildable(e)),
+    rebuildable: all.filter(isRebuildable),
+  };
 }
 
 // An operation git has stopped in the middle of, by the files it keeps in
@@ -442,6 +504,7 @@ function inspect(repo, now) {
       idleHours: idleHours(admin, now),
       dirty: null,
       ignored: null,
+      rebuildable: null,
       inProgress: missing ? [] : inProgress(admin),
       unique: null,
       merged: null,
@@ -450,7 +513,7 @@ function inspect(repo, now) {
     if (e.bare) return wt;
     if (!missing && exists) {
       const st = statusOf(e.path);
-      if (st) [wt.dirty, wt.ignored] = [st.dirty, st.ignored];
+      if (st) [wt.dirty, wt.ignored, wt.rebuildable] = [st.dirty, st.ignored, st.rebuildable];
     }
     wt.unique = uniqueCount(at, e.head);
     if (e.branch && originRef && !NULL_SHA.test(e.head || "0"))
@@ -508,7 +571,9 @@ function judge(wt, repo, opts) {
   if (wt.ignored && wt.ignored.length) {
     const shown = wt.ignored.slice(0, 3).join(", ") + (wt.ignored.length > 3 ? ", …" : "");
     const n = wt.ignored.length;
-    why.push(`${n} ignored ${n === 1 ? "entry" : "entries"}, which removal would delete (${shown})`);
+    why.push(
+      `${n} ignored ${n === 1 ? "entry" : "entries"} not on the rebuildable list, which removal would delete (${shown})`,
+    );
   }
   if (wt.inProgress.length) why.push(`${wt.inProgress.join(" and ")} in progress`);
   if (wt.unique === null) why.push("its commits on no ref could not be counted");
@@ -521,10 +586,16 @@ function judge(wt, repo, opts) {
     else if (!wt.merged) why.push(`branch ${wt.branch} is not merged into origin/${def}`);
   }
   if (why.length) return ["keep", why.join("; ")];
+  // What removal deletes besides tracked files, so it is seen before --clean.
+  const r = wt.rebuildable || [];
+  const deletes = r.length
+    ? `; deletes rebuildable: ${r.slice(0, 3).join(", ")}${r.length > 3 ? `, … (${r.length} in all)` : ""}`
+    : "";
   const idle = `idle ${hours(wt.idleHours)}`;
-  if (wt.detached) return ["remove", `detached, clean, no commit on no ref, ${idle}`];
-  if (opts.merged) return ["remove", `branch ${wt.branch} merged into origin/${def}, clean, ${idle}; the branch is kept`];
-  return ["merged", `branch ${wt.branch} merged into origin/${def}, clean, ${idle}: removable with --merged`];
+  if (wt.detached) return ["remove", `detached, clean, no commit on no ref, ${idle}${deletes}`];
+  if (opts.merged)
+    return ["remove", `branch ${wt.branch} merged into origin/${def}, clean, ${idle}; the branch is kept${deletes}`];
+  return ["merged", `branch ${wt.branch} merged into origin/${def}, clean, ${idle}: removable with --merged${deletes}`];
 }
 
 function plan(repo, opts) {
@@ -579,6 +650,7 @@ function stateText(wt) {
   if (wt.locked) s.push("locked");
   if (wt.dirty > 0) s.push(`dirty ${wt.dirty}`);
   if (wt.ignored && wt.ignored.length) s.push(`${wt.ignored.length} ignored`);
+  if (wt.rebuildable && wt.rebuildable.length) s.push(`${wt.rebuildable.length} rebuildable`);
   if (wt.inProgress && wt.inProgress.length) s.push("in progress");
   if (wt.unique > 0) s.push(`${wt.unique} on no ref`);
   if (wt.branch && wt.merged === true) s.push("merged");
