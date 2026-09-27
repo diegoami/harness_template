@@ -37,15 +37,16 @@ an r6 PR's merge, a completion-note commit that changes only a
 items 8 and 6); the `ADOPT.md` rebuild, mined from the six bootstrap prompts
 in `harness_prompts`, with boar_life items 1, 2 and 5 and pgn-postmortem
 items 1, 2, 3 and 5; the verification pattern from the boar_life report
-(item 6); a dry run for the scaffold's `--github`; and, added on
-2026-09-25 and widened on 2026-09-26, git runs cut off from the caller's
-git environment, with a checked worktree and review target for every
-forked agent (C13). Of the five things the
-*Adoption* candidate names to mine, interview first is C3, a real
-change is C5, and the handover file is not taken (D9). The PR mechanics are
-r5's rule in `PRINCIPLES.md`, which the rebuilt `ADOPT.md` points to rather
-than restates. Dry-run outward tooling is *Creation paths* for any project,
-and C8 for this repository's own scaffold.
+(item 6); a dry run for the scaffold's `--github`; added on 2026-09-25
+and widened on 2026-09-26, git runs cut off from the caller's git
+environment, with a checked worktree and review target for every forked
+agent (C13); and, added on 2026-09-27, a harness-only script that finds
+leftover worktrees and removes only the safe ones (C14). Of the five
+things the *Adoption* candidate names to mine, interview first is C3, a
+real change is C5, and the handover file is not taken (D9). The PR
+mechanics are r5's rule in `PRINCIPLES.md`, which the rebuilt `ADOPT.md`
+points to rather than restates. Dry-run outward tooling is *Creation paths*
+for any project, and C8 for this repository's own scaffold.
 
 **Release step:** before the candidate is frozen, `ADOPT.md` names `r6`.
 
@@ -290,6 +291,125 @@ one itself, at the candidate commit):
   extended to allow its placeholders in that file; by the fourth, under the
   round ceiling, adoption writes it too, so the owner's existing projects
   get it.
+- **C14. Leftover worktrees are found, and only the safe ones removed.**
+  `utils/worktrees.mjs` is harness-only: no preset ships it and `ADOPT.md`
+  does not write it. `node utils/worktrees.mjs [--clean] [--merged]
+  [--reattach] [--min-age <hours>] [--json] [<path>...]` takes
+  repositories, or folders whose direct children are repositories, and with
+  no path the repository of the current directory. A path is a repository
+  only at the top of one of its work trees or as a git dir; a folder inside
+  a work tree is scanned for its child repositories, with a warning, and
+  taken as the repository it is in only when it holds none. A submodule is
+  skipped when a scan finds it, with a warning, and never reattached when
+  it is given itself, since its superproject sets its `HEAD`. It groups them
+  by their common git dir, so several worktrees of one repository are one
+  repository, and it lists every worktree git knows for each, so a
+  worktree outside every given path is found too. For each worktree it
+  reports the path, main or linked, `HEAD`, the branch or detached, locked
+  and its reason, missing (its directory gone), the dirty count (the
+  non-ignored lines of `git status --porcelain --untracked-files=all`, so
+  every untracked file counts, whatever `status.showUntrackedFiles` says),
+  its ignored files (`--ignored=matching`), split into rebuildable ones
+  and all others. An entry is rebuildable only when it is itself an
+  ignored directory, at any depth, whose own name is on the script's fixed
+  `REBUILDABLE` list of regenerated-output names, such as `node_modules`,
+  `build` or `.godot`. The name decides, not the content: a hand-made file
+  inside an ignored `build/` goes with it, since git lists that `build/`
+  as one entry. An ignored file that merely sits in a tracked folder with a
+  listed name, such as `build/signing.p12`, is not rebuildable. It also
+  reports an operation in progress (a rebase, merge, cherry-pick, revert
+  or bisect, by the files git keeps in its admin dir), the commits
+  reachable from no branch, tag or
+  remote-tracking ref, whether its branch is merged into `origin/<default>`
+  as last fetched, and its idle time, and gives it a verdict with its
+  reason:
+  - `prune`, for a missing worktree that is not locked and whose `HEAD`
+    holds no commit on no ref; since `git worktree prune` takes every
+    missing worktree of a repository at once, a missing worktree that holds
+    such commits is kept, and so is every other missing worktree of its
+    repository;
+  - `remove`, for a linked, detached, clean, unlocked worktree with no
+    ignored file off the rebuildable list, no operation in progress and no
+    commit on no ref, idle at least `--min-age` hours (default 24); its
+    reason names the rebuildable entries removal deletes;
+  - `merged`, for the same on a branch merged into `origin/<default>`,
+    removed only with `--merged`;
+  - `reattach`, only with `--reattach`, for a detached main checkout that is
+    clean, with no operation in progress, whose `HEAD` is an ancestor of
+    `origin/<default>`, and whose local default branch exists and is
+    checked out nowhere else: `git switch <default>`, never a pull or a
+    reset; otherwise `main detached`, with the reason it is left;
+  - `keep`, with its reasons, for everything else, including a worktree
+    whose status git cannot read or whose commits it cannot count.
+
+  Without `--clean` it is a dry run: it prints the commands it would run
+  and changes nothing, not even `git worktree prune`; with `--clean` it
+  runs them, reports each outcome, continues past a failure, and exits 1
+  if one failed. It never passes `--force`, never deletes a branch or a
+  file itself, never fetches, and runs every git child process without
+  the caller's variables that C13 names. `--json` prints the same data as
+  JSON.
+  *Proof:* `node --test utils/worktrees.test.mjs` passes, and has a test
+  for each of: a missing worktree is pruned; a clean, detached, idle one is
+  removed; one holding a commit on no ref is kept, and a missing one that
+  does, or whose commits cannot be counted, keeps its repository's prune
+  from running; a dirty one and one with an untracked file are kept, the
+  latter also under `status.showUntrackedFiles=no`; one with an ignored
+  file off the list (a `.env`, alone or beside `node_modules/`, named in
+  the reason; an ignored `bin/`; an ignored `build/signing.p12` in a
+  tracked `build/`), one with each operation in progress (a table of every
+  marker, and a real bisect), and one whose status and commits git cannot
+  read are kept, each surviving `--clean`; one holding only rebuildable
+  output (`node_modules/`, a nested `pkg/node_modules/`, an ignored
+  `build/` with a hand-made file) is removed by `--clean`, and its dry run
+  names what it deletes; a recent one is kept; a locked one is kept; a
+  merged branch's worktree is reported, and removed only with `--merged`,
+  its branch kept; a detached main checkout is reattached only with
+  `--reattach` and only when clean and an ancestor, and never otherwise,
+  nor while its default branch is checked out elsewhere, nor during a
+  bisect; a submodule is not listed with its superproject, and not
+  reattached when given itself; a dry
+  run leaves the worktree list, the refs and each worktree's admin files
+  unchanged; `--clean` removes exactly the safe set, and when git refuses
+  one command it runs the rest, reports the failure and exits 1; a folder
+  of repositories is scanned and deduplicated by common dir, with a
+  worktree outside the folder found, and a folder inside another
+  repository lists its child repositories, not the outer one; and the
+  caller's `GIT_DIR` and `GIT_CONFIG_*` reach no git it runs; and
+  `--help` names the list. `node --check` passes on `utils/*.mjs`; the new
+  test file, run with `GIT_DIR` pointed at a decoy repository, passes and
+  leaves the decoy unchanged; `README.md` says what the script does, where
+  the list lives, and to run the dry run first; and no file in `presets/`
+  and no line of `ADOPT.md` names it.
+
+  **Added on 2026-09-27** by the owner's decision (this change's PR), a
+  scope change: the owner asked for a script that finds detached and
+  leftover worktrees and cleans them up, in this repository, now. Agents
+  make worktrees under C13's rule (`.claude/worktrees/`, `<project>-work/`)
+  and the reviewer's detached review worktrees, and some are left behind.
+  It joins r6 because it lands before the tag, and it serves C13's
+  worktree rule: the worktrees agents make must also be removed.
+  **Tightened on 2026-09-27**, before it landed, by review round 01 of
+  PR #36: a repository's `status.showUntrackedFiles=no` hid an untracked
+  file, and `--clean` deleted the only copy; ignored files and a rebase's
+  state went with a removed worktree without a word; and a folder inside
+  another repository was taken for it. Each now keeps the worktree, or is
+  scanned, and has its test. The claim was not yet fixed, since PR #36 had
+  not merged, so tightening it is not a change to a landed claim, and it
+  removes less, never more. **Changed again on 2026-09-27**, still before
+  it landed, by the owner's decision on ignored files (PR #36, *Notes*):
+  the strict rule kept every real leftover, since they all hold
+  regenerated output, so ignored entries on the fixed rebuildable list no
+  longer keep a worktree, while any other ignored file, a `.env` or a key,
+  still does. It removes more than round 01's rule and less than the
+  first version, which let every ignored file go, and the owner decided
+  it. **Narrowed on 2026-09-27**, still before it landed, by review round
+  02 of PR #36: the first version of the list counted an ignored file in
+  any folder with a listed name, so a key ignored inside a tracked
+  `build/` was deleted, against the decision's promise that a key keeps
+  the worktree. Only an ignored directory with a listed name counts now.
+  The same round found that a scan listed, and could reattach, a
+  repository's submodules; they are skipped, and never reattached.
 
 ## Release 5: scope and claims
 
@@ -977,6 +1097,49 @@ on PR #11**, routed to this design:
   projects only", which would have listed adoption under *Not in r6*, and
   "waive and merge now". The recommended default, taken. Its evidence is
   the owner's merge of PR #34.
+- **Owner decision (2026-09-27), on adding C14 to r6**, asked in
+  conversation: "can you give me a script, in python or bash or a skill or
+  whatever, and in this repository as well under utils as well, to find
+  detached worktrees and make a cleanup or zombies ? I hear we have some".
+  r6's claims were already fixed, so adding it to r6 is a dated scope
+  change. **Join r6:** added as claim C14, dated, with its reason. The
+  reason: the owner asked for it to land in this repository now, so it
+  falls in r6's range, and it serves C13's worktree rule, since the
+  worktrees agents make must also be removed. The alternatives were "list
+  it under *Not in r6*", which is not possible if it lands before the tag,
+  and "defer to r7". The recommended default, taken. Its evidence is the
+  owner's merge of this change's pull request.
+- **Owner decision (2026-09-27), on ignored files in PR #36**, asked in
+  conversation after review round 01, whose fix made every ignored file
+  keep a worktree: "Worktrees holding ignored files are now always kept,
+  so the cleanup removes none of your real zombies. What should count as
+  safe to delete with a worktree?" The options, each with its
+  description, exactly as shown:
+  - "Rebuildable list (Recommended)": "Ignored folders that tools
+    regenerate don't block removal: node_modules/, .godot/, build/, dist/,
+    target/, .venv/, __pycache__/, .svelte-kit/ and similar, as a fixed
+    list in the script. Any other ignored file (.env, keys, local config)
+    still keeps the worktree, and the reason names it. Your six zombies
+    become removable again, and a .env stays safe."
+  - "Opt-in flag": "A flag such as --ignored lets --clean delete worktrees
+    with any ignored files, after you've read the dry run listing them.
+    With no flag the tool stays as strict as now. Simple, but one flag
+    covers the .env case too."
+  - "Both": "The rebuildable list by default, plus the opt-in flag for the
+    remaining cases after you've read the dry run."
+  - "Keep strict": "The implementer's recommendation: the tool never
+    deletes ignored files, and you remove those worktrees by hand after
+    reading the dry run."
+
+  The question marked "Rebuildable list (Recommended)" as recommended, so
+  that is the recommended default. "Keep strict" was the implementer's
+  recommendation, in its report, and not the one marked in the question.
+  **Rebuildable list:** C14 is changed to match, dated. The reason: the
+  strict rule keeps every real leftover, since they all hold regenerated
+  output, while a `.env` or key stays protected. The recommended default,
+  taken. Measured afterwards, the list made three of the six earlier
+  removable leftovers removable, not six, because the other three hold
+  ignored files off the list. Its evidence is the owner's merge of PR #36.
 - The r4 milestone review (#10) is copied verbatim into `reviews/`:
   `006-r4-milestone-01.md` by DeepSeek V4.1 Flash, r4's implementer — not
   independent, kept as input — and `006-r4-milestone-02.md` by GPT-5.6 Luna,
