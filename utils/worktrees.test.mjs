@@ -615,12 +615,17 @@ describe("what removal would lose keeps a worktree", () => {
 // output on the REBUILDABLE list does not keep a worktree; the dry run names
 // it; any other ignored file still does.
 describe("rebuildable ignored output", () => {
-  // A repository ignoring `ignore`, and an idle detached worktree at its
-  // head with `files` written into it; the dry run's and --clean's verdicts.
-  function run(ignore, files) {
+  // A repository ignoring `ignore` and tracking `tracked`, and an idle
+  // detached worktree at its head with `files` written into it; the dry
+  // run's and --clean's verdicts.
+  function run(ignore, files, tracked = {}) {
     const s = scratch();
     try {
       const main = repo(s.dir);
+      for (const [f, text] of Object.entries(tracked)) {
+        mkdirSync(path.dirname(path.join(main, f)), { recursive: true });
+        commit(main, f, text);
+      }
       commit(main, ".gitignore", ignore);
       const wt = addWorktree(main, path.join(s.dir, "wt"), "--detach", "HEAD");
       for (const [f, text] of Object.entries(files)) {
@@ -670,6 +675,20 @@ describe("rebuildable ignored output", () => {
     assert.ok(r.removed);
   });
 
+  test("but an ignored key in a tracked build/ is not rebuildable: it keeps the worktree", () => {
+    // Round 02's case: the folder has a listed name, but it is tracked
+    // source, and the ignored entry is the key file itself.
+    const r = run("*.p12\n", { "build/signing.p12": "the only key\n" }, { "build/icon.txt": "icon\n" });
+    assert.deepEqual(r.dry.ignored, ["build/signing.p12"]);
+    assert.deepEqual(r.dry.rebuildable, []);
+    assert.equal(r.dry.verdict, "keep");
+    assert.match(
+      r.dry.reason,
+      /1 ignored entry not on the rebuildable list, which removal would delete \(build\/signing\.p12\)/,
+    );
+    assert.ok(!r.removed, "--clean removed it, and the key with it");
+  });
+
   test("an ambiguous name, such as bin/, is not on the list and keeps the worktree", () => {
     const r = run("bin/\n", { "bin/tool": "local\n" });
     assert.deepEqual(r.dry.ignored, ["bin/"]);
@@ -683,6 +702,100 @@ describe("rebuildable ignored output", () => {
       assert.ok(help.includes(` ${n}`), n);
     assert.ok(help.split(/\r?\n/).every((l) => l.length <= 79), "a --help line is over 79 columns");
   });
+});
+
+// Every operation git can leave half done, by the file or directory it keeps
+// in the admin dir. The list is written out here, apart from the script's,
+// so that dropping one there turns this red.
+describe("an operation in progress keeps a worktree", () => {
+  const STATES = [
+    ["rebase-merge", "dir", "a rebase"],
+    ["rebase-apply", "dir", "a rebase or git am"],
+    ["MERGE_HEAD", "sha", "a merge"],
+    ["CHERRY_PICK_HEAD", "sha", "a cherry-pick"],
+    ["REVERT_HEAD", "sha", "a revert"],
+    ["sequencer", "dir", "a cherry-pick or revert sequence"],
+    ["BISECT_LOG", "file", "a bisect"],
+  ];
+  for (const [marker, kind, what] of STATES)
+    test(`${what} (${marker})`, () => {
+      const s = scratch();
+      try {
+        const main = repo(s.dir);
+        const wt = addWorktree(main, path.join(s.dir, "wt"), "--detach", "HEAD");
+        const admin = git(wt, "rev-parse", "--absolute-git-dir");
+        if (kind === "dir") mkdirSync(path.join(admin, marker));
+        else writeFileSync(path.join(admin, marker), kind === "sha" ? `${git(wt, "rev-parse", "HEAD")}\n` : "#\n");
+        age(wt, 48);
+        const r = worktreeAt(report(["--clean", main]), wt);
+        assert.deepEqual(r.inProgress, [what]);
+        assert.equal(r.verdict, "keep");
+        assert.match(r.reason, new RegExp(`${what} in progress`));
+        assert.ok(existsSync(path.join(admin, marker)) && existsSync(wt));
+      } finally {
+        s.done();
+      }
+    });
+
+  test("a real bisect, in a linked worktree and in a detached main checkout", () => {
+    const s = scratch();
+    try {
+      const main = repo(s.dir);
+      const wt = addWorktree(main, path.join(s.dir, "wt"), "--detach", "HEAD");
+      git(wt, "bisect", "start");
+      age(wt, 48);
+      git(main, "switch", "-q", "--detach", "HEAD");
+      git(main, "bisect", "start");
+      const rep = report(["--clean", "--reattach", main]);
+      const linked = worktreeAt(rep, wt);
+      assert.deepEqual(linked.inProgress, ["a bisect"]);
+      assert.equal(linked.verdict, "keep");
+      assert.ok(existsSync(wt));
+      const m = worktreeAt(rep, main);
+      assert.equal(m.verdict, "main detached");
+      assert.match(m.reason, /left detached: a bisect in progress/);
+      assert.deepEqual(rep.repositories[0].commands, []);
+      assert.notEqual(
+        spawnSync("git", ["-C", main, "symbolic-ref", "-q", "HEAD"], { stdio: "ignore" }).status,
+        0,
+      );
+    } finally {
+      s.done();
+    }
+  });
+});
+
+test("a submodule is not listed with its superproject, and never reattached", () => {
+  const s = scratch();
+  try {
+    const lib = repo(s.dir, "lib");
+    const main = repo(s.dir);
+    const file = ["-c", "protocol.file.allow=always"];
+    execFileSync("git", ["-C", main, ...file, "submodule", "add", "-q", lib, "lib"], { stdio: "ignore" });
+    git(main, "commit", "-q", "-m", "a submodule");
+    const sub = path.join(main, "lib");
+    // Detached, clean, and an ancestor of its origin/main, with a local
+    // main: everything a reattach asks, were it not a submodule.
+    git(sub, "switch", "-q", "--detach", "HEAD");
+    const detachedSub = () =>
+      spawnSync("git", ["-C", sub, "symbolic-ref", "-q", "HEAD"], { stdio: "ignore" }).status !== 0;
+    const r = tool(["--json", "--reattach", "--clean", main]);
+    assert.equal(r.status, 0, r.stderr);
+    const rep = JSON.parse(r.stdout);
+    assert.deepEqual(rep.repositories.map((x) => key(x.commonDir)), [key(path.join(main, ".git"))]);
+    assert.ok(rep.warnings.some((m) => /1 submodule not listed/.test(m)), rep.warnings);
+    assert.ok(detachedSub(), "the scan reattached the submodule");
+    // Given as a path itself, it is listed, and left detached.
+    const own = report(["--reattach", "--clean", sub]);
+    const wt = worktreeAt(own, sub);
+    assert.equal(wt.verdict, "main detached");
+    assert.match(wt.reason, /left detached: a submodule of /);
+    assert.deepEqual(own.repositories[0].commands, []);
+    assert.ok(detachedSub(), "--reattach switched the submodule");
+    assert.equal(git(main, "status", "--porcelain"), "");
+  } finally {
+    s.done();
+  }
 });
 
 test("--clean reports a failed command, runs the rest, and exits 1", () => {

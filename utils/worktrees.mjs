@@ -18,8 +18,8 @@
 // and never fetches: origin/<default> is as last fetched. Git removes a
 // worktree only through `git worktree remove`, which refuses a dirty or locked
 // one on its own as well, but deletes ignored files: so an ignored file keeps
-// a worktree here, unless it is regenerated output on the REBUILDABLE list
-// (node_modules/, build/ and the like), which the dry run names instead.
+// a worktree here, unless it is an ignored directory named on the REBUILDABLE
+// list (node_modules/, build/ and the like), which the dry run names instead.
 
 import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
@@ -62,7 +62,8 @@ function printHelp() {
 Lists every worktree of the given repositories, with a verdict and its reason.
 Each <path> is a repository (the top of any of its worktrees), a folder whose
 direct children are repositories, or both; with none, the repository of the
-current directory.
+current directory. A submodule is skipped in a scan, and never reattached:
+its superproject sets its HEAD.
 
 verdicts:
   prune          a missing worktree (its directory is gone): git worktree prune
@@ -87,11 +88,13 @@ options:
   --json           print the same data as JSON
   -h, --help       this text
 
-Rebuildable: an ignored entry with a path component named
+Rebuildable: an ignored directory, at any depth, whose own name is one of
 ${wrapNames([...REBUILDABLE])}
 is regenerated output. Removal deletes it with the worktree, and the dry run
-says so ("deletes rebuildable: ..."). The name decides, not the content. Any
-other ignored file, such as a .env or a key, keeps the worktree.
+says so ("deletes rebuildable: ..."). The name decides, not the content: a
+hand-made file inside an ignored build/ goes with it. Any other ignored entry
+keeps the worktree: a .env, a key, or an ignored file that merely sits in a
+tracked folder with a listed name, such as build/signing.p12.
 
 It never fetches (origin/<default> is as last fetched), never passes --force,
 and never deletes a branch or a file itself. Run the dry run first.`);
@@ -209,6 +212,14 @@ function repoAt(dir) {
   return { commonDir, top, toplevel };
 }
 
+// The superproject's work tree when `dir` is a submodule's checkout, else "".
+// A submodule's HEAD is detached on purpose, set by its superproject, so it
+// is never a leftover.
+function superprojectOf(dir) {
+  const r = git(dir, ["rev-parse", "--show-superproject-working-tree"]);
+  return r.ok ? r.out.trim() : "";
+}
+
 // A child worth asking git about: one with a .git (a checkout, a linked
 // worktree or a nested repository), or one that looks like a bare repository.
 function candidate(dir) {
@@ -241,6 +252,7 @@ function discover(paths, warn) {
     const self = repoAt(abs);
     if (self?.top) add(self.commonDir, abs);
     let found = 0;
+    let submodules = 0;
     let children = [];
     try {
       children = readdirSync(abs, { withFileTypes: true });
@@ -252,7 +264,8 @@ function discover(paths, warn) {
       const child = path.join(abs, ent.name);
       if (!candidate(child)) continue;
       const r = repoAt(child);
-      if (r?.top) {
+      if (r?.top && superprojectOf(child)) submodules++;
+      else if (r?.top) {
         add(r.commonDir, child);
         found++;
       } else if (!r) {
@@ -260,6 +273,8 @@ function discover(paths, warn) {
         if (why) warn(why);
       }
     }
+    if (submodules)
+      warn(`${p}: ${submodules} submodule${submodules === 1 ? "" : "s"} not listed (a superproject sets a submodule's HEAD)`);
     if (self && !self.top) {
       if (found)
         warn(`${p}: inside the repository ${self.toplevel}, which is not listed; its child repositories are`);
@@ -385,11 +400,14 @@ function isAncestor(at, a, b) {
 // Directory names that are regenerated output and nothing else: package
 // installs, build and cache folders that the project's own tools write again
 // (BACKLOG.md, C14, and the owner's decision on ignored files). An ignored
-// entry is rebuildable when one of its path components is one of these, at
-// any depth (node_modules/, app/node_modules/, build/x.o). The name decides,
-// not the content: a hand-made file inside an ignored build/ goes with it.
-// Ambiguous names, where a local file can be the only copy, are left out on
-// purpose: bin, out, tmp, temp, data, cache, gen, www, logs.
+// entry is rebuildable only when it is itself an ignored directory whose own
+// name is one of these, at any depth: node_modules/, app/node_modules/,
+// build/. The name decides, not the content, so a hand-made file inside an
+// ignored build/ goes with it, since git lists that build/ as one ignored
+// entry. An ignored file that merely sits in a folder with a listed name is
+// not rebuildable: build/signing.p12, ignored inside a tracked build/, keeps
+// the worktree. Ambiguous names, where a local file can be the only copy, are
+// left out on purpose: bin, out, tmp, temp, data, cache, gen, www, logs.
 const REBUILDABLE = new Set([
   "node_modules",
   ".godot",
@@ -412,10 +430,12 @@ const REBUILDABLE = new Set([
   "obj",
   "coverage",
 ]);
+// With --ignored=matching, git lists an ignored directory once, with a
+// trailing slash, and an ignored file by its own path.
 function isRebuildable(entry) {
   // Porcelain quotes a path with unusual characters; the name test needs none.
   const p = entry.startsWith('"') ? entry.slice(1, -1) : entry;
-  return p.split("/").some((c) => REBUILDABLE.has(c));
+  return p.endsWith("/") && REBUILDABLE.has(p.slice(0, -1).split("/").pop());
 }
 
 // The worktree's status, named in full so the repository's config cannot
@@ -473,6 +493,12 @@ function inspect(repo, now) {
   if (!listed.ok) return { ...repo, error: listed.err || "git worktree list failed", worktrees: [] };
   const entries = parseList(listed.out);
   const main = entries[0];
+  // A repository whose work tree is set by core.worktree, as a submodule's
+  // is, has its git dir listed as the main worktree: name the work tree.
+  if (main && !main.bare && key(main.path) === key(repo.commonDir)) {
+    const t = git(repo.commonDir, ["config", "--get", "core.worktree"]);
+    if (t.ok && t.out.trim()) main.path = slash(path.resolve(repo.commonDir, t.out.trim()));
+  }
   // The place repository-wide commands run from: the main checkout where it
   // is still there, otherwise where the repository was found.
   const at = main && isDir(main.path) ? main.path : repo.at;
@@ -527,6 +553,8 @@ function inspect(repo, now) {
     at: slash(at),
     defaultBranch: def,
     localDefault: def ? git(at, ["rev-parse", "--verify", "--quiet", `refs/heads/${def}`]).ok : false,
+    // Given as a path itself, a submodule is listed, but never reattached.
+    superproject: superprojectOf(at) || null,
     worktrees,
   };
 }
@@ -537,6 +565,8 @@ function judge(wt, repo, opts) {
   if (wt.kind === "main") {
     if (!isDir(wt.path)) return ["keep", "the main checkout (its directory is gone)"];
     if (!wt.detached) return ["keep", "the main checkout"];
+    if (repo.superproject)
+      return ["main detached", `left detached: a submodule of ${repo.superproject}, which sets its HEAD`];
     const why = [];
     if (wt.dirty === null) why.push("its status could not be read");
     else if (wt.dirty > 0) why.push(`dirty (${wt.dirty} ${wt.dirty === 1 ? "entry" : "entries"})`);
