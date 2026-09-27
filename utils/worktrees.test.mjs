@@ -514,6 +514,184 @@ test("the caller's GIT_DIR and GIT_CONFIG_* reach no git it runs", () => {
   }
 });
 
+// The cases review round 01 of PR #36 found: each is a file or a state that
+// `git worktree remove` would throw away, and each must keep the worktree,
+// with --clean given, so the proof is that it survives.
+describe("what removal would lose keeps a worktree", () => {
+  // One repository, a detached idle worktree set up by `setup`, and a --clean.
+  function kept(setup) {
+    const s = scratch();
+    try {
+      const main = repo(s.dir);
+      const wt = addWorktree(main, path.join(s.dir, "wt"), "--detach", "HEAD");
+      const check = setup(main, wt);
+      age(wt, 48);
+      const r = worktreeAt(report(["--clean", main]), wt);
+      assert.equal(r.verdict, "keep", r.reason);
+      assert.ok(existsSync(wt), "the worktree was removed");
+      check(r);
+    } finally {
+      s.done();
+    }
+  }
+
+  test("an untracked file, under status.showUntrackedFiles=no", () =>
+    kept((main, wt) => {
+      git(main, "config", "status.showUntrackedFiles", "no");
+      writeFileSync(path.join(wt, "notes.txt"), "the only copy\n");
+      return (r) => {
+        assert.equal(r.dirty, 1);
+        assert.match(r.reason, /dirty \(1 entry, untracked included\)/);
+        assert.equal(readFileSync(path.join(wt, "notes.txt"), "utf8"), "the only copy\n");
+      };
+    }));
+
+  test("an ignored file, such as a local .env", () =>
+    kept((main, wt) => {
+      commit(main, ".gitignore", ".env\n");
+      git(wt, "checkout", "-q", "--detach", "main");
+      writeFileSync(path.join(wt, ".env"), "SECRET=only-here\n");
+      return (r) => {
+        assert.equal(r.dirty, 0);
+        assert.deepEqual(r.ignored, [".env"]);
+        assert.match(r.reason, /1 ignored entry, which removal would delete \(\.env\)/);
+        assert.ok(existsSync(path.join(wt, ".env")));
+      };
+    }));
+
+  test("a rebase in progress", () =>
+    kept((main, wt) => {
+      git(wt, "switch", "-q", "-c", "feature");
+      commit(wt, "g.txt", "feature\n");
+      // Stops after the first pick, detached and clean, with rebase-merge/
+      // in the admin dir; the branch still holds every commit.
+      spawnSync("git", ["-C", wt, "rebase", "-q", "--exec", "false", "main"], { stdio: "ignore" });
+      assert.ok(existsSync(path.join(git(wt, "rev-parse", "--absolute-git-dir"), "rebase-merge")));
+      return (r) => {
+        assert.equal(r.detached, true);
+        assert.equal(r.unique, 0);
+        assert.deepEqual(r.inProgress, ["a rebase"]);
+        assert.match(r.reason, /a rebase in progress/);
+      };
+    }));
+
+  test("a status git cannot read, and commits it cannot count", () =>
+    kept((main, wt) => {
+      // A HEAD naming an object that does not exist: status and rev-list fail.
+      writeFileSync(path.join(git(wt, "rev-parse", "--absolute-git-dir"), "HEAD"), `${"1".repeat(40)}\n`);
+      return (r) => {
+        assert.equal(r.dirty, null);
+        assert.equal(r.unique, null);
+        assert.match(r.reason, /its status could not be read/);
+        assert.match(r.reason, /its commits on no ref could not be counted/);
+      };
+    }));
+
+  test("a missing worktree whose commits cannot be counted keeps the prune", () => {
+    const s = scratch();
+    try {
+      const main = repo(s.dir);
+      const safe = addWorktree(main, path.join(s.dir, "gone-safe"), "--detach", "HEAD");
+      const bad = addWorktree(main, path.join(s.dir, "gone-bad"), "--detach", "HEAD");
+      writeFileSync(path.join(git(bad, "rev-parse", "--absolute-git-dir"), "HEAD"), `${"1".repeat(40)}\n`);
+      rmSync(safe, { recursive: true, force: true });
+      rmSync(bad, { recursive: true, force: true });
+      const rep = report(["--clean", main]);
+      assert.equal(worktreeAt(rep, bad).unique, null);
+      assert.match(worktreeAt(rep, bad).reason, /could not be counted/);
+      assert.match(worktreeAt(rep, safe).reason, /git worktree prune would also drop/);
+      assert.deepEqual(rep.repositories[0].commands, []);
+      assert.equal(listed(main).length, 3);
+    } finally {
+      s.done();
+    }
+  });
+});
+
+test("--clean reports a failed command, runs the rest, and exits 1", () => {
+  const s = scratch();
+  try {
+    const lib = repo(s.dir, "lib");
+    const main = repo(s.dir);
+    const file = ["-c", "protocol.file.allow=always"];
+    execFileSync("git", ["-C", main, ...file, "submodule", "add", "-q", lib, "lib"], { stdio: "ignore" });
+    git(main, "commit", "-q", "-m", "a submodule");
+    git(main, "push", "-q", "origin", "main");
+    // Git refuses to remove a worktree with an initialised submodule: two of
+    // them, so whatever order the commands run in, one fails before another.
+    const wts = ["a-sub", "b-plain", "c-sub"].map((n) =>
+      addWorktree(main, path.join(s.dir, n), "--detach", "HEAD"),
+    );
+    for (const wt of [wts[0], wts[2]])
+      execFileSync("git", ["-C", wt, ...file, "submodule", "update", "-q", "--init"], { stdio: "ignore" });
+    for (const wt of wts) age(wt, 48);
+    const r = tool(["--clean", "--json", main]);
+    assert.equal(r.status, 1, r.stderr);
+    const cmds = JSON.parse(r.stdout).repositories[0].commands;
+    assert.equal(cmds.length, 3);
+    assert.ok(cmds.every((c) => c.ran), "a command after the failure did not run");
+    const outcome = Object.fromEntries(cmds.map((c) => [key(c.args[5]), c.ok]));
+    assert.deepEqual(outcome, { [key(wts[0])]: false, [key(wts[1])]: true, [key(wts[2])]: false });
+    for (const c of cmds.filter((c) => !c.ok)) assert.match(c.error, /submodule/);
+    assert.ok(!existsSync(wts[1]) && existsSync(wts[0]) && existsSync(wts[2]));
+    const text = tool(["--clean", main]);
+    assert.equal(text.status, 1);
+    assert.equal((text.stdout.match(/^ {2}FAILED git -C \S+ worktree remove \S+$/gm) || []).length, 2);
+  } finally {
+    s.done();
+  }
+});
+
+test("a folder inside a repository lists its child repositories, not the outer one", () => {
+  const s = scratch();
+  try {
+    const outer = repo(s.dir, "outer");
+    commit(outer, ".gitignore", "clones/\nnested/\n");
+    mkdirSync(path.join(outer, "docs"));
+    commit(outer, "docs/a.txt", "tracked\n");
+    const nested = repo(outer, "nested", s.dir);
+    const alpha = repo(path.join(outer, "clones"), "alpha", s.dir);
+    const alphaWt = addWorktree(alpha, path.join(outer, "clones", "alpha-review"), "--detach", "HEAD");
+    const common = (rep) => rep.repositories.map((x) => key(x.commonDir)).sort();
+    const r1 = tool(["--json", path.join(outer, "clones")]);
+    assert.equal(r1.status, 0, r1.stderr);
+    const rep1 = JSON.parse(r1.stdout);
+    assert.deepEqual(common(rep1), [key(path.join(alpha, ".git"))]);
+    assert.equal(worktreeAt(rep1, alphaWt).kind, "linked");
+    assert.ok(rep1.warnings.some((m) => /inside the repository/.test(m)), rep1.warnings);
+    // A repository's top that holds a clone as a direct child: both.
+    const rep2 = report([outer]);
+    assert.deepEqual(common(rep2), [path.join(nested, ".git"), path.join(outer, ".git")].map(key).sort());
+    // A folder inside a repository that holds none: that repository, said so.
+    const rep3 = report([path.join(outer, "docs")]);
+    assert.deepEqual(common(rep3), [key(path.join(outer, ".git"))]);
+    assert.ok(rep3.warnings.some((m) => /taken as the repository it is in/.test(m)), rep3.warnings);
+  } finally {
+    s.done();
+  }
+});
+
+test("a detached main checkout is not reattached while its default is checked out elsewhere", () => {
+  const s = scratch();
+  try {
+    const main = repo(s.dir);
+    git(main, "switch", "-q", "--detach", "HEAD");
+    const other = addWorktree(main, path.join(s.dir, "on-main"), "main");
+    const rep = report(["--reattach", "--clean", main]);
+    const wt = worktreeAt(rep, main);
+    assert.equal(wt.verdict, "main detached");
+    assert.match(wt.reason, /main is checked out in \S+\/on-main\b/);
+    assert.equal(worktreeAt(rep, other).branch, "main");
+    assert.deepEqual(rep.repositories[0].commands, []);
+    assert.notEqual(
+      spawnSync("git", ["-C", main, "symbolic-ref", "-q", "HEAD"], { stdio: "ignore" }).status,
+      0,
+    );
+  } finally {
+    s.done();
+  }
+});
+
 test("--help, bad arguments, and no repository", () => {
   const help = tool(["--help"]);
   assert.equal(help.status, 0);

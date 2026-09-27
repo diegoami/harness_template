@@ -7,20 +7,21 @@
 //   node utils/worktrees.mjs --clean ../         # run what the dry run showed
 //
 // Harness-only: no preset ships it and adoption does not write it (BACKLOG.md,
-// C14). Each path is a repository (any of its worktrees) or a folder whose
-// direct children are repositories. Repositories are grouped by their common
-// git dir, and every worktree git knows for each is listed, so a worktree
-// outside every given path is still found.
+// C14). Each path is a repository (the top of any of its worktrees), a folder
+// whose direct children are repositories, or both. Repositories are grouped
+// by their common git dir, and every worktree git knows for each is listed,
+// so a worktree outside every given path is still found.
 //
 // A dry run unless --clean is given: it prints the commands it would run and
 // changes nothing, not even `git worktree prune`. It never passes --force,
 // never deletes a branch or a file itself, never touches a worktree it keeps,
 // and never fetches: origin/<default> is as last fetched. Git removes a
 // worktree only through `git worktree remove`, which refuses a dirty or locked
-// one on its own as well.
+// one on its own as well, but deletes ignored files: so an ignored file keeps
+// a worktree here.
 
 import { spawnSync } from "node:child_process";
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import path from "node:path";
 
 // The caller's variables that locate a repository or inject configuration,
@@ -44,18 +45,22 @@ function printHelp() {
                                 [--min-age <hours>] [--json] [<path>...]
 
 Lists every worktree of the given repositories, with a verdict and its reason.
-Each <path> is a repository (any of its worktrees) or a folder whose direct
-children are repositories; with none, the repository of the current directory.
+Each <path> is a repository (the top of any of its worktrees), a folder whose
+direct children are repositories, or both; with none, the repository of the
+current directory.
 
 verdicts:
   prune          a missing worktree (its directory is gone): git worktree prune
-  remove         a linked, detached, clean, unlocked worktree with no commit on
-                 no branch, tag or remote-tracking ref, idle >= --min-age:
+  remove         a linked, detached, unlocked worktree with no change, no
+                 untracked or ignored file, no rebase, merge, cherry-pick,
+                 revert or bisect in progress, no commit on no branch, tag or
+                 remote-tracking ref, idle >= --min-age:
                  git worktree remove <path>
   merged         the same on a branch merged into origin/<default>; removed
                  only with --merged, and the branch is kept
-  reattach       a detached main checkout, clean, whose HEAD is an ancestor of
-                 origin/<default>: git switch <default>, only with --reattach
+  reattach       a detached main checkout, clean, with no operation in progress,
+                 whose HEAD is an ancestor of origin/<default>:
+                 git switch <default>, only with --reattach
   main detached  a detached main checkout that is left, with the reason
   keep           everything else, with the reasons
 
@@ -133,11 +138,6 @@ function key(p) {
   return WIN ? s.toLowerCase() : s;
 }
 
-function commonDirOf(dir) {
-  const r = git(dir, ["rev-parse", "--path-format=absolute", "--git-common-dir"]);
-  return r.ok && r.out ? r.out.trim() : null;
-}
-
 function isDir(p) {
   try {
     return statSync(p).isDirectory();
@@ -162,23 +162,63 @@ function unreadable(dir) {
   return null;
 }
 
+// The repository at `dir`: its common dir, and whether `dir` is the top of
+// one of its work trees or a git dir itself (`top`). Any directory inside a
+// work tree resolves to that repository, so `top` tells a repository from a
+// folder that merely sits in one. null when git finds no repository.
+function repoAt(dir) {
+  const r = git(dir, [
+    "rev-parse",
+    "--path-format=absolute",
+    "--git-common-dir",
+    "--is-inside-git-dir",
+    "--is-bare-repository",
+  ]);
+  if (!r.ok) return null;
+  const [commonDir, inGitDir, bare] = r.out.split(/\r?\n/).map((s) => s.trim());
+  if (!commonDir) return null;
+  if (inGitDir === "true" || bare === "true") return { commonDir, top: true, toplevel: commonDir };
+  const t = git(dir, ["rev-parse", "--show-toplevel"]);
+  const toplevel = t.ok ? t.out.trim() : "";
+  let real = dir;
+  try {
+    real = realpathSync.native(dir);
+  } catch {}
+  const top = !!toplevel && [dir, real].some((d) => key(d) === key(toplevel));
+  return { commonDir, top, toplevel };
+}
+
+// A child worth asking git about: one with a .git (a checkout, a linked
+// worktree or a nested repository), or one that looks like a bare repository.
+function candidate(dir) {
+  return (
+    existsSync(path.join(dir, ".git")) ||
+    (existsSync(path.join(dir, "HEAD")) && isDir(path.join(dir, "objects")))
+  );
+}
+
+// Each path is a repository, a folder whose direct children are
+// repositories, or both (a checkout that holds other clones). With no path,
+// the repository of the current directory, wherever in it that is.
 function discover(paths, warn) {
   const repos = new Map();
   const add = (commonDir, at) => {
     const k = key(commonDir);
     if (!repos.has(k)) repos.set(k, { commonDir: slash(commonDir), at: slash(at) });
   };
+  if (!paths.length) {
+    const r = repoAt(process.cwd());
+    if (r) add(r.commonDir, process.cwd());
+    return [...repos.values()];
+  }
   for (const p of paths) {
     const abs = path.resolve(p);
     if (!isDir(abs)) {
       warn(`${p}: not a directory`);
       continue;
     }
-    const cd = commonDirOf(abs);
-    if (cd) {
-      add(cd, abs);
-      continue;
-    }
+    const self = repoAt(abs);
+    if (self?.top) add(self.commonDir, abs);
     let found = 0;
     let children = [];
     try {
@@ -189,16 +229,24 @@ function discover(paths, warn) {
     for (const ent of children) {
       if (!ent.isDirectory()) continue;
       const child = path.join(abs, ent.name);
-      const ccd = commonDirOf(child);
-      if (ccd) {
-        add(ccd, child);
+      if (!candidate(child)) continue;
+      const r = repoAt(child);
+      if (r?.top) {
+        add(r.commonDir, child);
         found++;
-      } else {
+      } else if (!r) {
         const why = unreadable(child);
         if (why) warn(why);
       }
     }
-    if (!found) warn(`${p}: no repository at or directly under it`);
+    if (self && !self.top) {
+      if (found)
+        warn(`${p}: inside the repository ${self.toplevel}, which is not listed; its child repositories are`);
+      else {
+        warn(`${p}: not a repository's top, and holds none; taken as the repository it is in, ${self.toplevel}`);
+        add(self.commonDir, abs);
+      }
+    } else if (!self && !found) warn(`${p}: no repository at or directly under it`);
   }
   return [...repos.values()];
 }
@@ -313,10 +361,40 @@ function isAncestor(at, a, b) {
   return r.status === 0 ? true : r.status === 1 ? false : null;
 }
 
-function dirtyCount(dir) {
-  const r = git(dir, ["status", "--porcelain"]);
+// The worktree's status, named in full so the repository's config cannot
+// narrow it: --untracked-files=all counts every untracked file whatever
+// status.showUntrackedFiles says, and --ignored=matching lists each ignored
+// file or directory once (a whole node_modules/ is one entry). `git worktree
+// remove` deletes ignored files without a word, and one can be the only copy
+// of something, a local .env or build, so they keep a worktree too.
+// null when git cannot read the status.
+function statusOf(dir) {
+  const r = git(dir, [
+    "status",
+    "--porcelain",
+    "--untracked-files=all",
+    "--ignored=matching",
+  ]);
   if (!r.ok) return null;
-  return r.out ? r.out.split(/\r?\n/).length : 0;
+  const lines = r.out ? r.out.split(/\r?\n/) : [];
+  const ignored = lines.filter((l) => l.startsWith("!! ")).map((l) => l.slice(3));
+  return { dirty: lines.length - ignored.length, ignored };
+}
+
+// An operation git has stopped in the middle of, by the files it keeps in
+// the worktree's admin dir: removing the worktree would throw its state away.
+const IN_PROGRESS = [
+  ["rebase-merge", "a rebase"],
+  ["rebase-apply", "a rebase or git am"],
+  ["MERGE_HEAD", "a merge"],
+  ["CHERRY_PICK_HEAD", "a cherry-pick"],
+  ["REVERT_HEAD", "a revert"],
+  ["sequencer", "a cherry-pick or revert sequence"],
+  ["BISECT_LOG", "a bisect"],
+];
+function inProgress(adminDir) {
+  if (!adminDir) return [];
+  return IN_PROGRESS.filter(([f]) => existsSync(path.join(adminDir, f))).map(([, what]) => what);
 }
 
 function hours(h) {
@@ -363,12 +441,17 @@ function inspect(repo, now) {
       // nothing (--no-optional-locks).
       idleHours: idleHours(admin, now),
       dirty: null,
+      ignored: null,
+      inProgress: missing ? [] : inProgress(admin),
       unique: null,
       merged: null,
       ancestor: null,
     };
     if (e.bare) return wt;
-    if (!missing && exists) wt.dirty = dirtyCount(e.path);
+    if (!missing && exists) {
+      const st = statusOf(e.path);
+      if (st) [wt.dirty, wt.ignored] = [st.dirty, st.ignored];
+    }
     wt.unique = uniqueCount(at, e.head);
     if (e.branch && originRef && !NULL_SHA.test(e.head || "0"))
       wt.merged = isAncestor(at, `refs/heads/${e.branch}`, originRef);
@@ -394,6 +477,7 @@ function judge(wt, repo, opts) {
     const why = [];
     if (wt.dirty === null) why.push("its status could not be read");
     else if (wt.dirty > 0) why.push(`dirty (${wt.dirty} ${wt.dirty === 1 ? "entry" : "entries"})`);
+    if (wt.inProgress.length) why.push(`${wt.inProgress.join(" and ")} in progress`);
     if (!def) why.push("no origin/main or origin/master to compare HEAD with");
     else {
       if (wt.ancestor === null) why.push(`could not tell whether HEAD is an ancestor of origin/${def}`);
@@ -421,6 +505,12 @@ function judge(wt, repo, opts) {
   if (wt.locked) why.push(wt.lockReason ? `locked: ${wt.lockReason}` : "locked");
   if (wt.dirty === null) why.push("its status could not be read");
   else if (wt.dirty > 0) why.push(`dirty (${wt.dirty} ${wt.dirty === 1 ? "entry" : "entries"}, untracked included)`);
+  if (wt.ignored && wt.ignored.length) {
+    const shown = wt.ignored.slice(0, 3).join(", ") + (wt.ignored.length > 3 ? ", …" : "");
+    const n = wt.ignored.length;
+    why.push(`${n} ignored ${n === 1 ? "entry" : "entries"}, which removal would delete (${shown})`);
+  }
+  if (wt.inProgress.length) why.push(`${wt.inProgress.join(" and ")} in progress`);
   if (wt.unique === null) why.push("its commits on no ref could not be counted");
   else if (wt.unique > 0) why.push(`${plural(wt.unique, "commit")} on no branch, tag or remote-tracking ref`);
   if (wt.idleHours === null) why.push("its idle time is unknown");
@@ -488,6 +578,8 @@ function stateText(wt) {
   if (wt.missing) s.push("missing");
   if (wt.locked) s.push("locked");
   if (wt.dirty > 0) s.push(`dirty ${wt.dirty}`);
+  if (wt.ignored && wt.ignored.length) s.push(`${wt.ignored.length} ignored`);
+  if (wt.inProgress && wt.inProgress.length) s.push("in progress");
   if (wt.unique > 0) s.push(`${wt.unique} on no ref`);
   if (wt.branch && wt.merged === true) s.push("merged");
   if (wt.branch && wt.merged === false) s.push("unmerged");

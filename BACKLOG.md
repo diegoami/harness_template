@@ -296,50 +296,68 @@ one itself, at the candidate commit):
   does not write it. `node utils/worktrees.mjs [--clean] [--merged]
   [--reattach] [--min-age <hours>] [--json] [<path>...]` takes
   repositories, or folders whose direct children are repositories, and with
-  no path the repository of the current directory. It groups them by their
-  common git dir, so several worktrees of one repository are one
+  no path the repository of the current directory. A path is a repository
+  only at the top of one of its work trees or as a git dir; a folder inside
+  a work tree is scanned for its child repositories, with a warning, and
+  taken as the repository it is in only when it holds none. It groups them
+  by their common git dir, so several worktrees of one repository are one
   repository, and it lists every worktree git knows for each, so a
   worktree outside every given path is found too. For each worktree it
   reports the path, main or linked, `HEAD`, the branch or detached, locked
-  and its reason, missing (its directory gone), the dirty count (the lines
-  of `git status --porcelain`, untracked files included), the commits
-  reachable from no branch, tag or remote-tracking ref, whether its branch
-  is merged into `origin/<default>` as last fetched, and its idle time,
-  and gives it a verdict with its reason:
+  and its reason, missing (its directory gone), the dirty count (the
+  non-ignored lines of `git status --porcelain --untracked-files=all`, so
+  every untracked file counts, whatever `status.showUntrackedFiles` says),
+  its ignored files (`--ignored=matching`), an operation in progress (a
+  rebase, merge, cherry-pick, revert or bisect, by the files git keeps in
+  its admin dir), the commits reachable from no branch, tag or
+  remote-tracking ref, whether its branch is merged into `origin/<default>`
+  as last fetched, and its idle time, and gives it a verdict with its
+  reason:
   - `prune`, for a missing worktree that is not locked and whose `HEAD`
     holds no commit on no ref; since `git worktree prune` takes every
     missing worktree of a repository at once, a missing worktree that holds
     such commits is kept, and so is every other missing worktree of its
     repository;
   - `remove`, for a linked, detached, clean, unlocked worktree with no
-    commit on no ref, idle at least `--min-age` hours (default 24);
+    ignored file, no operation in progress and no commit on no ref, idle
+    at least `--min-age` hours (default 24);
   - `merged`, for the same on a branch merged into `origin/<default>`,
     removed only with `--merged`;
   - `reattach`, only with `--reattach`, for a detached main checkout that is
-    clean, whose `HEAD` is an ancestor of `origin/<default>`, and whose
-    local default branch exists: `git switch <default>`, never a pull or a
+    clean, with no operation in progress, whose `HEAD` is an ancestor of
+    `origin/<default>`, and whose local default branch exists and is
+    checked out nowhere else: `git switch <default>`, never a pull or a
     reset; otherwise `main detached`, with the reason it is left;
-  - `keep`, with its reasons, for everything else.
+  - `keep`, with its reasons, for everything else, including a worktree
+    whose status git cannot read or whose commits it cannot count.
 
   Without `--clean` it is a dry run: it prints the commands it would run
   and changes nothing, not even `git worktree prune`; with `--clean` it
-  runs them, reports each outcome and continues past a failure. It never
-  passes `--force`, never deletes a branch or a file itself, never
-  fetches, and runs every git child process without the caller's
-  variables that C13 names. `--json` prints the same data as JSON.
+  runs them, reports each outcome, continues past a failure, and exits 1
+  if one failed. It never passes `--force`, never deletes a branch or a
+  file itself, never fetches, and runs every git child process without
+  the caller's variables that C13 names. `--json` prints the same data as
+  JSON.
   *Proof:* `node --test utils/worktrees.test.mjs` passes, and has a test
   for each of: a missing worktree is pruned; a clean, detached, idle one is
   removed; one holding a commit on no ref is kept, and a missing one that
-  does keeps its repository's prune from running; a dirty one and one
-  with an untracked file are kept; a recent one is kept; a locked one is
-  kept; a merged branch's worktree is reported, and removed only with
+  does, or whose commits cannot be counted, keeps its repository's prune
+  from running; a dirty one and one with an untracked file are kept, the
+  latter also under `status.showUntrackedFiles=no`; one with an ignored
+  file, one mid-rebase, and one whose status and commits git cannot read
+  are kept, each surviving `--clean`; a recent one is kept; a locked one
+  is kept; a merged branch's worktree is reported, and removed only with
   `--merged`, its branch kept; a detached main checkout is reattached only
   with `--reattach` and only when clean and an ancestor, and never
-  otherwise; a dry run leaves the worktree list, the refs and each
-  worktree's admin files unchanged; `--clean` removes exactly the safe set;
-  a folder of repositories is scanned and deduplicated by common dir, with
-  a worktree outside the folder found; and the caller's `GIT_DIR` and
-  `GIT_CONFIG_*` reach no git it runs. `node --check` passes on
+  otherwise, nor while its default branch is checked out elsewhere; a dry
+  run leaves the worktree list, the refs and each worktree's admin files
+  unchanged; `--clean` removes exactly the safe set, and when git refuses
+  one command it runs the rest, reports the failure and exits 1; a folder
+  of repositories is scanned and deduplicated by common dir, with a
+  worktree outside the folder found, and a folder inside another
+  repository lists its child repositories, not the outer one; and the
+  caller's `GIT_DIR` and `GIT_CONFIG_*` reach no git it runs. `node
+  --check` passes on
   `utils/*.mjs`; the new test file, run with `GIT_DIR` pointed at a decoy
   repository, passes and leaves the decoy unchanged; `README.md` says what
   the script does and to run the dry run first; and no file in `presets/`
@@ -352,6 +370,14 @@ one itself, at the candidate commit):
   and the reviewer's detached review worktrees, and some are left behind.
   It joins r6 because it lands before the tag, and it serves C13's
   worktree rule: the worktrees agents make must also be removed.
+  **Tightened on 2026-09-27**, before it landed, by review round 01 of
+  PR #36: a repository's `status.showUntrackedFiles=no` hid an untracked
+  file, and `--clean` deleted the only copy; ignored files and a rebase's
+  state went with a removed worktree without a word; and a folder inside
+  another repository was taken for it. Each now keeps the worktree, or is
+  scanned, and has its test. The claim was not yet fixed, since PR #36 had
+  not merged, so tightening it is not a change to a landed claim, and it
+  removes less, never more.
 
 ## Release 5: scope and claims
 

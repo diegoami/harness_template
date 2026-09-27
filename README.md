@@ -90,10 +90,12 @@ it takes the bootstrap there.
 
 `utils/worktrees.mjs` finds the git worktrees that agents and reviewers leave
 behind — detached, merged or missing ones — in a repository or in a folder of
-repositories, and removes only the ones it can prove are safe: clean, idle for
-a day, and holding no commit that only they keep. It is this repository's own
-tool; no preset ships it. Run the dry run first: it lists every worktree with
-its verdict and reason, prints the commands it would run, and changes nothing.
+repositories, and removes only the ones it can prove are safe: clean, with no
+untracked or ignored file (a local `.env` can be the only copy), no rebase or
+merge in progress, idle for a day, and holding no commit that only they keep.
+It is this repository's own tool; no preset ships it. Run the dry run first:
+it lists every worktree with its verdict and reason, prints the commands it
+would run, and changes nothing.
 
 ```sh
 node utils/worktrees.mjs ..            # every repository in the parent folder
