@@ -86,6 +86,25 @@ contains, and reconciles any existing `AGENTS.md`, `CLAUDE.md`, `PLAN.md` or
 `ROADMAP.md` instead of overwriting them. Adoption is a non-trivial change, so
 it takes the bootstrap there.
 
+## Clean up worktrees
+
+`utils/worktrees.mjs` finds the git worktrees that agents and reviewers leave
+behind — detached, merged or missing ones — in a repository or in a folder of
+repositories, and removes only the ones it can prove are safe: clean, idle for
+a day, and holding no commit that only they keep. It is this repository's own
+tool; no preset ships it. Run the dry run first: it lists every worktree with
+its verdict and reason, prints the commands it would run, and changes nothing.
+
+```sh
+node utils/worktrees.mjs ..            # every repository in the parent folder
+node utils/worktrees.mjs --clean ..    # then run those commands
+```
+
+`--merged` also removes the worktrees of branches merged into
+`origin/<default>` (never the branches), `--reattach` switches a clean,
+detached main checkout back to its default branch, and `--help` has the rest.
+It never fetches, and never passes `--force`.
+
 ## History
 
 Release 1 consolidated four harnesses — `discola-web`, `Tressette`, `Scopetta`,
