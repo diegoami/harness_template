@@ -304,6 +304,22 @@ the last one.
   agreeing when they should differ.
 - **A passing test is not a working feature.** Assert what a person would
   notice, then go and play it.
+- **Check the quota before choosing a model.** Where the machine runs
+  quota-tracker, ask it before choosing, recommending or delegating to a model:
+  `curl -s localhost:8765/avoid` lists the providers out of quota and when each
+  is usable again, `curl -s localhost:8765/best` those with quota, most
+  headroom first. A provider whose status is `exhausted` is not used until it
+  is usable again: take the next model with quota, name it explicitly, and
+  record the substitution where the work is. A model with a window of its own
+  (GPT-5.6 Luna's `gpt-5.6-luna:7d`) is judged by that window, usable under
+  95% even when its provider is exhausted. Where the service is not installed,
+  a usage-limit error counts as exhausted. Never read the tracker's own
+  configuration: it holds account tokens.
+- **Effort follows the model's weight.** Heavy models (GPT-6.1 Sol, GLM-5.3,
+  DeepSeek V4 Pro, Claude Opus) run at effort `low`, `medium` only when the
+  task needs it, or at their lowest effort when they offer neither (DeepSeek
+  V4 Pro: `high`). Light models (GPT-5.6 Luna, the Flash models, Claude
+  Sonnet) run at `high`. Never `max`: it is slower, with no gain.
 - **Durable facts belong in the repository** — this file, the project rules,
   the design and review records, the pull-request body — not in a conversation.
 - **Sessions and handoff.** Start a fresh session after a completed logical unit

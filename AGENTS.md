@@ -16,8 +16,9 @@ This file adds the OpenCode-specific process and nothing else.
 - The **implementer** writes the design, the code and the tests, and answers
   the review in the record, signed `— Implementer (DeepSeek V4.1 Flash)`.
 - The **reviewer** is invoked as a **subagent**, in a **fresh context**, with an
-  **explicit model id**, at **high reasoning effort**, from a **different model
-  family than the implementer**. It verifies against the real code rather than
+  **explicit model id**, at the **reasoning effort its weight calls for** (`high`
+  for a light model such as Luna; *Effort follows the model's weight* in
+  `PRINCIPLES.md`), from a **different model family than the implementer**. It verifies against the real code rather than
   trusting the description, and signs its verdict as
   [`reviews/README.md`](reviews/README.md) defines.
 - **The invariant is the different model family; the table above is the current
@@ -58,7 +59,9 @@ design stage: the implementation review alone decides.
 
 ## Mode-specific pointers
 
-- **Fallback:** another reviewer from a different model family. The rest of the
+- **Fallback:** another reviewer from a different model family, one that has
+  quota as *Check the quota before choosing a model* in `PRINCIPLES.md` judges
+  it (by its own window where it has one). The rest of the
   fallback rules are in the protocol.
 - **Records and signature:** [`reviews/README.md`](reviews/README.md). The
   verdict's *meaning* and materiality: `PRINCIPLES.md`.
