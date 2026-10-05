@@ -59,8 +59,9 @@ design stage: the implementation review alone decides.
 
 ## Mode-specific pointers
 
-- **Fallback:** another reviewer from a different model family, whose provider
-  has quota (*Check the quota before choosing a model* in `PRINCIPLES.md`). The rest of the
+- **Fallback:** another reviewer from a different model family, one that has
+  quota as *Check the quota before choosing a model* in `PRINCIPLES.md` judges
+  it (by its own window where it has one). The rest of the
   fallback rules are in the protocol.
 - **Records and signature:** [`reviews/README.md`](reviews/README.md). The
   verdict's *meaning* and materiality: `PRINCIPLES.md`.
